@@ -1,0 +1,405 @@
+import { createFileRoute } from '@tanstack/react-router'
+import { useState } from 'react'
+import {
+  Phone,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Check,
+  Clock,
+  Instagram,
+  Facebook,
+  Linkedin,
+  ChevronDown,
+} from 'lucide-react'
+
+export const Route = createFileRoute('/contato')({
+  component: ContatoPage,
+})
+
+const offices = [
+  {
+    city: 'São Paulo — Sede',
+    address: 'Av. Presidente Kennedy, 7000',
+    neighborhood: 'Sala 14',
+    state: 'SP',
+    phone: '(11) 4002-8922',
+    email: 'sp@veroimoveis.com.br',
+    hours: 'Seg–Sex: 9h–19h · Sáb: 9h–14h',
+    image: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=600&q=80&fit=crop',
+  },
+  {
+    city: 'Rio de Janeiro',
+    address: 'Av. Atlântica, 1702',
+    neighborhood: 'Copacabana',
+    state: 'RJ',
+    phone: '(21) 4003-9944',
+    email: 'rj@veroimoveis.com.br',
+    hours: 'Seg–Sex: 9h–19h · Sáb: 10h–14h',
+    image: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=600&q=80&fit=crop',
+  },
+  {
+    city: 'Florianópolis',
+    address: 'Av. Beira Mar Norte, 405',
+    neighborhood: 'Centro',
+    state: 'SC',
+    phone: '(48) 4002-7711',
+    email: 'sc@veroimoveis.com.br',
+    hours: 'Seg–Sex: 9h–18h · Sáb: 9h–13h',
+    image: 'https://images.unsplash.com/photo-1594494726020-6f36f9b6a8ac?w=600&q=80&fit=crop',
+  },
+]
+
+const faqs = [
+  {
+    question: 'Como funciona o processo de compra de um imóvel?',
+    answer: 'Nosso time acompanha você em todas as etapas: da busca do imóvel até a assinatura da escritura. Começamos com uma conversa para entender suas necessidades, apresentamos as opções, intermediamos a negociação e coordenamos toda a documentação.',
+  },
+  {
+    question: 'Qual a comissão cobrada nas vendas?',
+    answer: 'A comissão de corretagem é regulamentada pelo CRECI e varia entre 5% e 8% do valor do imóvel. Na Vero, trabalhamos sempre com transparência sobre custos desde o início da negociação.',
+  },
+  {
+    question: 'Vocês também ajudam com financiamento?',
+    answer: 'Sim. Temos parceria com os principais bancos e podemos indicar as melhores condições de financiamento imobiliário. Nossa equipe te auxilia desde a simulação até a aprovação do crédito.',
+  },
+  {
+    question: 'Como avaliam o preço de um imóvel para venda?',
+    answer: 'Realizamos uma avaliação técnica gratuita baseada em comparativos de mercado, histórico de transações na região e estado de conservação do imóvel. O objetivo é definir o preço mais justo para uma venda rápida.',
+  },
+  {
+    question: 'Qual o prazo médio para locação?',
+    answer: 'Para locação residencial de alto padrão, o prazo médio de conclusão do negócio é de 15 a 30 dias. Realizamos uma criteriosa análise de crédito dos candidatos para garantir tranquilidade ao proprietário.',
+  },
+]
+
+function FAQ() {
+  const [open, setOpen] = useState<number | null>(null)
+  return (
+    <div className="space-y-3">
+      {faqs.map((faq, i) => (
+        <div key={i} className="bg-white rounded-2xl border border-cream-border overflow-hidden">
+          <button
+            className="w-full text-left px-6 py-5 flex items-center justify-between gap-4"
+            onClick={() => setOpen(open === i ? null : i)}
+          >
+            <span className="font-medium text-charcoal text-sm">{faq.question}</span>
+            <ChevronDown
+              size={18}
+              className={`text-warm-gray shrink-0 transition-transform duration-300 ${open === i ? 'rotate-180' : ''}`}
+            />
+          </button>
+          {open === i && (
+            <div className="px-6 pb-5 text-warm-gray text-sm leading-relaxed border-t border-cream-border pt-4">
+              {faq.answer}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function ContactForm() {
+  const [form, setForm] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    city: '',
+    subject: '',
+    message: '',
+  })
+  const [sent, setSent] = useState(false)
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setSent(true)
+  }
+
+  if (sent) {
+    return (
+      <div className="text-center py-12">
+        <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Check size={28} className="text-gold" />
+        </div>
+        <h3 className="font-display text-2xl font-bold text-charcoal mb-2">Mensagem recebida!</h3>
+        <p className="text-warm-gray text-sm max-w-sm mx-auto">
+          Nossa equipe entrará em contato em até 24 horas úteis. Para urgências, ligue para (11) 4002-8922.
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">Nome completo *</label>
+          <input
+            required
+            type="text"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            placeholder="Seu nome"
+            className="w-full bg-cream border border-cream-border rounded-xl px-4 py-3.5 text-sm text-charcoal placeholder:text-warm-gray/60"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">Telefone / WhatsApp *</label>
+          <input
+            required
+            type="tel"
+            value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            placeholder="(11) 99999-9999"
+            className="w-full bg-cream border border-cream-border rounded-xl px-4 py-3.5 text-sm text-charcoal placeholder:text-warm-gray/60"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">E-mail *</label>
+          <input
+            required
+            type="email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            placeholder="seu@email.com"
+            className="w-full bg-cream border border-cream-border rounded-xl px-4 py-3.5 text-sm text-charcoal placeholder:text-warm-gray/60"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">Cidade de interesse</label>
+          <div className="relative">
+            <select
+              value={form.city}
+              onChange={(e) => setForm({ ...form, city: e.target.value })}
+              className="w-full appearance-none bg-cream border border-cream-border rounded-xl px-4 py-3.5 text-sm text-charcoal pr-8"
+            >
+              <option value="">Selecione</option>
+              <option>São Paulo</option>
+              <option>Rio de Janeiro</option>
+              <option>Florianópolis</option>
+              <option>Curitiba</option>
+              <option>Belo Horizonte</option>
+            </select>
+            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-warm-gray pointer-events-none" />
+          </div>
+        </div>
+      </div>
+      <div>
+        <label className="block text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">Assunto *</label>
+        <div className="relative">
+          <select
+            required
+            value={form.subject}
+            onChange={(e) => setForm({ ...form, subject: e.target.value })}
+            className="w-full appearance-none bg-cream border border-cream-border rounded-xl px-4 py-3.5 text-sm text-charcoal pr-8"
+          >
+            <option value="">Selecione o assunto</option>
+            <option>Quero comprar um imóvel</option>
+            <option>Quero alugar um imóvel</option>
+            <option>Quero vender meu imóvel</option>
+            <option>Quero alugar meu imóvel</option>
+            <option>Dúvida sobre financiamento</option>
+            <option>Avaliação de imóvel</option>
+            <option>Outro</option>
+          </select>
+          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-warm-gray pointer-events-none" />
+        </div>
+      </div>
+      <div>
+        <label className="block text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">Mensagem</label>
+        <textarea
+          rows={4}
+          value={form.message}
+          onChange={(e) => setForm({ ...form, message: e.target.value })}
+          placeholder="Descreva o que você está buscando ou sua necessidade..."
+          className="w-full bg-cream border border-cream-border rounded-xl px-4 py-3.5 text-sm text-charcoal placeholder:text-warm-gray/60 resize-none"
+        />
+      </div>
+      <button type="submit" className="btn-gold w-full py-4 rounded-xl text-sm font-semibold">
+        Enviar mensagem
+      </button>
+      <p className="text-xs text-warm-gray/60 text-center">
+        Ao enviar você concorda com nossa Política de Privacidade
+      </p>
+    </form>
+  )
+}
+
+function ContatoPage() {
+  return (
+    <div className="min-h-screen pt-20">
+      {/* Header */}
+      <div className="bg-cream-dark border-b border-cream-border py-14">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <div className="text-gold text-xs uppercase tracking-widest font-semibold mb-3">Estamos aqui</div>
+          <h1 className="font-display text-5xl font-bold text-charcoal">Fale Conosco</h1>
+          <p className="text-warm-gray mt-3 max-w-md mx-auto text-sm">
+            Nossa equipe especializada está pronta para ajudar você a encontrar o imóvel perfeito.
+          </p>
+        </div>
+      </div>
+
+      {/* Quick Contact */}
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-16">
+          {[
+            {
+              icon: Phone,
+              title: 'Telefone',
+              value: '(11) 4002-8922',
+              sub: 'Seg–Sex: 9h às 19h',
+              href: 'tel:+551140028922',
+            },
+            {
+              icon: MessageCircle,
+              title: 'WhatsApp',
+              value: '(11) 99847-3821',
+              sub: 'Resposta imediata',
+              href: 'https://wa.me/5511998473821',
+            },
+            {
+              icon: Mail,
+              title: 'E-mail',
+              value: 'contato@veroimoveis.com.br',
+              sub: 'Resposta em até 24h',
+              href: 'mailto:contato@veroimoveis.com.br',
+            },
+          ].map((c) => (
+            <a
+              key={c.title}
+              href={c.href}
+              target={c.href.startsWith('http') ? '_blank' : undefined}
+              rel="noopener noreferrer"
+              className="bg-white rounded-2xl border border-cream-border p-8 text-center hover:-translate-y-1 transition-transform duration-300 block"
+            >
+              <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <c.icon size={22} className="text-gold" />
+              </div>
+              <div className="text-xs text-warm-gray uppercase tracking-widest mb-1">{c.title}</div>
+              <div className="font-semibold text-charcoal text-sm">{c.value}</div>
+              <div className="text-xs text-warm-gray mt-1">{c.sub}</div>
+            </a>
+          ))}
+        </div>
+
+        {/* Form + Info */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 mb-16">
+          <div className="lg:col-span-3">
+            <div className="section-title">
+              <h2 className="font-display text-3xl font-bold text-charcoal">Envie uma mensagem</h2>
+            </div>
+            <p className="text-warm-gray text-sm mb-8 mt-2">
+              Preencha o formulário e um especialista da sua cidade entrará em contato.
+            </p>
+            <ContactForm />
+          </div>
+
+          <div className="lg:col-span-2">
+            <div className="section-title">
+              <h2 className="font-display text-3xl font-bold text-charcoal">Redes Sociais</h2>
+            </div>
+            <p className="text-warm-gray text-sm mb-6 mt-2">
+              Acompanhe nossos perfis para novidades do mercado e lançamentos exclusivos.
+            </p>
+            <div className="space-y-3">
+              {[
+                { icon: Instagram, name: '@veroimoveis', platform: 'Instagram', followers: '48,7 mil' },
+                { icon: Facebook, name: 'Vero Imóveis', platform: 'Facebook', followers: '23,4 mil' },
+                { icon: Linkedin, name: 'Vero Imóveis', platform: 'LinkedIn', followers: '12,1 mil' },
+              ].map((social) => (
+                <a
+                  key={social.platform}
+                  href="#"
+                  className="flex items-center gap-4 bg-white rounded-2xl border border-cream-border p-5 hover:border-gold transition-colors"
+                >
+                  <div className="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center shrink-0">
+                    <social.icon size={18} className="text-gold" />
+                  </div>
+                  <div>
+                    <div className="text-charcoal font-medium text-sm">{social.name}</div>
+                    <div className="text-warm-gray text-xs">{social.platform} · {social.followers} seguidores</div>
+                  </div>
+                </a>
+              ))}
+            </div>
+
+            <div className="mt-8 bg-cream-dark rounded-2xl p-6">
+              <div className="flex items-center gap-2 text-gold text-sm font-semibold mb-3">
+                <Clock size={16} />
+                Horário de atendimento
+              </div>
+              <div className="space-y-2 text-sm text-warm-gray">
+                <div className="flex justify-between">
+                  <span>Segunda a Sexta</span>
+                  <span className="text-charcoal font-medium">9h às 19h</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Sábado</span>
+                  <span className="text-charcoal font-medium">9h às 14h</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Domingo e feriados</span>
+                  <span className="text-charcoal font-medium">Plantão WhatsApp</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Offices */}
+        <div className="mb-16">
+          <div className="section-title">
+            <h2 className="font-display text-3xl font-bold text-charcoal">Nossas unidades</h2>
+          </div>
+          <p className="text-warm-gray text-sm mt-2 mb-8">
+            Presença nos principais mercados imobiliários do Brasil.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {offices.map((office) => (
+              <div key={office.city} className="bg-white rounded-2xl border border-cream-border overflow-hidden hover:-translate-y-1 transition-transform duration-300">
+                <div className="h-40 overflow-hidden">
+                  <img src={office.image} alt={office.city} className="w-full h-full object-cover" />
+                </div>
+                <div className="p-6">
+                  <h3 className="font-display text-lg font-bold text-charcoal mb-3">{office.city}</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-start gap-2 text-warm-gray">
+                      <MapPin size={15} className="text-gold shrink-0 mt-0.5" />
+                      <span>{office.address}<br />{office.neighborhood} — {office.state}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-warm-gray">
+                      <Phone size={15} className="text-gold shrink-0" />
+                      {office.phone}
+                    </div>
+                    <div className="flex items-center gap-2 text-warm-gray">
+                      <Mail size={15} className="text-gold shrink-0" />
+                      {office.email}
+                    </div>
+                    <div className="flex items-center gap-2 text-warm-gray">
+                      <Clock size={15} className="text-gold shrink-0" />
+                      <span className="text-xs">{office.hours}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* FAQ */}
+        <div>
+          <div className="section-title">
+            <h2 className="font-display text-3xl font-bold text-charcoal">Perguntas frequentes</h2>
+          </div>
+          <p className="text-warm-gray text-sm mt-2 mb-8">
+            Tire suas dúvidas mais comuns sobre nossos serviços.
+          </p>
+          <FAQ />
+        </div>
+      </div>
+    </div>
+  )
+}
