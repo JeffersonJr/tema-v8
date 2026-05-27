@@ -391,15 +391,24 @@ function AnunciarPage() {
                 <div>
                   <label className="block text-xs font-semibold uppercase text-charcoal mb-2 flex items-center gap-1">
                     <DollarSign size={12} className="text-gold" />
-                    Valor de Anúncio Pretendido (R$)
+                    Valor de Anúncio Pretendido
                   </label>
-                  <input
-                    type="number"
-                    value={formData.price}
-                    onChange={(e) => handleInputChange('price', e.target.value)}
-                    placeholder="Ex: 4500000"
-                    className="w-full bg-cream rounded-xl border border-gold/40 p-3.5 text-sm font-bold text-gold"
-                  />
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-gold pointer-events-none">R$</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={formData.price}
+                      onChange={(e) => {
+                        const raw = e.target.value.replace(/\D/g, '')
+                        const num = parseInt(raw || '0', 10)
+                        const formatted = num === 0 ? '' : num.toLocaleString('pt-BR')
+                        handleInputChange('price', formatted)
+                      }}
+                      placeholder="0"
+                      className="w-full bg-cream rounded-xl border border-gold/40 pl-10 pr-4 py-3.5 text-sm font-bold text-gold"
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

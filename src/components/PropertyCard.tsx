@@ -214,7 +214,7 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
         <div className="flex items-center gap-4 text-warm-gray text-sm mb-5">
           <span className="flex items-center gap-1.5">
             <BedDouble size={14} />
-            {property.bedrooms} {property.bedrooms === 1 ? 'quarto' : 'quartos'}
+            {property.bedrooms}
           </span>
           <span className="flex items-center gap-1.5">
             <Bath size={14} />
