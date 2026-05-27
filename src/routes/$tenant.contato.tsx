@@ -1,4 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { getTenantBySlug } from '@/data/tenants'
+import { createFileRoute , useParams } from '@tanstack/react-router'
 import { useState } from 'react'
 import {
   Phone,
@@ -13,7 +14,7 @@ import {
   ChevronDown,
 } from 'lucide-react'
 
-export const Route = createFileRoute('/contato')({
+export const Route = createFileRoute('/$tenant/contato')({
   component: ContatoPage,
 })
 
@@ -229,6 +230,11 @@ function ContactForm() {
 }
 
 function ContatoPage() {
+
+  const { tenant: tenantSlug } = useParams({ strict: false })
+  const tenant = getTenantBySlug(tenantSlug || '')
+  if (!tenant) return null
+
   return (
     <div className="min-h-screen bg-cream pt-28">
       {/* Page Header */}

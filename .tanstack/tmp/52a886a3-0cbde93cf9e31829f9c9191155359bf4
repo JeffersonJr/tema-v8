@@ -2,7 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Phone, CheckCircle2, User, Mail, Sparkles, ChevronRight, Clock } from 'lucide-react'
 
-export const Route = createFileRoute('/ligamos-para-voce')({
+export const Route = createFileRoute('/$tenant/ligamos-para-voce')({
   component: LigamosParaVocePage,
 })
 

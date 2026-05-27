@@ -1,14 +1,20 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { getTenantBySlug } from '@/data/tenants'
+import { createFileRoute, Link , useParams } from '@tanstack/react-router'
 import { ArrowRight, Clock, Tag, BookOpen, ChevronRight, Home } from 'lucide-react'
 import { blogPosts } from '@/data/blog'
 
-export const Route = createFileRoute('/blog/')(({
+export const Route = createFileRoute('/$tenant/blog/')(({
   component: BlogPage,
 }))
 
 const CATEGORIES = ['Todos', 'Mercado', 'Guia do Comprador', 'Investimento', 'Financiamento']
 
 function BlogPage() {
+
+  const { tenant: tenantSlug } = useParams({ strict: false })
+  const tenant = getTenantBySlug(tenantSlug || '')
+  if (!tenant) return null
+
   const featured = blogPosts[0]
   const rest = blogPosts.slice(1)
 
@@ -53,7 +59,7 @@ function BlogPage() {
               Artigo em Destaque
             </div>
             <Link
-              to="/blog/$slug"
+              to="/$tenant/blog/$slug" params={{ tenant: tenantSlug }}
               params={{ slug: featured.slug }}
               className="group grid grid-cols-1 lg:grid-cols-2 gap-0 bg-white rounded-3xl overflow-hidden border border-cream-border hover:shadow-2xl hover:shadow-charcoal/10 transition-all duration-500 hover:-translate-y-1"
             >
@@ -114,7 +120,7 @@ function BlogPage() {
           {rest.map((post) => (
             <Link
               key={post.slug}
-              to="/blog/$slug"
+              to="/$tenant/blog/$slug" params={{ tenant: tenantSlug }}
               params={{ slug: post.slug }}
               className="group bg-white rounded-2xl overflow-hidden border border-cream-border hover:shadow-xl hover:shadow-charcoal/8 hover:-translate-y-1 transition-all duration-300 flex flex-col"
             >

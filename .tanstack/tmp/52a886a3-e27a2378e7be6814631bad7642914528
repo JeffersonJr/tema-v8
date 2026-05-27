@@ -4,7 +4,7 @@ import { Heart, ArrowRight, Home, Trash2 } from 'lucide-react'
 import properties from '@/data/properties'
 import { PropertyCard } from '@/components/PropertyCard'
 
-export const Route = createFileRoute('/favoritos')({
+export const Route = createFileRoute('/$tenant/favoritos')({
   component: FavoritosPage,
 })
 

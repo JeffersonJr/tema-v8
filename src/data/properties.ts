@@ -39,6 +39,7 @@ export interface Property {
     photo: string
     creci: string
   }
+  tenantId?: string
 }
 
 const properties: Property[] = [
@@ -888,18 +889,32 @@ const properties: Property[] = [
   },
 ]
 
+// Enrich properties with tenantId dynamically
+properties.forEach((p) => {
+  const idNum = Number(p.id)
+  if (idNum <= 10) {
+    p.tenantId = 'robles'
+  } else {
+    p.tenantId = 'lumina'
+  }
+})
+
 export default properties
 
-export function getPropertyById(id: string): Property | undefined {
-  return properties.find((p) => p.id === id)
+export function getProperties(tenantId?: string): Property[] {
+  return properties.filter((p) => !tenantId || p.tenantId === tenantId)
 }
 
-export function getFeaturedProperties(): Property[] {
-  return properties.filter((p) => p.featured)
+export function getPropertyById(id: string, tenantId?: string): Property | undefined {
+  return properties.find((p) => p.id === id && (!tenantId || p.tenantId === tenantId))
 }
 
-export function getLaunchProperties(): Property[] {
-  return properties.filter((p) => p.isLaunch)
+export function getFeaturedProperties(tenantId?: string): Property[] {
+  return properties.filter((p) => p.featured && (!tenantId || p.tenantId === tenantId))
+}
+
+export function getLaunchProperties(tenantId?: string): Property[] {
+  return properties.filter((p) => p.isLaunch && (!tenantId || p.tenantId === tenantId))
 }
 
 export function formatPrice(price: number): string {

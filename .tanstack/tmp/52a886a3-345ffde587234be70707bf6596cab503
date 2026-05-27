@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { FileText, Shield, Eye, Database, Mail } from 'lucide-react'
 
-export const Route = createFileRoute('/politica-de-privacidade')({
+export const Route = createFileRoute('/$tenant/politica-de-privacidade')({
   component: PoliticaPrivacidadePage,
 })
 

@@ -1,4 +1,5 @@
-import { createFileRoute, Link, notFound } from '@tanstack/react-router'
+import { getTenantBySlug } from '@/data/tenants'
+import { createFileRoute, Link, notFound , useParams } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import {
   BedDouble,
@@ -25,9 +26,13 @@ import { getPropertyById, formatPrice, type Property } from '@/data/properties'
 import properties from '@/data/properties'
 import { PropertyCard } from '@/components/PropertyCard'
 
-export const Route = createFileRoute('/imovel/$id')({
-  loader: ({ params }) => {
-    const property = getPropertyById(params.id)
+export const Route = createFileRoute('/$tenant/imovel/$id')({
+  loader: async ({ params }) => {
+    // Look up tenant from route url
+    const tenantSlug = params.tenant || ''
+    const { getTenantBySlug } = await import('@/data/tenants')
+    const tenant = getTenantBySlug(tenantSlug)
+    const property = getPropertyById(params.id, tenant?.id)
     if (!property) throw notFound()
     return property
   },
@@ -342,6 +347,11 @@ function LaunchProgress({ status }: { status: Property['launchStatus'] }) {
 }
 
 function ImovelPage() {
+
+  const { tenant: tenantSlug } = useParams({ strict: false })
+  const tenant = getTenantBySlug(tenantSlug || '')
+  if (!tenant) return null
+
   const property = Route.useLoaderData()
   const [saved, setSaved] = useState(false)
   const [isShareOpen, setIsShareOpen] = useState(false)
@@ -370,7 +380,7 @@ function ImovelPage() {
     }
   }
 
-  const similar = properties
+  const similar = getProperties(tenant.id)
     .filter((p) => p.id !== property.id && (p.type === property.type || p.address.city === property.address.city))
     .slice(0, 3)
 
@@ -381,11 +391,11 @@ function ImovelPage() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-warm-gray mb-6">
-          <Link to="/" className="hover:text-gold transition-colors">Início</Link>
+          <Link to="/$tenant" params={{ tenant: tenantSlug }} className="hover:text-gold transition-colors">Início</Link>
           <span>/</span>
-          <Link to="/buscar" className="hover:text-gold transition-colors">Imóveis</Link>
+          <Link to="/$tenant/buscar" params={{ tenant: tenantSlug }} className="hover:text-gold transition-colors">Imóveis</Link>
           <span>/</span>
-          <Link to="/buscar" search={{ cidade: property.address.city }} className="hover:text-gold transition-colors">{property.address.city}</Link>
+          <Link to="/$tenant/buscar" params={{ tenant: tenantSlug }} search={{ cidade: property.address.city }} className="hover:text-gold transition-colors">{property.address.city}</Link>
           <span>/</span>
           <span className="text-charcoal truncate max-w-xs">{property.title}</span>
         </div>
@@ -784,7 +794,7 @@ function ImovelPage() {
                 </div>
               </div>
               <Link
-                to="/buscar"
+                to="/$tenant/buscar" params={{ tenant: tenantSlug }}
                 search={{ tipo: property.type }}
                 className="text-sm text-gold hover:text-charcoal flex items-center gap-1 transition-colors"
               >

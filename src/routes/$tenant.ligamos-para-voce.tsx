@@ -1,0 +1,182 @@
+import { getTenantBySlug } from '@/data/tenants'
+import { createFileRoute, Link , useParams } from '@tanstack/react-router'
+import { useState } from 'react'
+import { Phone, CheckCircle2, User, Mail, Sparkles, ChevronRight, Clock } from 'lucide-react'
+
+export const Route = createFileRoute('/$tenant/ligamos-para-voce')({
+  component: LigamosParaVocePage,
+})
+
+function LigamosParaVocePage() {
+
+  const { tenant: tenantSlug } = useParams({ strict: false })
+  const tenant = getTenantBySlug(tenantSlug || '')
+  if (!tenant) return null
+
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    bestTime: 'imediato'
+  })
+  const [sent, setSent] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setTimeout(() => {
+      setLoading(false)
+      setSent(true)
+    }, 1500)
+  }
+
+  return (
+    <div className="min-h-screen bg-cream pt-28 pb-20">
+      <div className="max-w-2xl mx-auto px-6">
+        
+        {/* Page Header */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 bg-gold/10 text-gold px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
+            <Phone size={12} />
+            Atendimento Exclusivo
+          </div>
+          <h1 className="font-display text-4xl md:text-5xl font-bold text-charcoal mb-4">
+            Ligamos Para Você
+          </h1>
+          <p className="text-warm-gray text-base max-w-xl mx-auto">
+            Prefere que nós entremos em contato? Deixe seus dados abaixo e um dos nossos consultores de alto padrão ligará para você.
+          </p>
+        </div>
+
+        {/* Form Container */}
+        <div className="bg-white border border-cream-border rounded-3xl p-8 shadow-sm relative overflow-hidden">
+          
+          {loading && (
+            <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center z-20">
+              <div className="w-10 h-10 rounded-full border-4 border-gold/25 border-t-gold animate-spin mb-4" />
+              <div className="text-charcoal font-semibold text-sm">Registrando sua solicitação...</div>
+            </div>
+          )}
+
+          {!sent ? (
+            <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in-up">
+              <div>
+                <label className="block text-xs font-semibold text-charcoal uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <User size={13} className="text-gold" />
+                  Nome completo *
+                </label>
+                <input
+                  required
+                  type="text"
+                  placeholder="Seu nome completo"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="w-full bg-cream border border-cream-border focus:border-gold rounded-xl px-4 py-3.5 text-sm text-charcoal placeholder:text-warm-gray/50 outline-none transition-colors"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-semibold text-charcoal uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <Mail size={13} className="text-gold" />
+                    E-mail *
+                  </label>
+                  <input
+                    required
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    className="w-full bg-cream border border-cream-border focus:border-gold rounded-xl px-4 py-3.5 text-sm text-charcoal placeholder:text-warm-gray/50 outline-none transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-charcoal uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <Phone size={13} className="text-gold" />
+                    Telefone com WhatsApp *
+                  </label>
+                  <input
+                    required
+                    type="tel"
+                    placeholder="(11) 99999-9999"
+                    value={form.phone}
+                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                    className="w-full bg-cream border border-cream-border focus:border-gold rounded-xl px-4 py-3.5 text-sm text-charcoal placeholder:text-warm-gray/50 outline-none transition-colors font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-charcoal uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                  <Clock size={13} className="text-gold" />
+                  Melhor horário para te ligar *
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    { id: 'imediato', label: 'Imediato' },
+                    { id: 'manha', label: 'Manhã' },
+                    { id: 'tarde', label: 'Tarde' },
+                    { id: 'noite', label: 'Noite' }
+                  ].map((time) => {
+                    const active = form.bestTime === time.id
+                    return (
+                      <button
+                        type="button"
+                        key={time.id}
+                        onClick={() => setForm({ ...form, bestTime: time.id })}
+                        className={`py-3 rounded-xl border text-center text-xs font-semibold transition-all cursor-pointer ${
+                          active 
+                            ? 'border-gold bg-gold text-white shadow-sm' 
+                            : 'border-cream-border hover:border-warm-gray text-charcoal bg-cream/15'
+                        }`}
+                      >
+                        {time.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="pt-4">
+                <button
+                  type="submit"
+                  className="btn-gold w-full py-4 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                >
+                  Solicitar Ligação
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+              <p className="text-[10px] text-warm-gray/60 text-center leading-normal">
+                Ao solicitar, você concorda que entraremos em contato por ligação ou WhatsApp no horário selecionado de acordo com nossa Política de Privacidade.
+              </p>
+            </form>
+          ) : (
+            <div className="text-center py-8 animate-fade-in-up">
+              <div className="w-16 h-16 bg-gold/10 text-gold rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <CheckCircle2 size={32} />
+              </div>
+              <h2 className="font-display text-3xl font-bold text-charcoal mb-4">
+                Solicitação Recebida!
+              </h2>
+              <p className="text-warm-gray text-sm max-w-md mx-auto mb-8 leading-relaxed">
+                Olá, <strong>{form.name}</strong>. Recebemos sua solicitação de ligação com sucesso!<br /><br />
+                Fique atento ao seu telefone <strong>{form.phone}</strong>. Nosso especialista de alto padrão entrará em contato em breve no período selecionado (<strong>{form.bestTime === 'imediato' ? 'o mais rápido possível' : form.bestTime}</strong>) para te dar todo o suporte necessário.
+              </p>
+              
+              <div className="max-w-xs mx-auto">
+                <Link 
+                  to="/$tenant" params={{ tenant: tenantSlug }}
+                  className="btn-gold block w-full py-3.5 rounded-xl font-semibold text-xs uppercase tracking-wider text-center"
+                >
+                  Voltar para o início
+                </Link>
+              </div>
+            </div>
+          )}
+
+        </div>
+      </div>
+    </div>
+  )
+}

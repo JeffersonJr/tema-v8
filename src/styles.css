@@ -1,17 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
 @import "tailwindcss";
 
-
-
 @theme {
-  --color-cream: #F5F0E8;
-  --color-cream-dark: #EDE8DE;
-  --color-cream-border: #E0DAD0;
-  --color-charcoal: #1C1916;
-  --color-charcoal-light: #3D3731;
-  --color-warm-gray: #7C7269;
-  --color-gold: #EDBF71;
-  --color-gold-light: #F0D080;
+  --color-cream: var(--theme-cream, #F5F0E8);
+  --color-cream-dark: var(--theme-cream-dark, #EDE8DE);
+  --color-cream-border: var(--theme-cream-border, #E0DAD0);
+  --color-charcoal: var(--theme-charcoal, #1C1916);
+  --color-charcoal-light: var(--theme-charcoal-light, #3D3731);
+  --color-warm-gray: var(--theme-warm-gray, #7C7269);
+  --color-gold: var(--theme-gold, #EDBF71);
+  --color-gold-light: var(--theme-gold-light, #F0D080);
   --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Playfair Display', Georgia, serif;
 }
@@ -22,11 +20,11 @@
 
 body {
   margin: 0;
-  background-color: #F5F0E8;
+  background-color: var(--theme-cream, #F5F0E8);
   font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #1C1916;
+  color: var(--theme-charcoal, #1C1916);
 }
 
 .font-display {
@@ -54,7 +52,13 @@ html {
 
 /* Selection color */
 ::selection {
-  background-color: #EDBF71;
+  background-color: var(--theme-gold, #EDBF71);
+  color: #fff;
+}
+
+/* Custom scrollbar */
+::selection {
+  background-color: var(--theme-gold, #EDBF71);
   color: #fff;
 }
 
@@ -63,10 +67,10 @@ html {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F5F0E8;
+  background: var(--theme-cream, #F5F0E8);
 }
 ::-webkit-scrollbar-thumb {
-  background: #EDBF71;
+  background: var(--theme-gold, #EDBF71);
   border-radius: 3px;
 }
 
@@ -76,7 +80,7 @@ html {
   transition: color 0.25s ease;
 }
 .nav-link:hover {
-  color: #EDBF71 !important;
+  color: var(--theme-gold, #EDBF71) !important;
 }
 .nav-link::after {
   content: '';
@@ -85,7 +89,7 @@ html {
   left: 0;
   width: 0;
   height: 1px;
-  background-color: #EDBF71;
+  background-color: var(--theme-gold, #EDBF71);
   transition: width 0.3s ease;
 }
 .nav-link:hover::after {
@@ -120,12 +124,12 @@ html {
 
 /* Gold button */
 .btn-gold {
-  background-color: #EDBF71;
+  background-color: var(--theme-gold, #EDBF71);
   color: #fff;
   transition: background-color 0.25s ease, transform 0.15s ease;
 }
 .btn-gold:hover {
-  background-color: #D4A84E;
+  background-color: var(--theme-gold-light, #F0D080);
   transform: translateY(-1px);
 }
 .btn-gold:active {
@@ -134,19 +138,19 @@ html {
 
 /* Outline button */
 .btn-outline {
-  border: 1.5px solid #EDBF71;
-  color: #EDBF71;
+  border: 1.5px solid var(--theme-gold, #EDBF71);
+  color: var(--theme-gold, #EDBF71);
   transition: all 0.25s ease;
 }
 .btn-outline:hover {
-  background-color: #EDBF71;
+  background-color: var(--theme-gold, #EDBF71);
   color: #fff;
 }
 
 /* Tag pills */
-.tag-venda { background: #1C1916; color: #F5F0E8; }
-.tag-aluguel { background: #F5F0E8; color: #1C1916; border: 1px solid #E0DAD0; }
-.tag-lancamento { background: #EDBF71; color: #fff; }
+.tag-venda { background: var(--theme-charcoal, #1C1916); color: var(--theme-cream, #F5F0E8); }
+.tag-aluguel { background: var(--theme-cream, #F5F0E8); color: var(--theme-charcoal, #1C1916); border: 1px solid var(--theme-cream-border, #E0DAD0); }
+.tag-lancamento { background: var(--theme-gold, #EDBF71); color: #fff; }
 
 /* Section title decoration */
 .section-title::before {
@@ -154,14 +158,14 @@ html {
   display: block;
   width: 32px;
   height: 2px;
-  background-color: #EDBF71;
+  background-color: var(--theme-gold, #EDBF71);
   margin-bottom: 12px;
 }
 
 /* Input focus */
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #EDBF71 !important;
+  border-color: var(--theme-gold, #EDBF71) !important;
 }
 
 /* Fade in animation */
@@ -219,4 +223,3 @@ input:focus, select:focus, textarea:focus {
 .animate-marquee:hover, .animate-marquee-reverse:hover {
   animation-play-state: paused;
 }
-

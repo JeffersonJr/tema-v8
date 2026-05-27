@@ -1,9 +1,10 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { getTenantBySlug } from '@/data/tenants'
+import { createFileRoute, Link , useParams } from '@tanstack/react-router'
 import { useState } from 'react'
 import { getLaunchProperties, formatPrice } from '@/data/properties'
 import { MapPin, Calendar, BedDouble, Bath, Car, Maximize2, ArrowRight, Check, Sparkles } from 'lucide-react'
 
-export const Route = createFileRoute('/lancamentos')({
+export const Route = createFileRoute('/$tenant/lancamentos')({
   component: LancamentosPage,
 })
 
@@ -34,7 +35,12 @@ const benefits = [
 ]
 
 function LancamentosPage() {
-  const launches = getLaunchProperties()
+
+  const { tenant: tenantSlug } = useParams({ strict: false })
+  const tenant = getTenantBySlug(tenantSlug || '')
+  if (!tenant) return null
+
+  const launches = getLaunchProperties(tenant.id)
   const [selectedCity, setSelectedCity] = useState<string>('todos')
   const [selectedStatus, setSelectedStatus] = useState<string>('todos')
 
@@ -245,7 +251,7 @@ function LancamentosPage() {
                         </div>
                       </div>
                       <Link
-                        to="/imovel/$id"
+                        to="/$tenant/imovel/$id" params={{ tenant: tenantSlug }}
                         params={{ id: p.id }}
                         className="btn-gold flex items-center gap-2 px-6 py-3.5 rounded-full text-sm font-semibold cursor-pointer"
                       >
@@ -318,7 +324,7 @@ function LancamentosPage() {
           <p className="text-cream/60 mb-8 text-sm">
             Cadastre-se e receba em primeira mão os melhores lançamentos antes do mercado.
           </p>
-          <Link to="/contato" className="btn-gold inline-flex items-center gap-2 px-8 py-4 rounded-full text-sm font-semibold">
+          <Link to="/$tenant/contato" params={{ tenant: tenantSlug }} className="btn-gold inline-flex items-center gap-2 px-8 py-4 rounded-full text-sm font-semibold">
             Cadastrar interesse <ArrowRight size={16} />
           </Link>
         </div>

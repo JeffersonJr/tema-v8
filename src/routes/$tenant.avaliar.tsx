@@ -1,4 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { getTenantBySlug } from '@/data/tenants'
+import { createFileRoute , useParams } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { 
   Building, 
@@ -18,13 +19,18 @@ import {
   TrendingUp
 } from 'lucide-react'
 
-export const Route = createFileRoute('/avaliar')({
+export const Route = createFileRoute('/$tenant/avaliar')({
   component: AvaliarPage,
 })
 
 type Step = 1 | 2 | 3 | 4 | 5
 
 function AvaliarPage() {
+
+  const { tenant: tenantSlug } = useParams({ strict: false })
+  const tenant = getTenantBySlug(tenantSlug || '')
+  if (!tenant) return null
+
   const [step, setStep] = useState<Step>(1)
   const [loading, setLoading] = useState(false)
   const [cepLoading, setCepLoading] = useState(false)

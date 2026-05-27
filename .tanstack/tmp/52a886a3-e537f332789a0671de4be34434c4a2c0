@@ -17,7 +17,7 @@ import {
   Maximize2,
 } from 'lucide-react'
 
-export const Route = createFileRoute('/anunciar')({
+export const Route = createFileRoute('/$tenant/anunciar')({
   component: AnunciarPage,
 })
 

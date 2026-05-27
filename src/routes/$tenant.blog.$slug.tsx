@@ -1,9 +1,10 @@
-import { createFileRoute, Link, notFound } from '@tanstack/react-router'
+import { getTenantBySlug } from '@/data/tenants'
+import { createFileRoute, Link, notFound , useParams } from '@tanstack/react-router'
 import { Clock, Tag, ArrowLeft, ArrowRight, Home, ChevronRight, Share2, BookOpen } from 'lucide-react'
 import { getBlogPost, blogPosts } from '@/data/blog'
 import type { BlogSection } from '@/data/blog'
 
-export const Route = createFileRoute('/blog/$slug')(({
+export const Route = createFileRoute('/$tenant/blog/$slug')(({
   loader: ({ params }) => {
     const post = getBlogPost(params.slug)
     if (!post) throw notFound()
@@ -86,6 +87,11 @@ function renderSection(section: BlogSection, index: number) {
 }
 
 function BlogPostPage() {
+
+  const { tenant: tenantSlug } = useParams({ strict: false })
+  const tenant = getTenantBySlug(tenantSlug || '')
+  if (!tenant) return null
+
   const post = Route.useLoaderData()
 
   // Related posts (same category, excluding current)
@@ -104,12 +110,12 @@ function BlogPostPage() {
       <div className="bg-white border-b border-cream-border">
         <div className="max-w-7xl mx-auto px-6 py-3">
           <nav className="flex items-center gap-1.5 text-xs text-warm-gray flex-wrap">
-            <Link to="/" className="flex items-center gap-1 hover:text-gold transition-colors">
+            <Link to="/$tenant" params={{ tenant: tenantSlug }} className="flex items-center gap-1 hover:text-gold transition-colors">
               <Home size={12} />
               Início
             </Link>
             <ChevronRight size={11} className="text-cream-border" />
-            <Link to="/blog" className="hover:text-gold transition-colors">Blog</Link>
+            <Link to="/$tenant/blog" params={{ tenant: tenantSlug }} className="hover:text-gold transition-colors">Blog</Link>
             <ChevronRight size={11} className="text-cream-border" />
             <span className="text-charcoal font-medium line-clamp-1">{post.title}</span>
           </nav>
@@ -200,14 +206,14 @@ function BlogPostPage() {
             {/* Navigation */}
             <div className="flex items-center justify-between mt-10 pt-6 border-t border-cream-border">
               <Link
-                to="/blog"
+                to="/$tenant/blog" params={{ tenant: tenantSlug }}
                 className="flex items-center gap-2 text-warm-gray text-sm hover:text-gold transition-colors"
               >
                 <ArrowLeft size={16} />
                 Voltar ao Blog
               </Link>
               <Link
-                to="/contato"
+                to="/$tenant/contato" params={{ tenant: tenantSlug }}
                 className="btn-gold px-6 py-3 rounded-full text-sm font-semibold"
               >
                 Fale com um consultor
@@ -237,7 +243,7 @@ function BlogPostPage() {
                   Tire suas dúvidas sobre o mercado imobiliário com nossos especialistas.
                 </p>
                 <Link
-                  to="/contato"
+                  to="/$tenant/contato" params={{ tenant: tenantSlug }}
                   className="btn-gold w-full text-center py-3 rounded-xl text-xs font-semibold block"
                 >
                   Consulta gratuita
@@ -256,7 +262,7 @@ function BlogPostPage() {
                   <h2 className="font-display text-2xl font-bold text-charcoal">Leia também</h2>
                 </div>
               </div>
-              <Link to="/blog" className="text-gold text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
+              <Link to="/$tenant/blog" params={{ tenant: tenantSlug }} className="text-gold text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
                 Ver todos <ArrowRight size={15} />
               </Link>
             </div>
@@ -264,7 +270,7 @@ function BlogPostPage() {
               {others.map(p => (
                 <Link
                   key={p.slug}
-                  to="/blog/$slug"
+                  to="/$tenant/blog/$slug" params={{ tenant: tenantSlug }}
                   params={{ slug: p.slug }}
                   className="group flex gap-5 bg-white rounded-2xl border border-cream-border overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
                 >

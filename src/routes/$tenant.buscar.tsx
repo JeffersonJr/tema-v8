@@ -1,9 +1,9 @@
-import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
+import { getTenantBySlug } from '@/data/tenants'
+import { createFileRoute, useNavigate, Link , useParams } from '@tanstack/react-router'
 import { useState, useMemo } from 'react'
 import { SlidersHorizontal, Search, X, ChevronDown, Grid2X2, List, MapPin, Home, ChevronRight } from 'lucide-react'
 import { PropertyCard } from '@/components/PropertyCard'
-import properties, { formatPrice } from '@/data/properties'
-import type { Property } from '@/data/properties'
+import { getProperties, formatPrice, type Property } from '@/data/properties'
 
 export type BuscarSearch = {
   finalidade?: string
@@ -17,7 +17,7 @@ export type BuscarSearch = {
   ordem?: string
 }
 
-export const Route = createFileRoute('/buscar')({
+export const Route = createFileRoute('/$tenant/buscar')({
   validateSearch: (search: Record<string, unknown>): BuscarSearch => ({
     finalidade: (search.finalidade as string) || '',
     tipo: (search.tipo as string) || '',
@@ -162,6 +162,11 @@ function ActiveFilters({
 }
 
 function BuscarPage() {
+
+  const { tenant: tenantSlug } = useParams({ strict: false })
+  const tenant = getTenantBySlug(tenantSlug || '')
+  if (!tenant) return null
+
   const navigate = useNavigate({ from: '/buscar' })
   const params = Route.useSearch()
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
@@ -183,7 +188,7 @@ function BuscarPage() {
   }
 
   const filtered = useMemo(() => {
-    const f = filterProperties(properties, params)
+    const f = filterProperties(getProperties(tenant.id), params)
     return sortProperties(f, params.ordem || 'relevancia')
   }, [params])
 
@@ -303,7 +308,7 @@ function BuscarPage() {
       <div className="bg-white border-b border-cream-border">
         <div className="max-w-7xl mx-auto px-6 py-3">
           <nav className="flex items-center gap-1.5 text-xs text-warm-gray">
-            <Link to="/" className="flex items-center gap-1 hover:text-gold transition-colors">
+            <Link to="/$tenant" params={{ tenant: tenantSlug }} className="flex items-center gap-1 hover:text-gold transition-colors">
               <Home size={12} />
               Início
             </Link>
