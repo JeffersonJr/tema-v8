@@ -193,9 +193,8 @@ function PhoneDropdown({ textColor }: { textColor: string }) {
               onClick={() => setOpen(false)}
               className="flex items-center gap-3 px-4 py-3.5 hover:bg-cream transition-colors border-b border-cream-border last:border-0"
             >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                p.type === 'whatsapp' ? 'bg-green-50 text-green-600' : 'bg-gold/10 text-gold'
-              }`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${p.type === 'whatsapp' ? 'bg-green-50 text-green-600' : 'bg-gold/10 text-gold'
+                }`}>
                 {p.type === 'whatsapp' ? <MessageCircle size={14} /> : <Phone size={14} />}
               </div>
               <div>
@@ -256,6 +255,7 @@ function Footer() {
               <li><Link to="/avaliar" className="hover:text-gold transition-colors">Avalie seu imóvel</Link></li>
               <li><Link to="/blog" className="hover:text-gold transition-colors">Blog</Link></li>
               <li><Link to="/ligamos-para-voce" className="hover:text-gold transition-colors">Ligamos para você</Link></li>
+              <li><Link to="/favoritos" className="hover:text-gold transition-colors">Favoritos</Link></li>
             </ul>
           </div>
 
@@ -267,9 +267,9 @@ function Footer() {
                 (11) 3568-2495
               </li>
               <li className="flex items-center gap-2">
-                <a 
+                <a
                   href="https://wa.me/5511950338488?text=Ol%C3%A1%2C%20vim%20do%20site%20e%20preciso%20de%20ajuda%20para%20encontrar%20um%20im%C3%B3vel."
-                  target="_blank" 
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-gold transition-colors flex items-center gap-2"
                 >
