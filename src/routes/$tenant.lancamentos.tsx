@@ -251,8 +251,7 @@ function LancamentosPage() {
                         </div>
                       </div>
                       <Link
-                        to="/$tenant/imovel/$id" params={{ tenant: tenantSlug }}
-                        params={{ id: p.id }}
+                        to="/$tenant/imovel/$id" params={{ tenant: tenantSlug, id: p.id }}
                         className="btn-gold flex items-center gap-2 px-6 py-3.5 rounded-full text-sm font-semibold cursor-pointer"
                       >
                         Ver detalhes <ArrowRight size={16} />

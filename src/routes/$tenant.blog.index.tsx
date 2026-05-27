@@ -59,8 +59,7 @@ function BlogPage() {
               Artigo em Destaque
             </div>
             <Link
-              to="/$tenant/blog/$slug" params={{ tenant: tenantSlug }}
-              params={{ slug: featured.slug }}
+              to="/$tenant/blog/$slug" params={{ tenant: tenantSlug, slug: featured.slug }}
               className="group grid grid-cols-1 lg:grid-cols-2 gap-0 bg-white rounded-3xl overflow-hidden border border-cream-border hover:shadow-2xl hover:shadow-charcoal/10 transition-all duration-500 hover:-translate-y-1"
             >
               <div className="relative overflow-hidden aspect-[4/3] lg:aspect-auto">
@@ -120,8 +119,7 @@ function BlogPage() {
           {rest.map((post) => (
             <Link
               key={post.slug}
-              to="/$tenant/blog/$slug" params={{ tenant: tenantSlug }}
-              params={{ slug: post.slug }}
+              to="/$tenant/blog/$slug" params={{ tenant: tenantSlug, slug: post.slug }}
               className="group bg-white rounded-2xl overflow-hidden border border-cream-border hover:shadow-xl hover:shadow-charcoal/8 hover:-translate-y-1 transition-all duration-300 flex flex-col"
             >
               <div className="relative overflow-hidden aspect-[16/9]">

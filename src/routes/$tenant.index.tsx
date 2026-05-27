@@ -194,8 +194,7 @@ function FeaturedSection() {
         {hero && (
           <div className="lg:col-span-3">
             <Link
-              to="/$tenant/imovel/$id" params={{ tenant: tenantSlug }}
-              params={{ id: hero.id }}
+              to="/$tenant/imovel/$id" params={{ tenant: tenantSlug, id: hero.id }}
               className="property-card group flex flex-col bg-white rounded-2xl overflow-hidden border border-cream-border h-full"
             >
               <div className="relative overflow-hidden w-full flex-1 min-h-[420px]">

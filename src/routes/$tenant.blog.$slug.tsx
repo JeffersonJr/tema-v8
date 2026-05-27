@@ -270,8 +270,7 @@ function BlogPostPage() {
               {others.map(p => (
                 <Link
                   key={p.slug}
-                  to="/$tenant/blog/$slug" params={{ tenant: tenantSlug }}
-                  params={{ slug: p.slug }}
+                  to="/$tenant/blog/$slug" params={{ tenant: tenantSlug, slug: p.slug }}
                   className="group flex gap-5 bg-white rounded-2xl border border-cream-border overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
                 >
                   <div className="w-32 shrink-0 overflow-hidden">
