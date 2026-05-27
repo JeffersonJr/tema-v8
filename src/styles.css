@@ -8,8 +8,8 @@
   --color-charcoal: #1C1916;
   --color-charcoal-light: #3D3731;
   --color-warm-gray: #7C7269;
-  --color-gold: #C4923A;
-  --color-gold-light: #D9AA55;
+  --color-gold: #EDBF71;
+  --color-gold-light: #F0D080;
   --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Playfair Display', Georgia, serif;
 }
@@ -52,7 +52,7 @@ html {
 
 /* Selection color */
 ::selection {
-  background-color: #C4923A;
+  background-color: #EDBF71;
   color: #fff;
 }
 
@@ -64,7 +64,7 @@ html {
   background: #F5F0E8;
 }
 ::-webkit-scrollbar-thumb {
-  background: #C4923A;
+  background: #EDBF71;
   border-radius: 3px;
 }
 
@@ -79,7 +79,7 @@ html {
   left: 0;
   width: 0;
   height: 1px;
-  background-color: #C4923A;
+  background-color: #EDBF71;
   transition: width 0.3s ease;
 }
 .nav-link:hover::after {
@@ -114,12 +114,12 @@ html {
 
 /* Gold button */
 .btn-gold {
-  background-color: #C4923A;
+  background-color: #EDBF71;
   color: #fff;
   transition: background-color 0.25s ease, transform 0.15s ease;
 }
 .btn-gold:hover {
-  background-color: #A8793A;
+  background-color: #D4A84E;
   transform: translateY(-1px);
 }
 .btn-gold:active {
@@ -128,19 +128,19 @@ html {
 
 /* Outline button */
 .btn-outline {
-  border: 1.5px solid #C4923A;
-  color: #C4923A;
+  border: 1.5px solid #EDBF71;
+  color: #EDBF71;
   transition: all 0.25s ease;
 }
 .btn-outline:hover {
-  background-color: #C4923A;
+  background-color: #EDBF71;
   color: #fff;
 }
 
 /* Tag pills */
 .tag-venda { background: #1C1916; color: #F5F0E8; }
 .tag-aluguel { background: #F5F0E8; color: #1C1916; border: 1px solid #E0DAD0; }
-.tag-lancamento { background: #C4923A; color: #fff; }
+.tag-lancamento { background: #EDBF71; color: #fff; }
 
 /* Section title decoration */
 .section-title::before {
@@ -148,14 +148,14 @@ html {
   display: block;
   width: 32px;
   height: 2px;
-  background-color: #C4923A;
+  background-color: #EDBF71;
   margin-bottom: 12px;
 }
 
 /* Input focus */
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #C4923A !important;
+  border-color: #EDBF71 !important;
 }
 
 /* Fade in animation */
