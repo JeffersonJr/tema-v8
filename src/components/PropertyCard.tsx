@@ -59,6 +59,9 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
           <img
             src={property.images[0]}
             alt={property.title}
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.png'
+            }}
             className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
           />
           <button
@@ -116,10 +119,13 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
           <img
             src={property.images[0]}
             alt={property.title}
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.png'
+            }}
             className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
           />
-          <div className="absolute top-3 left-3 z-10">
-            <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider tag-${property.purpose}`}>
+          <div className="absolute top-3 left-3 z-10 max-w-[calc(100%-80px)]">
+            <span className={`px-2 py-0.5 rounded-md text-[9px] font-semibold uppercase tracking-wider shadow-sm tag-${property.purpose}`}>
               {property.purpose === 'venda' ? 'Venda' : property.purpose === 'aluguel' ? 'Aluguel' : 'Lançamento'}
             </span>
           </div>
@@ -166,23 +172,22 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
         <img
           src={property.images[0]}
           alt={property.title}
+          onError={(e) => {
+            e.currentTarget.src = '/placeholder.png'
+          }}
           className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
         />
-        <div className="absolute top-4 left-4 flex gap-2 z-10">
-          <span className={`px-3 py-1 rounded-full text-[11px] font-medium uppercase tracking-wider tag-${property.purpose}`}>
+        <div className="absolute top-4 left-4 flex flex-wrap gap-1.5 z-10 max-w-[calc(100%-80px)]">
+          <span className={`px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider shadow-sm tag-${property.purpose}`}>
             {property.purpose === 'venda' ? 'Venda' : property.purpose === 'aluguel' ? 'Aluguel' : 'Lançamento'}
           </span>
-          <span className="px-3 py-1 rounded-full text-[11px] font-medium uppercase tracking-wider bg-white/90 text-charcoal capitalize backdrop-blur-sm">
-            {property.type}
-          </span>
-        </div>
-        {property.featured && (
-          <div className="absolute top-4 right-14 z-10">
-            <span className="px-3 py-1 rounded-full text-[11px] font-medium bg-gold text-white uppercase tracking-wider">
+          {property.featured && (
+            <span className="px-2.5 py-1 rounded-md text-[10px] font-semibold bg-gold text-white uppercase tracking-wider shadow-sm flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
               Destaque
             </span>
-          </div>
-        )}
+          )}
+        </div>
         <button
           onClick={toggleFavorite}
           className={`absolute top-4 right-4 w-8 h-8 rounded-full border flex items-center justify-center transition-all bg-white/80 backdrop-blur-sm shadow-sm cursor-pointer z-10 ${

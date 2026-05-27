@@ -7,7 +7,7 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { Menu, X, Phone, Mail, Instagram, Facebook, Linkedin } from 'lucide-react'
+import { Menu, X, Phone, Mail, Instagram, Facebook, Youtube } from 'lucide-react'
 
 import '../styles.css'
 
@@ -79,6 +79,8 @@ function Navbar() {
           <Link to="/buscar" search={{ finalidade: 'venda' }} className="nav-link">Comprar</Link>
           <Link to="/buscar" search={{ finalidade: 'aluguel' }} className="nav-link">Alugar</Link>
           <Link to="/lancamentos" className="nav-link">Lançamentos</Link>
+          <Link to="/anunciar" className="nav-link">Anunciar</Link>
+          <Link to="/avaliar" className="nav-link">Avaliar</Link>
           <Link to="/sobre" className="nav-link">Sobre</Link>
           <Link to="/favoritos" className="nav-link">Favoritos</Link>
           <Link to="/contato" className="nav-link">Contato</Link>
@@ -114,6 +116,8 @@ function Navbar() {
             <Link to="/buscar" search={{ finalidade: 'venda' }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Comprar</Link>
             <Link to="/buscar" search={{ finalidade: 'aluguel' }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Alugar</Link>
             <Link to="/lancamentos" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Lançamentos</Link>
+            <Link to="/anunciar" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Anuncie seu Imóvel</Link>
+            <Link to="/avaliar" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Avalie seu Imóvel</Link>
             <Link to="/sobre" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Sobre</Link>
             <Link to="/favoritos" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Favoritos</Link>
             <Link to="/contato" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2">Contato</Link>
@@ -140,14 +144,14 @@ function Footer() {
               Especialistas em imóveis de alto padrão há mais de 23 anos. Encontramos o imóvel ideal para cada momento da sua vida.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-9 h-9 rounded-full border border-cream/20 flex items-center justify-center hover:border-gold hover:text-gold transition-colors">
+              <a href="https://www.instagram.com/roblesimobiliaria/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full border border-cream/20 flex items-center justify-center hover:border-gold hover:text-gold transition-colors" title="Instagram">
                 <Instagram size={15} />
               </a>
-              <a href="#" className="w-9 h-9 rounded-full border border-cream/20 flex items-center justify-center hover:border-gold hover:text-gold transition-colors">
+              <a href="https://www.facebook.com/roblesimobiliariasp/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full border border-cream/20 flex items-center justify-center hover:border-gold hover:text-gold transition-colors" title="Facebook">
                 <Facebook size={15} />
               </a>
-              <a href="#" className="w-9 h-9 rounded-full border border-cream/20 flex items-center justify-center hover:border-gold hover:text-gold transition-colors">
-                <Linkedin size={15} />
+              <a href="https://www.youtube.com/channel/UCK65kTIZ4SxbnkskBPCfoEw" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full border border-cream/20 flex items-center justify-center hover:border-gold hover:text-gold transition-colors" title="YouTube">
+                <Youtube size={15} />
               </a>
             </div>
           </div>
@@ -169,8 +173,8 @@ function Footer() {
             <ul className="space-y-3 text-sm">
               <li><Link to="/sobre" className="hover:text-gold transition-colors">Sobre nós</Link></li>
               <li><Link to="/contato" className="hover:text-gold transition-colors">Contato</Link></li>
-              <li><a href="#" className="hover:text-gold transition-colors">Trabalhe conosco</a></li>
-              <li><a href="#" className="hover:text-gold transition-colors">Avalie seu imóvel</a></li>
+              <li><Link to="/anunciar" className="hover:text-gold transition-colors">Anuncie seu imóvel</Link></li>
+              <li><Link to="/avaliar" className="hover:text-gold transition-colors">Avalie seu imóvel</Link></li>
               <li><a href="#" className="hover:text-gold transition-colors">Blog</a></li>
             </ul>
           </div>

@@ -19,6 +19,7 @@ import {
   ArrowLeft,
   Tag,
   Mail,
+  X,
 } from 'lucide-react'
 import { getPropertyById, formatPrice, type Property } from '@/data/properties'
 import properties from '@/data/properties'
@@ -35,35 +36,68 @@ export const Route = createFileRoute('/imovel/$id')({
 
 function Gallery({ images, title }: { images: string[]; title: string }) {
   const [active, setActive] = useState(0)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
 
   const prev = () => setActive((i) => (i === 0 ? images.length - 1 : i - 1))
   const next = () => setActive((i) => (i === images.length - 1 ? 0 : i + 1))
 
+  // Keyboard navigation for premium desktop experience
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!lightboxOpen) return
+      if (e.key === 'ArrowLeft') prev()
+      if (e.key === 'ArrowRight') next()
+      if (e.key === 'Escape') setLightboxOpen(false)
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [lightboxOpen, images.length])
+
   return (
     <div className="flex flex-col gap-3">
-      <div className="relative rounded-2xl overflow-hidden" style={{ height: '480px' }}>
+      <div 
+        onClick={() => setLightboxOpen(true)}
+        className="relative rounded-2xl overflow-hidden cursor-zoom-in group shadow-md" 
+        style={{ height: '480px' }}
+      >
         <img
           src={images[active]}
           alt={`${title} — foto ${active + 1}`}
-          className="w-full h-full object-cover transition-opacity duration-300"
+          onError={(e) => {
+            e.currentTarget.src = '/placeholder.png'
+          }}
+          className="w-full h-full object-cover transition-all duration-700 group-hover:scale-102"
         />
+        
+        {/* Subtle magnifying glass button overlay */}
+        <div className="absolute top-4 left-4 bg-charcoal/40 backdrop-blur-md text-white border border-white/20 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <Maximize2 size={13} />
+          Ampliar Imagem
+        </div>
+
         {images.length > 1 && (
           <>
             <button
-              onClick={prev}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md hover:bg-white transition-colors"
+              onClick={(e) => {
+                e.stopPropagation()
+                prev()
+              }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md hover:bg-white transition-colors cursor-pointer z-10"
             >
               <ChevronLeft size={18} />
             </button>
             <button
-              onClick={next}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md hover:bg-white transition-colors"
+              onClick={(e) => {
+                e.stopPropagation()
+                next()
+              }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md hover:bg-white transition-colors cursor-pointer z-10"
             >
               <ChevronRight size={18} />
             </button>
           </>
         )}
-        <div className="absolute bottom-4 right-4 bg-charcoal/70 text-cream text-xs px-3 py-1.5 rounded-full">
+        <div className="absolute bottom-4 right-4 bg-charcoal/70 text-cream text-xs px-3 py-1.5 rounded-full z-10">
           {active + 1} / {images.length}
         </div>
       </div>
@@ -78,9 +112,84 @@ function Gallery({ images, title }: { images: string[]; title: string }) {
                 i === active ? 'border-gold' : 'border-transparent opacity-60 hover:opacity-100'
               }`}
             >
-              <img src={img} alt="" className="w-full h-full object-cover" />
+              <img 
+                src={img} 
+                alt="" 
+                onError={(e) => {
+                  e.currentTarget.src = '/placeholder.png'
+                }}
+                className="w-full h-full object-cover" 
+              />
             </button>
           ))}
+        </div>
+      )}
+
+      {/* Fullscreen premium Lightbox Modal */}
+      {lightboxOpen && (
+        <div
+          className="fixed inset-0 bg-charcoal/95 backdrop-blur-md z-[100] flex flex-col items-center justify-center p-4 select-none animate-fade-in-up duration-200"
+          onClick={() => setLightboxOpen(false)}
+        >
+          {/* Close button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setLightboxOpen(false)
+            }}
+            className="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-lg z-[110]"
+            title="Fechar (Esc)"
+          >
+            <X size={20} />
+          </button>
+
+          {/* Left Arrow */}
+          {images.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                prev()
+              }}
+              className="absolute left-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-lg z-[110]"
+              title="Anterior"
+            >
+              <ChevronLeft size={24} />
+            </button>
+          )}
+
+          {/* Expanded Image Container */}
+          <div
+            className="relative max-w-5xl max-h-[82vh] flex items-center justify-center p-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={images[active]}
+              alt={`${title} — ampliada ${active + 1}`}
+              onError={(e) => {
+                e.currentTarget.src = '/placeholder.png'
+              }}
+              className="max-w-full max-h-[82vh] object-contain rounded-xl shadow-2xl transition-all duration-300"
+            />
+          </div>
+
+          {/* Right Arrow */}
+          {images.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                next()
+              }}
+              className="absolute right-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-lg z-[110]"
+              title="Próxima"
+            >
+              <ChevronRight size={24} />
+            </button>
+          )}
+
+          {/* Image counter */}
+          <div className="absolute bottom-6 bg-white/10 text-white border border-white/20 text-xs px-4 py-2 rounded-full shadow-md backdrop-blur-sm z-[110]">
+            {active + 1} / {images.length}
+          </div>
         </div>
       )}
     </div>
@@ -119,6 +228,9 @@ function ContactForm({ property }: { property: Property }) {
           <img
             src={property.agent.photo}
             alt={property.agent.name}
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.png'
+            }}
             className="w-12 h-12 rounded-full object-cover"
           />
           <div>
@@ -601,6 +713,9 @@ function ImovelPage() {
                 <img
                   src="/mapa.png"
                   alt="Mapa de Localização"
+                  onError={(e) => {
+                    e.currentTarget.src = '/placeholder.png'
+                  }}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-charcoal/10" />

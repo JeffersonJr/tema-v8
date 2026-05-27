@@ -14,6 +14,8 @@ import { Route as LancamentosRouteImport } from './routes/lancamentos'
 import { Route as FavoritosRouteImport } from './routes/favoritos'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as BuscarRouteImport } from './routes/buscar'
+import { Route as AvaliarRouteImport } from './routes/avaliar'
+import { Route as AnunciarRouteImport } from './routes/anunciar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ImovelIdRouteImport } from './routes/imovel/$id'
 
@@ -42,6 +44,16 @@ const BuscarRoute = BuscarRouteImport.update({
   path: '/buscar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AvaliarRoute = AvaliarRouteImport.update({
+  id: '/avaliar',
+  path: '/avaliar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnunciarRoute = AnunciarRouteImport.update({
+  id: '/anunciar',
+  path: '/anunciar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -55,6 +67,8 @@ const ImovelIdRoute = ImovelIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/anunciar': typeof AnunciarRoute
+  '/avaliar': typeof AvaliarRoute
   '/buscar': typeof BuscarRoute
   '/contato': typeof ContatoRoute
   '/favoritos': typeof FavoritosRoute
@@ -64,6 +78,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/anunciar': typeof AnunciarRoute
+  '/avaliar': typeof AvaliarRoute
   '/buscar': typeof BuscarRoute
   '/contato': typeof ContatoRoute
   '/favoritos': typeof FavoritosRoute
@@ -74,6 +90,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/anunciar': typeof AnunciarRoute
+  '/avaliar': typeof AvaliarRoute
   '/buscar': typeof BuscarRoute
   '/contato': typeof ContatoRoute
   '/favoritos': typeof FavoritosRoute
@@ -85,6 +103,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/anunciar'
+    | '/avaliar'
     | '/buscar'
     | '/contato'
     | '/favoritos'
@@ -94,6 +114,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/anunciar'
+    | '/avaliar'
     | '/buscar'
     | '/contato'
     | '/favoritos'
@@ -103,6 +125,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/anunciar'
+    | '/avaliar'
     | '/buscar'
     | '/contato'
     | '/favoritos'
@@ -113,6 +137,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnunciarRoute: typeof AnunciarRoute
+  AvaliarRoute: typeof AvaliarRoute
   BuscarRoute: typeof BuscarRoute
   ContatoRoute: typeof ContatoRoute
   FavoritosRoute: typeof FavoritosRoute
@@ -158,6 +184,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BuscarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/avaliar': {
+      id: '/avaliar'
+      path: '/avaliar'
+      fullPath: '/avaliar'
+      preLoaderRoute: typeof AvaliarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anunciar': {
+      id: '/anunciar'
+      path: '/anunciar'
+      fullPath: '/anunciar'
+      preLoaderRoute: typeof AnunciarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -177,6 +217,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnunciarRoute: AnunciarRoute,
+  AvaliarRoute: AvaliarRoute,
   BuscarRoute: BuscarRoute,
   ContatoRoute: ContatoRoute,
   FavoritosRoute: FavoritosRoute,

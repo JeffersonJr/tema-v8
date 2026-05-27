@@ -239,7 +239,7 @@ const properties: Property[] = [
       'Armários embutidos',
     ],
     images: [
-      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=85&fit=crop',
+      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200&q=85&fit=crop',
       'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200&q=85&fit=crop',
       'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&q=85&fit=crop',
     ],
@@ -347,7 +347,7 @@ const properties: Property[] = [
     ],
     images: [
       'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=1200&q=85&fit=crop',
-      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=85&fit=crop',
+      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&q=85&fit=crop',
     ],
     featured: false,
     isLaunch: false,
@@ -560,7 +560,7 @@ const properties: Property[] = [
     images: [
       'https://images.unsplash.com/photo-1567684014761-b5aa8b8a7921?w=1200&q=85&fit=crop',
       'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=1200&q=85&fit=crop',
-      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=85&fit=crop',
+      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&q=85&fit=crop',
     ],
     featured: false,
     isLaunch: false,

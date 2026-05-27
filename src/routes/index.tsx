@@ -202,6 +202,9 @@ function FeaturedSection() {
                 <img
                   src={hero.images[0]}
                   alt={hero.title}
+                  onError={(e) => {
+                    e.currentTarget.src = '/placeholder.png'
+                  }}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/20 to-transparent" />
@@ -415,6 +418,9 @@ function TestimonialsSection() {
                 <img
                   src={t.photo}
                   alt={t.name}
+                  onError={(e) => {
+                    e.currentTarget.src = '/placeholder.png'
+                  }}
                   className="w-10 h-10 rounded-full object-cover"
                 />
                 <div>
@@ -525,6 +531,9 @@ function CitiesSection() {
               <img
                 src={city.image}
                 alt={city.name}
+                onError={(e) => {
+                  e.currentTarget.src = '/placeholder.png'
+                }}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/20 to-transparent" />
@@ -549,6 +558,9 @@ function HomePage() {
           <img
             src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=85&fit=crop"
             alt="Luxury property"
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.png'
+            }}
             className="w-full h-full object-cover"
           />
           <div className="hero-gradient absolute inset-0" />
