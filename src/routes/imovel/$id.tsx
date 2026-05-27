@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   BedDouble,
   Bath,
@@ -18,6 +18,7 @@ import {
   Building2,
   ArrowLeft,
   Tag,
+  Mail,
 } from 'lucide-react'
 import { getPropertyById, formatPrice, type Property } from '@/data/properties'
 import properties from '@/data/properties'
@@ -232,6 +233,31 @@ function LaunchProgress({ status }: { status: Property['launchStatus'] }) {
 function ImovelPage() {
   const property = Route.useLoaderData()
   const [saved, setSaved] = useState(false)
+  const [isShareOpen, setIsShareOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  // Sincronizar com localStorage (somente cliente)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const favs = JSON.parse(localStorage.getItem('robles_favoritos') || '[]')
+      setSaved(favs.includes(property.id))
+    }
+  }, [property.id])
+
+  const toggleFavorite = () => {
+    if (typeof window !== 'undefined') {
+      const favs = JSON.parse(localStorage.getItem('robles_favoritos') || '[]')
+      let newFavs
+      if (favs.includes(property.id)) {
+        newFavs = favs.filter((id: number) => id !== property.id)
+        setSaved(false)
+      } else {
+        newFavs = [...favs, property.id]
+        setSaved(true)
+      }
+      localStorage.setItem('robles_favoritos', JSON.stringify(newFavs))
+    }
+  }
 
   const similar = properties
     .filter((p) => p.id !== property.id && (p.type === property.type || p.address.city === property.address.city))
@@ -283,18 +309,142 @@ function ImovelPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2 shrink-0 relative">
                 <button
-                  onClick={() => setSaved(!saved)}
-                  className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${
+                  onClick={toggleFavorite}
+                  className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all cursor-pointer ${
                     saved ? 'bg-red-50 border-red-200 text-red-500' : 'border-cream-border text-warm-gray hover:border-gold hover:text-gold'
                   }`}
+                  title={saved ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
                 >
                   <Heart size={17} className={saved ? 'fill-red-500' : ''} />
                 </button>
-                <button className="w-10 h-10 rounded-full border border-cream-border flex items-center justify-center text-warm-gray hover:border-gold hover:text-gold transition-all">
-                  <Share2 size={17} />
-                </button>
+
+                <div className="relative">
+                  <button
+                    onClick={() => setIsShareOpen(!isShareOpen)}
+                    className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all cursor-pointer ${
+                      isShareOpen
+                        ? 'bg-gold border-gold text-white'
+                        : 'border-cream-border text-warm-gray hover:border-gold hover:text-gold'
+                    }`}
+                    title="Compartilhar imóvel"
+                  >
+                    <Share2 size={17} />
+                  </button>
+
+                  {isShareOpen && (
+                    <>
+                      {/* Backdrop transparente para fechar ao clicar fora */}
+                      <div
+                        className="fixed inset-0 z-40 cursor-default"
+                        onClick={() => setIsShareOpen(false)}
+                      />
+
+                      {/* Dropdown de Compartilhamento Premium */}
+                      <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white/95 border border-cream-border shadow-xl p-2 z-50 backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="text-[10px] font-bold text-warm-gray uppercase tracking-widest px-3 py-1.5 border-b border-cream-border mb-1">
+                          Compartilhar
+                        </div>
+
+                        {/* WhatsApp */}
+                        <a
+                          href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                            `Confira este incrível imóvel na Robles Imobiliária: ${property.title}\n\n` +
+                              (typeof window !== 'undefined' ? window.location.href : '')
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => setIsShareOpen(false)}
+                          className="flex items-center gap-3 w-full px-3 py-2 text-sm text-charcoal hover:bg-cream/60 rounded-xl transition-colors cursor-pointer"
+                        >
+                          <span className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0 text-[10px] font-bold">
+                            WA
+                          </span>
+                          <span className="font-medium">WhatsApp</span>
+                        </a>
+
+                        {/* E-mail */}
+                        <a
+                          href={`mailto:?subject=${encodeURIComponent(
+                            `Robles Imobiliária — ${property.title}`
+                          )}&body=${encodeURIComponent(
+                            `Olá! Veja este imóvel de alto padrão incrível que encontrei no site da Robles Imobiliária:\n\n${property.title}\n\nLink do imóvel: ` +
+                              (typeof window !== 'undefined' ? window.location.href : '')
+                          )}`}
+                          onClick={() => setIsShareOpen(false)}
+                          className="flex items-center gap-3 w-full px-3 py-2 text-sm text-charcoal hover:bg-cream/60 rounded-xl transition-colors cursor-pointer"
+                        >
+                          <span className="w-6 h-6 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+                            <Mail size={12} />
+                          </span>
+                          <span className="font-medium">E-mail</span>
+                        </a>
+
+                        {/* Telegram */}
+                        <a
+                          href={`https://t.me/share/url?url=${encodeURIComponent(
+                            typeof window !== 'undefined' ? window.location.href : ''
+                          )}&text=${encodeURIComponent(property.title)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => setIsShareOpen(false)}
+                          className="flex items-center gap-3 w-full px-3 py-2 text-sm text-charcoal hover:bg-cream/60 rounded-xl transition-colors cursor-pointer"
+                        >
+                          <span className="w-6 h-6 rounded-full bg-sky-50 text-sky-500 flex items-center justify-center shrink-0 text-[10px] font-bold">
+                            TG
+                          </span>
+                          <span className="font-medium">Telegram</span>
+                        </a>
+
+                        {/* Facebook */}
+                        <a
+                          href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                            typeof window !== 'undefined' ? window.location.href : ''
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => setIsShareOpen(false)}
+                          className="flex items-center gap-3 w-full px-3 py-2 text-sm text-charcoal hover:bg-cream/60 rounded-xl transition-colors cursor-pointer"
+                        >
+                          <span className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 text-[10px] font-bold">
+                            FB
+                          </span>
+                          <span className="font-medium">Facebook</span>
+                        </a>
+
+                        {/* Copiar Link */}
+                        <button
+                          onClick={async () => {
+                            if (typeof window !== 'undefined') {
+                              try {
+                                await navigator.clipboard.writeText(window.location.href)
+                                setCopied(true)
+                                setTimeout(() => setCopied(false), 2000)
+                              } catch (err) {
+                                console.error('Failed to copy', err)
+                              }
+                            }
+                            setIsShareOpen(false)
+                          }}
+                          className="flex items-center gap-3 w-full px-3 py-2 text-sm text-charcoal hover:bg-cream/60 rounded-xl transition-colors cursor-pointer text-left font-medium"
+                        >
+                          <span className="w-6 h-6 rounded-full bg-gold/10 text-gold flex items-center justify-center shrink-0">
+                            <Share2 size={12} />
+                          </span>
+                          <span>Copiar Link</span>
+                        </button>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Popover de confirmação de cópia */}
+                  {copied && (
+                    <div className="absolute right-0 top-12 bg-charcoal text-white text-xs px-3 py-1.5 rounded-full shadow-lg z-50 whitespace-nowrap animate-in fade-in slide-in-from-top-1">
+                      Link copiado!
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
+import { Route as FavoritosRouteImport } from './routes/favoritos'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as BuscarRouteImport } from './routes/buscar'
 import { Route as IndexRouteImport } from './routes/index'
@@ -24,6 +25,11 @@ const SobreRoute = SobreRouteImport.update({
 const LancamentosRoute = LancamentosRouteImport.update({
   id: '/lancamentos',
   path: '/lancamentos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FavoritosRoute = FavoritosRouteImport.update({
+  id: '/favoritos',
+  path: '/favoritos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContatoRoute = ContatoRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/buscar': typeof BuscarRoute
   '/contato': typeof ContatoRoute
+  '/favoritos': typeof FavoritosRoute
   '/lancamentos': typeof LancamentosRoute
   '/sobre': typeof SobreRoute
   '/imovel/$id': typeof ImovelIdRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/buscar': typeof BuscarRoute
   '/contato': typeof ContatoRoute
+  '/favoritos': typeof FavoritosRoute
   '/lancamentos': typeof LancamentosRoute
   '/sobre': typeof SobreRoute
   '/imovel/$id': typeof ImovelIdRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/buscar': typeof BuscarRoute
   '/contato': typeof ContatoRoute
+  '/favoritos': typeof FavoritosRoute
   '/lancamentos': typeof LancamentosRoute
   '/sobre': typeof SobreRoute
   '/imovel/$id': typeof ImovelIdRoute
@@ -78,16 +87,25 @@ export interface FileRouteTypes {
     | '/'
     | '/buscar'
     | '/contato'
+    | '/favoritos'
     | '/lancamentos'
     | '/sobre'
     | '/imovel/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/buscar' | '/contato' | '/lancamentos' | '/sobre' | '/imovel/$id'
+  to:
+    | '/'
+    | '/buscar'
+    | '/contato'
+    | '/favoritos'
+    | '/lancamentos'
+    | '/sobre'
+    | '/imovel/$id'
   id:
     | '__root__'
     | '/'
     | '/buscar'
     | '/contato'
+    | '/favoritos'
     | '/lancamentos'
     | '/sobre'
     | '/imovel/$id'
@@ -97,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BuscarRoute: typeof BuscarRoute
   ContatoRoute: typeof ContatoRoute
+  FavoritosRoute: typeof FavoritosRoute
   LancamentosRoute: typeof LancamentosRoute
   SobreRoute: typeof SobreRoute
   ImovelIdRoute: typeof ImovelIdRoute
@@ -116,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/lancamentos'
       fullPath: '/lancamentos'
       preLoaderRoute: typeof LancamentosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/favoritos': {
+      id: '/favoritos'
+      path: '/favoritos'
+      fullPath: '/favoritos'
+      preLoaderRoute: typeof FavoritosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contato': {
@@ -153,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BuscarRoute: BuscarRoute,
   ContatoRoute: ContatoRoute,
+  FavoritosRoute: FavoritosRoute,
   LancamentosRoute: LancamentosRoute,
   SobreRoute: SobreRoute,
   ImovelIdRoute: ImovelIdRoute,

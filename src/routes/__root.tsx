@@ -80,6 +80,7 @@ function Navbar() {
           <Link to="/buscar" search={{ finalidade: 'aluguel' }} className="nav-link">Alugar</Link>
           <Link to="/lancamentos" className="nav-link">Lançamentos</Link>
           <Link to="/sobre" className="nav-link">Sobre</Link>
+          <Link to="/favoritos" className="nav-link">Favoritos</Link>
           <Link to="/contato" className="nav-link">Contato</Link>
         </div>
 
@@ -114,6 +115,7 @@ function Navbar() {
             <Link to="/buscar" search={{ finalidade: 'aluguel' }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Alugar</Link>
             <Link to="/lancamentos" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Lançamentos</Link>
             <Link to="/sobre" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Sobre</Link>
+            <Link to="/favoritos" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Favoritos</Link>
             <Link to="/contato" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2">Contato</Link>
             <Link to="/contato" onClick={() => setOpen(false)} className="btn-gold px-5 py-3 rounded-full text-sm font-medium text-center mt-2">
               Fale Conosco

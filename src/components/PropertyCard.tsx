@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
-import { BedDouble, Bath, Car, Maximize2, MapPin } from 'lucide-react'
+import { BedDouble, Bath, Car, Maximize2, MapPin, Heart } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import type { Property } from '@/data/properties'
 import { formatPrice } from '@/data/properties'
 
@@ -9,6 +10,41 @@ interface PropertyCardProps {
 }
 
 export function PropertyCard({ property, variant = 'default' }: PropertyCardProps) {
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const favs = JSON.parse(localStorage.getItem('robles_favoritos') || '[]')
+      setSaved(favs.includes(property.id))
+    }
+
+    const handleUpdate = () => {
+      const favs = JSON.parse(localStorage.getItem('robles_favoritos') || '[]')
+      setSaved(favs.includes(property.id))
+    }
+
+    window.addEventListener('favorites-updated', handleUpdate)
+    return () => window.removeEventListener('favorites-updated', handleUpdate)
+  }, [property.id])
+
+  const toggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (typeof window !== 'undefined') {
+      const favs = JSON.parse(localStorage.getItem('robles_favoritos') || '[]')
+      let newFavs
+      if (favs.includes(property.id)) {
+        newFavs = favs.filter((id: number) => id !== property.id)
+        setSaved(false)
+      } else {
+        newFavs = [...favs, property.id]
+        setSaved(true)
+      }
+      localStorage.setItem('robles_favoritos', JSON.stringify(newFavs))
+      window.dispatchEvent(new Event('favorites-updated'))
+    }
+  }
+
   const displayPrice =
     property.purpose === 'aluguel' ? property.rentPrice! : property.price
 
@@ -17,14 +53,23 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
       <Link
         to="/imovel/$id"
         params={{ id: property.id }}
-        className="property-card group flex bg-white rounded-2xl overflow-hidden border border-cream-border"
+        className="property-card group flex bg-white rounded-2xl overflow-hidden border border-cream-border relative"
       >
-        <div className="w-56 shrink-0 overflow-hidden">
+        <div className="w-56 shrink-0 overflow-hidden relative">
           <img
             src={property.images[0]}
             alt={property.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
           />
+          <button
+            onClick={toggleFavorite}
+            className={`absolute top-3 left-3 w-8 h-8 rounded-full border flex items-center justify-center transition-all bg-white/80 backdrop-blur-sm shadow-sm cursor-pointer z-10 ${
+              saved ? 'border-red-100 text-red-500' : 'border-cream-border text-warm-gray hover:text-red-500'
+            }`}
+            title={saved ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+          >
+            <Heart size={14} className={saved ? 'fill-red-500 text-red-500' : ''} />
+          </button>
         </div>
         <div className="flex flex-col justify-between p-5 flex-1">
           <div>
@@ -65,19 +110,28 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
       <Link
         to="/imovel/$id"
         params={{ id: property.id }}
-        className="property-card group block bg-white rounded-xl overflow-hidden border border-cream-border"
+        className="property-card group block bg-white rounded-xl overflow-hidden border border-cream-border relative"
       >
         <div className="relative overflow-hidden h-44">
           <img
             src={property.images[0]}
             alt={property.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
           />
-          <div className="absolute top-3 left-3">
+          <div className="absolute top-3 left-3 z-10">
             <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider tag-${property.purpose}`}>
               {property.purpose === 'venda' ? 'Venda' : property.purpose === 'aluguel' ? 'Aluguel' : 'Lançamento'}
             </span>
           </div>
+          <button
+            onClick={toggleFavorite}
+            className={`absolute top-3 right-3 w-8 h-8 rounded-full border flex items-center justify-center transition-all bg-white/80 backdrop-blur-sm shadow-sm cursor-pointer z-10 ${
+              saved ? 'border-red-100 text-red-500' : 'border-cream-border text-warm-gray hover:text-red-500'
+            }`}
+            title={saved ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+          >
+            <Heart size={14} className={saved ? 'fill-red-500 text-red-500' : ''} />
+          </button>
         </div>
         <div className="p-4">
           <div className="text-[10px] text-warm-gray uppercase tracking-widest mb-1">
@@ -106,15 +160,15 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
     <Link
       to="/imovel/$id"
       params={{ id: property.id }}
-      className="property-card group block bg-white rounded-2xl overflow-hidden border border-cream-border"
+      className="property-card group block bg-white rounded-2xl overflow-hidden border border-cream-border relative"
     >
       <div className="relative overflow-hidden aspect-[4/3]">
         <img
           src={property.images[0]}
           alt={property.title}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
         />
-        <div className="absolute top-4 left-4 flex gap-2">
+        <div className="absolute top-4 left-4 flex gap-2 z-10">
           <span className={`px-3 py-1 rounded-full text-[11px] font-medium uppercase tracking-wider tag-${property.purpose}`}>
             {property.purpose === 'venda' ? 'Venda' : property.purpose === 'aluguel' ? 'Aluguel' : 'Lançamento'}
           </span>
@@ -123,12 +177,21 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
           </span>
         </div>
         {property.featured && (
-          <div className="absolute top-4 right-4">
+          <div className="absolute top-4 right-14 z-10">
             <span className="px-3 py-1 rounded-full text-[11px] font-medium bg-gold text-white uppercase tracking-wider">
               Destaque
             </span>
           </div>
         )}
+        <button
+          onClick={toggleFavorite}
+          className={`absolute top-4 right-4 w-8 h-8 rounded-full border flex items-center justify-center transition-all bg-white/80 backdrop-blur-sm shadow-sm cursor-pointer z-10 ${
+            saved ? 'border-red-100 text-red-500' : 'border-cream-border text-warm-gray hover:text-red-500'
+          }`}
+          title={saved ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+        >
+          <Heart size={14} className={saved ? 'fill-red-500 text-red-500' : ''} />
+        </button>
         {property.isLaunch && (
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-charcoal/80 to-transparent px-4 py-3">
             <span className="text-white text-xs">Entrega: {property.deliveryDate}</span>
