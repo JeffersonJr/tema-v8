@@ -50,7 +50,7 @@ export const tenants: Tenant[] = [
     slug: 'Robles',
     name: 'Robles Imobiliária',
     tagline: 'Imóveis que conquistam à primeiro vista.',
-    logo: '/logo.png',
+    logo: '/logo-robles.svg',
     favicon: '/favicon.ico',
     creci: 'CRECI-SP 28.741-J',
     description: 'Especialistas em imóveis de alto padrão há mais de 23 anos. Encontramos o imóvel ideal para cada momento da sua vida.',

@@ -80,13 +80,31 @@ function Navbar({ tenant }: { tenant: any }) {
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navBg}`}>
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         <Link to="/$tenant" params={{ tenant: tenantSlug }} className="transition-opacity hover:opacity-80 flex items-center gap-2">
-          {/* Logo Mark Branded dynamically with custom variables */}
-          <div className="w-9 h-9 rounded-full bg-gold flex items-center justify-center text-cream font-display font-bold text-lg shadow-sm shrink-0">
-            {tenant.name.charAt(0)}
-          </div>
-          <span className={`font-display text-lg font-bold tracking-tight ${textColor}`}>
-            {tenant.name}
-          </span>
+          {tenant.logo.endsWith('.svg') ? (
+            <svg 
+              className={`h-9 w-auto ${textColor}`}
+              viewBox="221 0 169 160" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path 
+                fill-rule="evenodd" 
+                clip-rule="evenodd" 
+                d="M224.313 2.805L227 5.609V40.523V75.437L233 69.5L239 63.563V37.781V12L284.25 12.008C309.837 12.012 332.324 12.456 336 13.029C343.611 14.216 354.755 19.374 360.678 24.451C374.435 36.243 380.475 57.582 375.029 75.145C373.169 81.144 366.628 93 365.178 93C364.811 93 349.096 77.59 330.255 58.755L296 24.511L258.981 61.505C226.516 93.949 222.272 98.539 224.481 98.816L227 99.133V126.262V153.391L224.313 156.195L221.626 159H230.313H239V129.256V99.513L267.744 70.756L296.488 41.999L330.807 76.249L365.126 110.5L372.322 102.929C383.949 90.698 389.29 77.499 389.29 61C389.29 44.18 383.38 30.242 371.054 17.995C365.741 12.716 361.275 9.373 356 6.725C342.977 0.189 341.207 0.037 278.063 0.017L221.626 0L224.313 2.805ZM277.09 93.668L258 113.336V133.363V153.391L255.313 156.195L252.626 159H264H275.374L272.687 156.195L270 153.391V136.068V118.745L282.689 105.623C289.667 98.405 295.855 92.379 296.439 92.231C297.022 92.084 311.651 106.125 328.947 123.435C360.09 154.601 360.377 154.926 358.542 156.953L356.69 159H369.091H381.491L339 116.5C315.63 93.125 296.435 74 296.344 74C296.253 74 287.589 82.851 277.09 93.668Z" 
+                fill="currentColor"
+              />
+            </svg>
+          ) : (
+            <>
+              {/* Logo Mark Branded dynamically with custom variables */}
+              <div className="w-9 h-9 rounded-full bg-gold flex items-center justify-center text-cream font-display font-bold text-lg shadow-sm shrink-0">
+                {tenant.name.charAt(0)}
+              </div>
+              <span className={`font-display text-lg font-bold tracking-tight ${textColor}`}>
+                {tenant.name}
+              </span>
+            </>
+          )}
         </Link>
 
         <div className={`hidden lg:flex items-center gap-8 text-sm font-medium ${textColor} transition-colors`}>
@@ -212,12 +230,30 @@ function Footer({ tenant }: { tenant: any }) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div className="md:col-span-1">
             <div className="mb-4 flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-cream font-display font-bold text-base shadow-sm">
-                {tenant.name.charAt(0)}
-              </div>
-              <span className="font-display text-cream text-lg font-bold tracking-tight">
-                {tenant.name}
-              </span>
+              {tenant.logo.endsWith('.svg') ? (
+                <svg 
+                  className="h-8 w-auto text-cream"
+                  viewBox="221 0 169 160" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path 
+                    fill-rule="evenodd" 
+                    clip-rule="evenodd" 
+                    d="M224.313 2.805L227 5.609V40.523V75.437L233 69.5L239 63.563V37.781V12L284.25 12.008C309.837 12.012 332.324 12.456 336 13.029C343.611 14.216 354.755 19.374 360.678 24.451C374.435 36.243 380.475 57.582 375.029 75.145C373.169 81.144 366.628 93 365.178 93C364.811 93 349.096 77.59 330.255 58.755L296 24.511L258.981 61.505C226.516 93.949 222.272 98.539 224.481 98.816L227 99.133V126.262V153.391L224.313 156.195L221.626 159H230.313H239V129.256V99.513L267.744 70.756L296.488 41.999L330.807 76.249L365.126 110.5L372.322 102.929C383.949 90.698 389.29 77.499 389.29 61C389.29 44.18 383.38 30.242 371.054 17.995C365.741 12.716 361.275 9.373 356 6.725C342.977 0.189 341.207 0.037 278.063 0.017L221.626 0L224.313 2.805ZM277.09 93.668L258 113.336V133.363V153.391L255.313 156.195L252.626 159H264H275.374L272.687 156.195L270 153.391V136.068V118.745L282.689 105.623C289.667 98.405 295.855 92.379 296.439 92.231C297.022 92.084 311.651 106.125 328.947 123.435C360.09 154.601 360.377 154.926 358.542 156.953L356.69 159H369.091H381.491L339 116.5C315.63 93.125 296.435 74 296.344 74C296.253 74 287.589 82.851 277.09 93.668Z" 
+                    fill="currentColor"
+                  />
+                </svg>
+              ) : (
+                <>
+                  <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-cream font-display font-bold text-base shadow-sm">
+                    {tenant.name.charAt(0)}
+                  </div>
+                  <span className="font-display text-cream text-lg font-bold tracking-tight">
+                    {tenant.name}
+                  </span>
+                </>
+              )}
             </div>
             <p className="text-sm leading-relaxed mb-6">
               {tenant.description}
