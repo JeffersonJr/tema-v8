@@ -8,7 +8,7 @@ export const Route = createFileRoute('/$tenant/politica-de-privacidade')({
 
 function PoliticaPrivacidadePage() {
 
-  const { tenant: tenantSlug } = useParams({ strict: false })
+  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
   const tenant = getTenantBySlug(tenantSlug || '')
   if (!tenant) return null
 

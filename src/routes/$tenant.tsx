@@ -6,23 +6,11 @@ import { getTenantBySlug } from '@/data/tenants'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/$tenant')({
-  meta: ({ params }) => {
-    const tenant = getTenantBySlug(params.tenant || '')
-    return [
-      { title: tenant ? `${tenant.name} — ${tenant.tagline}` : 'Imobiliária V8' },
-    ]
-  },
-  links: ({ params }) => {
-    const tenant = getTenantBySlug(params.tenant || '')
-    return [
-      { rel: 'icon', type: 'image/x-icon', href: tenant ? tenant.favicon : '/v8-fav.png' },
-    ]
-  },
   component: RouteComponent,
 })
 
 export function RouteComponent() {
-  const { tenant: tenantSlug } = useParams({ strict: false })
+  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
   const tenant = getTenantBySlug(tenantSlug || '')
 
   if (!tenant) {
@@ -54,6 +42,8 @@ function TenantLayout({ tenant }: TenantLayoutProps) {
 
   return (
     <div style={themeStyles} className="min-h-screen bg-cream text-charcoal font-sans selection:bg-gold selection:text-white">
+      <title>{tenant.name} — {tenant.tagline}</title>
+      <link rel="icon" type="image/x-icon" href={tenant.favicon} />
       <Navbar tenant={tenant} />
       <main className="min-h-[70vh]">
         <Outlet />
@@ -66,7 +56,7 @@ function TenantLayout({ tenant }: TenantLayoutProps) {
 function Navbar({ tenant }: { tenant: any }) {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const { tenant: tenantSlug } = useParams({ strict: false })
+  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
   const location = useLocation()
 
   useEffect(() => {
@@ -214,7 +204,7 @@ function PhoneDropdown({ tenant, textColor }: { tenant: any; textColor: string }
 }
 
 function Footer({ tenant }: { tenant: any }) {
-  const { tenant: tenantSlug } = useParams({ strict: false })
+  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
 
   return (
     <footer className="bg-charcoal text-cream/70 border-t border-cream-border">

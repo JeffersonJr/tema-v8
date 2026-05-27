@@ -6,7 +6,6 @@ import {
   Home, 
   Layers, 
   Briefcase, 
-  MapPin, 
   Maximize2, 
   BedDouble, 
   Bath, 
@@ -27,7 +26,7 @@ type Step = 1 | 2 | 3 | 4 | 5
 
 function AvaliarPage() {
 
-  const { tenant: tenantSlug } = useParams({ strict: false })
+  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
   const tenant = getTenantBySlug(tenantSlug || '')
   if (!tenant) return null
 

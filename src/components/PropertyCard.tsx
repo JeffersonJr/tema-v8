@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useParams } from '@tanstack/react-router'
 import { BedDouble, Bath, Car, Maximize2, MapPin, Heart } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import type { Property } from '@/data/properties'
@@ -10,6 +10,7 @@ interface PropertyCardProps {
 }
 
 export function PropertyCard({ property, variant = 'default' }: PropertyCardProps) {
+  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant?: string }
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
@@ -51,8 +52,8 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
   if (variant === 'horizontal') {
     return (
       <Link
-        to="/imovel/$id"
-        params={{ id: property.id }}
+        to="/$tenant/imovel/$id"
+        params={{ tenant: tenantSlug || '', id: property.id }}
         className="property-card group flex flex-col sm:flex-row bg-white rounded-2xl overflow-hidden border border-cream-border relative"
       >
         <div className="w-full h-52 sm:w-56 sm:h-auto shrink-0 overflow-hidden relative">
@@ -111,8 +112,8 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
   if (variant === 'compact') {
     return (
       <Link
-        to="/imovel/$id"
-        params={{ id: property.id }}
+        to="/$tenant/imovel/$id"
+        params={{ tenant: tenantSlug || '', id: property.id }}
         className="property-card group block bg-white rounded-xl overflow-hidden border border-cream-border relative"
       >
         <div className="relative overflow-hidden h-44">
@@ -164,8 +165,8 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
 
   return (
     <Link
-      to="/imovel/$id"
-      params={{ id: property.id }}
+      to="/$tenant/imovel/$id"
+      params={{ tenant: tenantSlug || '', id: property.id }}
       className="property-card group block bg-white rounded-2xl overflow-hidden border border-cream-border relative"
     >
       <div className="relative overflow-hidden aspect-[4/3]">

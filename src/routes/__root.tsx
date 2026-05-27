@@ -3,11 +3,7 @@ import {
   Scripts,
   createRootRoute,
   Outlet,
-  Link,
-  useRouterState,
 } from '@tanstack/react-router'
-import { useState, useEffect, useRef } from 'react'
-import { Menu, X, Phone, Mail, Instagram, Facebook, Youtube, MessageCircle, ChevronDown as ChevDown } from 'lucide-react'
 
 import '../styles.css'
 import { NotFoundPage } from '../components/NotFoundPage'

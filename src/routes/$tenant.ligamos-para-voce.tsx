@@ -1,7 +1,7 @@
 import { getTenantBySlug } from '@/data/tenants'
 import { createFileRoute, Link , useParams } from '@tanstack/react-router'
 import { useState } from 'react'
-import { Phone, CheckCircle2, User, Mail, Sparkles, ChevronRight, Clock } from 'lucide-react'
+import { Phone, CheckCircle2, User, Mail, ChevronRight, Clock } from 'lucide-react'
 
 export const Route = createFileRoute('/$tenant/ligamos-para-voce')({
   component: LigamosParaVocePage,
@@ -9,7 +9,7 @@ export const Route = createFileRoute('/$tenant/ligamos-para-voce')({
 
 function LigamosParaVocePage() {
 
-  const { tenant: tenantSlug } = useParams({ strict: false })
+  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
   const tenant = getTenantBySlug(tenantSlug || '')
   if (!tenant) return null
 

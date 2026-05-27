@@ -22,8 +22,7 @@ import {
   Mail,
   X,
 } from 'lucide-react'
-import { getPropertyById, formatPrice, type Property } from '@/data/properties'
-import properties from '@/data/properties'
+import { getPropertyById, formatPrice, type Property, getProperties } from '@/data/properties'
 import { PropertyCard } from '@/components/PropertyCard'
 
 export const Route = createFileRoute('/$tenant/imovel/$id')({
@@ -348,7 +347,7 @@ function LaunchProgress({ status }: { status: Property['launchStatus'] }) {
 
 function ImovelPage() {
 
-  const { tenant: tenantSlug } = useParams({ strict: false })
+  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
   const tenant = getTenantBySlug(tenantSlug || '')
   if (!tenant) return null
 

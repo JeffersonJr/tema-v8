@@ -1,6 +1,8 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useParams } from '@tanstack/react-router'
 
 export function NotFoundPage() {
+  const { tenant } = useParams({ strict: false }) as { tenant?: string }
+
   return (
     <div className="min-h-screen bg-cream flex flex-col items-center justify-center px-6 pt-20 pb-16 relative overflow-hidden">
       {/* Background decoration */}
@@ -115,46 +117,66 @@ export function NotFoundPage() {
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link
-            to="/"
-            className="btn-gold px-8 py-4 rounded-full text-sm font-semibold inline-flex items-center justify-center gap-2"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 12L12 3L21 12" />
-              <path d="M5 10V20H19V10" />
-            </svg>
-            Me leva para a Home
-          </Link>
-          <Link
-            to="/buscar"
-            className="btn-outline px-8 py-4 rounded-full text-sm font-semibold inline-flex items-center justify-center gap-2"
-          >
-            Buscar imóveis
-          </Link>
+          {tenant ? (
+            <>
+              <Link
+                to="/$tenant"
+                params={{ tenant }}
+                className="btn-gold px-8 py-4 rounded-full text-sm font-semibold inline-flex items-center justify-center gap-2"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 12L12 3L21 12" />
+                  <path d="M5 10V20H19V10" />
+                </svg>
+                Me leva para a Home
+              </Link>
+              <Link
+                to="/$tenant/buscar"
+                params={{ tenant }}
+                className="btn-outline px-8 py-4 rounded-full text-sm font-semibold inline-flex items-center justify-center gap-2"
+              >
+                Buscar imóveis
+              </Link>
+            </>
+          ) : (
+            <Link
+              to="/"
+              className="btn-gold px-8 py-4 rounded-full text-sm font-semibold inline-flex items-center justify-center gap-2"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12L12 3L21 12" />
+                <path d="M5 10V20H19V10" />
+              </svg>
+              Voltar ao Portal V8
+            </Link>
+          )}
         </div>
 
         {/* Quick links */}
-        <div className="mt-12 pt-8 border-t border-cream-border">
-          <p className="text-warm-gray text-xs uppercase tracking-widest mb-4 font-semibold">Ou acesse diretamente</p>
-          <div className="flex flex-wrap gap-2 justify-center">
-            {[
-              { label: 'Lançamentos', to: '/lancamentos' },
-              { label: 'Comprar', to: '/buscar', search: { finalidade: 'venda' } },
-              { label: 'Alugar', to: '/buscar', search: { finalidade: 'aluguel' } },
-              { label: 'Blog', to: '/blog' },
-              { label: 'Contato', to: '/contato' },
-            ].map((item) => (
-              <Link
-                key={item.label}
-                to={item.to as any}
-                search={(item as any).search}
-                className="bg-white border border-cream-border text-charcoal-light text-xs px-4 py-2 rounded-full hover:border-gold hover:text-gold transition-colors"
-              >
-                {item.label}
-              </Link>
-            ))}
+        {tenant && (
+          <div className="mt-12 pt-8 border-t border-cream-border">
+            <p className="text-warm-gray text-xs uppercase tracking-widest mb-4 font-semibold">Ou acesse diretamente</p>
+            <div className="flex flex-wrap gap-2 justify-center">
+              {[
+                { label: 'Lançamentos', to: '/$tenant/lancamentos' as const },
+                { label: 'Comprar', to: '/$tenant/buscar' as const, search: { finalidade: 'venda' as const } },
+                { label: 'Alugar', to: '/$tenant/buscar' as const, search: { finalidade: 'aluguel' as const } },
+                { label: 'Blog', to: '/$tenant/blog' as const },
+                { label: 'Contato', to: '/$tenant/contato' as const },
+              ].map((item) => (
+                <Link
+                  key={item.label}
+                  to={item.to}
+                  params={{ tenant }}
+                  search={(item as any).search}
+                  className="bg-white border border-cream-border text-charcoal-light text-xs px-4 py-2 rounded-full hover:border-gold hover:text-gold transition-colors"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

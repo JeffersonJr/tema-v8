@@ -1,6 +1,6 @@
 import { getTenantBySlug } from '@/data/tenants'
 import { createFileRoute, Link , useParams } from '@tanstack/react-router'
-import { ArrowRight, Clock, Tag, BookOpen, ChevronRight, Home } from 'lucide-react'
+import { ArrowRight, Clock, Tag, BookOpen } from 'lucide-react'
 import { blogPosts } from '@/data/blog'
 
 export const Route = createFileRoute('/$tenant/blog/')(({
@@ -11,7 +11,7 @@ const CATEGORIES = ['Todos', 'Mercado', 'Guia do Comprador', 'Investimento', 'Fi
 
 function BlogPage() {
 
-  const { tenant: tenantSlug } = useParams({ strict: false })
+  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
   const tenant = getTenantBySlug(tenantSlug || '')
   if (!tenant) return null
 

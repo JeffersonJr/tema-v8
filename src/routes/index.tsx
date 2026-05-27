@@ -1,21 +1,17 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Building2, ArrowRight, ShieldCheck, Cpu, Code2, Users, Layers } from 'lucide-react'
+import { ArrowRight, ShieldCheck, Cpu, Code2, Users, Layers } from 'lucide-react'
 import { tenants } from '@/data/tenants'
 import { getProperties } from '@/data/properties'
 
 export const Route = createFileRoute('/')({
-  meta: () => [
-    { title: 'Sites V8 - Microsistec' },
-  ],
-  links: () => [
-    { rel: 'icon', type: 'image/png', href: '/v8-fav.png' },
-  ],
   component: PortalIndexPage,
 })
 
 function PortalIndexPage() {
   return (
     <div className="min-h-screen bg-[#0F110E] text-white flex flex-col justify-between selection:bg-[#EDBF71] selection:text-black">
+      <title>Sites V8 - Microsistec</title>
+      <link rel="icon" type="image/png" href="/v8-fav.png" />
       
       {/* Decorative background grid and ambient lights */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f293710_1px,transparent_1px),linear-gradient(to_bottom,#1f293710_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
