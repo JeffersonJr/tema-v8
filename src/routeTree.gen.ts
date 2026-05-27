@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SobreRouteImport } from './routes/sobre'
+import { Route as PoliticaDePrivacidadeRouteImport } from './routes/politica-de-privacidade'
+import { Route as LigamosParaVoceRouteImport } from './routes/ligamos-para-voce'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
 import { Route as FavoritosRouteImport } from './routes/favoritos'
 import { Route as ContatoRouteImport } from './routes/contato'
@@ -24,6 +26,16 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 const SobreRoute = SobreRouteImport.update({
   id: '/sobre',
   path: '/sobre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoliticaDePrivacidadeRoute = PoliticaDePrivacidadeRouteImport.update({
+  id: '/politica-de-privacidade',
+  path: '/politica-de-privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LigamosParaVoceRoute = LigamosParaVoceRouteImport.update({
+  id: '/ligamos-para-voce',
+  path: '/ligamos-para-voce',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LancamentosRoute = LancamentosRouteImport.update({
@@ -85,6 +97,8 @@ export interface FileRoutesByFullPath {
   '/contato': typeof ContatoRoute
   '/favoritos': typeof FavoritosRoute
   '/lancamentos': typeof LancamentosRoute
+  '/ligamos-para-voce': typeof LigamosParaVoceRoute
+  '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
   '/sobre': typeof SobreRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/imovel/$id': typeof ImovelIdRoute
@@ -98,6 +112,8 @@ export interface FileRoutesByTo {
   '/contato': typeof ContatoRoute
   '/favoritos': typeof FavoritosRoute
   '/lancamentos': typeof LancamentosRoute
+  '/ligamos-para-voce': typeof LigamosParaVoceRoute
+  '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
   '/sobre': typeof SobreRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/imovel/$id': typeof ImovelIdRoute
@@ -112,6 +128,8 @@ export interface FileRoutesById {
   '/contato': typeof ContatoRoute
   '/favoritos': typeof FavoritosRoute
   '/lancamentos': typeof LancamentosRoute
+  '/ligamos-para-voce': typeof LigamosParaVoceRoute
+  '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
   '/sobre': typeof SobreRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/imovel/$id': typeof ImovelIdRoute
@@ -127,6 +145,8 @@ export interface FileRouteTypes {
     | '/contato'
     | '/favoritos'
     | '/lancamentos'
+    | '/ligamos-para-voce'
+    | '/politica-de-privacidade'
     | '/sobre'
     | '/blog/$slug'
     | '/imovel/$id'
@@ -140,6 +160,8 @@ export interface FileRouteTypes {
     | '/contato'
     | '/favoritos'
     | '/lancamentos'
+    | '/ligamos-para-voce'
+    | '/politica-de-privacidade'
     | '/sobre'
     | '/blog/$slug'
     | '/imovel/$id'
@@ -153,6 +175,8 @@ export interface FileRouteTypes {
     | '/contato'
     | '/favoritos'
     | '/lancamentos'
+    | '/ligamos-para-voce'
+    | '/politica-de-privacidade'
     | '/sobre'
     | '/blog/$slug'
     | '/imovel/$id'
@@ -167,6 +191,8 @@ export interface RootRouteChildren {
   ContatoRoute: typeof ContatoRoute
   FavoritosRoute: typeof FavoritosRoute
   LancamentosRoute: typeof LancamentosRoute
+  LigamosParaVoceRoute: typeof LigamosParaVoceRoute
+  PoliticaDePrivacidadeRoute: typeof PoliticaDePrivacidadeRoute
   SobreRoute: typeof SobreRoute
   BlogSlugRoute: typeof BlogSlugRoute
   ImovelIdRoute: typeof ImovelIdRoute
@@ -180,6 +206,20 @@ declare module '@tanstack/react-router' {
       path: '/sobre'
       fullPath: '/sobre'
       preLoaderRoute: typeof SobreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/politica-de-privacidade': {
+      id: '/politica-de-privacidade'
+      path: '/politica-de-privacidade'
+      fullPath: '/politica-de-privacidade'
+      preLoaderRoute: typeof PoliticaDePrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ligamos-para-voce': {
+      id: '/ligamos-para-voce'
+      path: '/ligamos-para-voce'
+      fullPath: '/ligamos-para-voce'
+      preLoaderRoute: typeof LigamosParaVoceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lancamentos': {
@@ -263,6 +303,8 @@ const rootRouteChildren: RootRouteChildren = {
   ContatoRoute: ContatoRoute,
   FavoritosRoute: FavoritosRoute,
   LancamentosRoute: LancamentosRoute,
+  LigamosParaVoceRoute: LigamosParaVoceRoute,
+  PoliticaDePrivacidadeRoute: PoliticaDePrivacidadeRoute,
   SobreRoute: SobreRoute,
   BlogSlugRoute: BlogSlugRoute,
   ImovelIdRoute: ImovelIdRoute,

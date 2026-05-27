@@ -59,11 +59,10 @@ function HeroSearch() {
           <button
             key={f}
             onClick={() => setFinalidade(f)}
-            className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
-              finalidade === f
+            className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${finalidade === f
                 ? 'bg-charcoal text-cream shadow-sm'
                 : 'text-warm-gray hover:text-charcoal'
-            }`}
+              }`}
           >
             {f === 'venda' ? 'Comprar' : f === 'aluguel' ? 'Alugar' : 'Lançamentos'}
           </button>
@@ -177,10 +176,10 @@ function FeaturedSection() {
         <div>
           <div className="section-title">
             <h2 className="font-display text-4xl font-bold text-charcoal">
-              Imóveis em Destaque
+              Novidades que merecem o seu olhar
             </h2>
           </div>
-          <p className="text-warm-gray mt-2">Seleção exclusiva dos melhores imóveis do mercado</p>
+          <p className="text-warm-gray mt-2">Imóveis recém-chegados à nossa curadoria premium.</p>
         </div>
         <Link
           to="/buscar"
@@ -268,6 +267,7 @@ function CategorySection() {
       count: '843 imóveis',
       bg: 'bg-charcoal',
       textColor: 'text-cream',
+      border: 'border border-transparent',
     },
     {
       icon: Home,
@@ -278,6 +278,7 @@ function CategorySection() {
       count: '312 imóveis',
       bg: 'bg-cream-dark',
       textColor: 'text-charcoal',
+      border: 'border border-charcoal',
     },
     {
       icon: Sparkles,
@@ -287,7 +288,8 @@ function CategorySection() {
       search: {},
       count: '18 projetos',
       bg: 'bg-gold',
-      textColor: 'text-white',
+      textColor: 'text-charcoal',
+      border: 'border border-transparent',
     },
   ]
 
@@ -312,17 +314,17 @@ function CategorySection() {
               key={cat.title}
               to={cat.href as '/buscar' | '/lancamentos'}
               search={cat.search}
-              className={`${cat.bg} ${cat.textColor} rounded-2xl p-8 flex flex-col gap-5 group hover:-translate-y-1 transition-transform duration-300`}
+              className={`${cat.bg} ${cat.textColor} ${cat.border} rounded-2xl p-8 flex flex-col gap-5 group hover:-translate-y-1 transition-transform duration-300`}
             >
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${cat.bg === 'bg-charcoal' ? 'bg-white/10' : cat.bg === 'bg-gold' ? 'bg-white/20' : 'bg-charcoal/8'}`}>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${cat.bg === 'bg-charcoal' ? 'bg-white/10' : cat.bg === 'bg-gold' ? 'bg-charcoal/10' : 'bg-charcoal/8'}`}>
                 <cat.icon size={22} className={cat.textColor} />
               </div>
               <div>
-                <div className={`text-xs uppercase tracking-widest mb-2 ${cat.bg === 'bg-charcoal' ? 'text-cream/50' : cat.bg === 'bg-gold' ? 'text-white/70' : 'text-warm-gray'}`}>
+                <div className={`text-xs uppercase tracking-widest mb-2 ${cat.bg === 'bg-charcoal' ? 'text-cream/50' : cat.bg === 'bg-gold' ? 'text-charcoal/60' : 'text-warm-gray'}`}>
                   {cat.count}
                 </div>
                 <h3 className={`font-display text-2xl font-bold mb-2`}>{cat.title}</h3>
-                <p className={`text-sm leading-relaxed ${cat.bg === 'bg-charcoal' ? 'text-cream/70' : cat.bg === 'bg-gold' ? 'text-white/80' : 'text-warm-gray'}`}>
+                <p className={`text-sm leading-relaxed ${cat.bg === 'bg-charcoal' ? 'text-cream/70' : cat.bg === 'bg-gold' ? 'text-charcoal/70' : 'text-warm-gray'}`}>
                   {cat.description}
                 </p>
               </div>
@@ -401,7 +403,7 @@ function TestimonialsSection() {
               O que dizem nossos clientes
             </h2>
           </div>
-          <p className="text-cream/50 mt-3">Mais de 4.800 famílias que encontraram seu lar com a Robles</p>
+          <p className="text-cream/50 mt-3">Na busca pelo imóvel perfeito, cada detalhe faz a diferença. Aqui, você encontra mais do que imóveis exclusivos — você encontra confiança, excelência e uma experiência de compra inesquecível.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((t) => (
@@ -588,12 +590,12 @@ function HomePage() {
           </div>
 
           <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-tight mb-5 animate-fade-in-up animate-delay-100">
-            Viver bem,<br />
-            <span className="text-gold">começar aqui.</span>
+            Imóveis que conquistam<br />
+            <span className="text-gold">à primeiro vista.</span>
           </h1>
 
           <p className="text-white/75 text-lg mb-10 max-w-xl mx-auto animate-fade-in-up animate-delay-200">
-            Encontre o imóvel ideal para cada momento da sua vida. Mais de 1.200 opções nos melhores endereços do Brasil.
+            Uma curadoria criteriosa para quem busca sofisticação, exclusividade e experiências únicas.
           </p>
 
           <div className="animate-fade-in-up animate-delay-300">
@@ -626,8 +628,72 @@ function HomePage() {
         <LaunchesTeaser />
         <CitiesSection />
         <TestimonialsSection />
+        <TagsCloudSection />
         <CTASection />
       </div>
     </div>
+  )
+}
+
+function TagsCloudSection() {
+  const row1 = [
+    'Apartamento de Luxo nos Jardins', 'Cobertura Duplex em Ipanema', 'Casa em Condomínio Tamboré',
+    'Lançamentos em Pinheiros', 'Imóveis Alto Padrão São Paulo', 'Casas de Luxo em Porto Feliz',
+    'Apartamento Vista Mar Leblon', 'Coberturas Sofisticadas Moema', 'Mansão na Fazenda Boa Vista',
+    'Studio Design Vila Madalena', 'Imóveis Exclusivos em Jurerê', 'Casas Premium em Curitiba'
+  ]
+
+  const row2 = [
+    'Comprar Imóvel de Luxo', 'Aluguel de Alto Padrão SP', 'Empreendimentos na Planta',
+    'Coberturas Exclusivas RJ', 'Casas de Praia em Ubatuba', 'Condomínio Fechado Alphaville',
+    'Apartamento 3 Suítes Higienópolis', 'Lançamentos de Luxo Floripa', 'Residência Contemporânea',
+    'Imobiliária de Alto Padrão', 'Curadoria Premium de Imóveis', 'Investimento Imobiliário Seguro'
+  ]
+
+  return (
+    <section className="bg-cream border-t border-cream-border py-12 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 mb-6">
+        <div className="section-title">
+          <h2 className="font-display text-2xl font-bold text-charcoal">
+            Explorar Robles Imobiliária
+          </h2>
+        </div>
+        <p className="text-warm-gray text-xs mt-1">Navegue pelos termos mais buscados e encontre seu próximo endereço exclusivo.</p>
+      </div>
+
+      <div className="flex flex-col gap-4 w-full">
+        {/* Track 1: Left to Right */}
+        <div className="flex w-full overflow-hidden relative">
+          <div className="animate-marquee flex gap-3 whitespace-nowrap py-1">
+            {[...row1, ...row1].map((tag, idx) => (
+              <Link
+                key={idx}
+                to="/buscar"
+                search={{ q: tag }}
+                className="bg-white border border-cream-border hover:border-gold hover:text-gold text-charcoal-light text-xs px-5 py-2.5 rounded-full transition-all duration-300 shadow-sm inline-block cursor-pointer font-medium"
+              >
+                {tag}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Track 2: Right to Left */}
+        <div className="flex w-full overflow-hidden relative">
+          <div className="animate-marquee-reverse flex gap-3 whitespace-nowrap py-1">
+            {[...row2, ...row2].map((tag, idx) => (
+              <Link
+                key={idx}
+                to="/buscar"
+                search={{ q: tag }}
+                className="bg-white border border-cream-border hover:border-gold hover:text-gold text-charcoal-light text-xs px-5 py-2.5 rounded-full transition-all duration-300 shadow-sm inline-block cursor-pointer font-medium"
+              >
+                {tag}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }

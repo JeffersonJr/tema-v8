@@ -206,7 +206,7 @@ function ContactForm({ property }: { property: Property }) {
   }
 
   const whatsappMsg = encodeURIComponent(
-    `Olá! Tenho interesse no imóvel *${property.title}* (Cód. ${property.code}). Poderia me dar mais informações?`
+    `Olá, gostaria de mais informações sobre o ${property.title} código ${property.code}`
   )
 
   if (sent) {
@@ -242,7 +242,7 @@ function ContactForm({ property }: { property: Property }) {
 
       <div className="flex flex-col gap-3 mb-5">
         <a
-          href={`https://wa.me/55${property.agent?.phone.replace(/\D/g, '')}?text=${whatsappMsg}`}
+          href={`https://wa.me/5511950338488?text=${whatsappMsg}`}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full flex items-center justify-center gap-2 bg-[#25D366] text-white py-3.5 rounded-xl text-sm font-semibold hover:bg-[#1ebe5c] transition-colors"

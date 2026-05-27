@@ -20,12 +20,12 @@ export const Route = createFileRoute('/contato')({
 const offices = [
   {
     city: 'São Paulo — Sede',
-    address: 'Av. Presidente Kennedy, 7000',
-    neighborhood: 'Sala 14',
+    address: 'Avenida das Nações Unidas, nº 14171',
+    neighborhood: 'Marble Tower, Vila Gertrudes',
     state: 'SP',
-    phone: '(11) 4002-8922',
-    email: 'sp@roblesimobiliaria.com.br',
-    hours: 'Seg–Sex: 9h–19h · Sáb: 9h–14h',
+    phone: '(11) 3568-2495',
+    email: 'claudia@roblesimobiliariasp.com.br',
+    hours: 'De Seg. a Sex das 09h as 17h · Exceto domingo e feriados',
     image: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=600&q=80&fit=crop',
   },
   {
@@ -124,7 +124,7 @@ function ContactForm() {
         </div>
         <h3 className="font-display text-2xl font-bold text-charcoal mb-2">Mensagem recebida!</h3>
         <p className="text-warm-gray text-sm max-w-sm mx-auto">
-          Nossa equipe entrará em contato em até 24 horas úteis. Para urgências, ligue para (11) 4002-8922.
+          Nossa equipe entrará em contato em até 24 horas úteis. Para urgências, ligue para (11) 3568-2495.
         </p>
       </div>
     )
@@ -230,16 +230,19 @@ function ContactForm() {
 
 function ContatoPage() {
   return (
-    <div className="min-h-screen pt-20">
-      {/* Header */}
-      <div className="bg-cream-dark border-b border-cream-border py-14">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <div className="text-gold text-xs uppercase tracking-widest font-semibold mb-3">Estamos aqui</div>
-          <h1 className="font-display text-5xl font-bold text-charcoal">Fale Conosco</h1>
-          <p className="text-warm-gray mt-3 max-w-md mx-auto text-sm">
-            Nossa equipe especializada está pronta para ajudar você a encontrar o imóvel perfeito.
-          </p>
+    <div className="min-h-screen bg-cream pt-28">
+      {/* Page Header */}
+      <div className="max-w-3xl mx-auto px-6 text-center mb-10">
+        <div className="inline-flex items-center gap-2 bg-gold/10 text-gold px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
+          <Clock size={12} />
+          Estamos aqui
         </div>
+        <h1 className="font-display text-4xl md:text-5xl font-bold text-charcoal mb-4">
+          Fale Conosco
+        </h1>
+        <p className="text-warm-gray text-base max-w-xl mx-auto">
+          Nossa equipe especializada está pronta para ajudar você a encontrar o imóvel perfeito ou tirar suas dúvidas.
+        </p>
       </div>
 
       {/* Quick Contact */}
@@ -249,23 +252,23 @@ function ContatoPage() {
             {
               icon: Phone,
               title: 'Telefone',
-              value: '(11) 4002-8922',
-              sub: 'Seg–Sex: 9h às 19h',
-              href: 'tel:+551140028922',
+              value: '(11) 3568-2495',
+              sub: 'Seg–Sex: 9h às 17h',
+              href: 'tel:+551135682495',
             },
             {
               icon: MessageCircle,
               title: 'WhatsApp',
-              value: '(11) 99847-3821',
+              value: '(11) 95033-8488',
               sub: 'Resposta imediata',
-              href: 'https://wa.me/5511998473821',
+              href: 'https://wa.me/5511950338488?text=Ol%C3%A1%2C%20vim%20do%20site%20e%20preciso%20de%20ajuda%20para%20encontrar%20um%20im%C3%B3vel.',
             },
             {
               icon: Mail,
               title: 'E-mail',
-              value: 'contato@roblesimobiliaria.com.br',
+              value: 'claudia@roblesimobiliariasp.com.br',
               sub: 'Resposta em até 24h',
-              href: 'mailto:contato@roblesimobiliaria.com.br',
+              href: 'mailto:claudia@roblesimobiliariasp.com.br',
             },
           ].map((c) => (
             <a
@@ -334,15 +337,11 @@ function ContatoPage() {
               <div className="space-y-2 text-sm text-warm-gray">
                 <div className="flex justify-between">
                   <span>Segunda a Sexta</span>
-                  <span className="text-charcoal font-medium">9h às 19h</span>
+                  <span className="text-charcoal font-medium">09h às 17h</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Sábado</span>
-                  <span className="text-charcoal font-medium">9h às 14h</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Domingo e feriados</span>
-                  <span className="text-charcoal font-medium">Plantão WhatsApp</span>
+                  <span>Sábado, Domingo e Feriados</span>
+                  <span className="text-charcoal font-medium">Fechado</span>
                 </div>
               </div>
             </div>

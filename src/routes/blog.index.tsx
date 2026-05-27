@@ -13,50 +13,34 @@ function BlogPage() {
   const rest = blogPosts.slice(1)
 
   return (
-    <div className="min-h-screen pt-20">
-      {/* Breadcrumb */}
-      <div className="bg-white border-b border-cream-border">
-        <div className="max-w-7xl mx-auto px-6 py-3">
-          <nav className="flex items-center gap-1.5 text-xs text-warm-gray">
-            <Link to="/" className="flex items-center gap-1 hover:text-gold transition-colors">
-              <Home size={12} />
-              Início
-            </Link>
-            <ChevronRight size={11} className="text-cream-border" />
-            <span className="text-charcoal font-medium">Blog & Conteúdo</span>
-          </nav>
+    <div className="min-h-screen bg-cream pt-28">
+      {/* Page Header */}
+      <div className="max-w-3xl mx-auto px-6 text-center mb-10">
+        <div className="inline-flex items-center gap-2 bg-gold/10 text-gold px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
+          <BookOpen size={12} />
+          Blog & Conteúdo
         </div>
-      </div>
+        <h1 className="font-display text-4xl md:text-5xl font-bold text-charcoal mb-4">
+          Blog Robles
+        </h1>
+        <p className="text-warm-gray text-base max-w-xl mx-auto">
+          Inteligência de mercado, guias práticos e análises exclusivas do mercado imobiliário de alto padrão — direto dos especialistas Robles.
+        </p>
 
-      {/* Header */}
-      <div className="bg-cream-dark border-b border-cream-border py-14">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="max-w-2xl">
-            <div className="section-title">
-              <h1 className="font-display text-5xl font-bold text-charcoal">
-                Blog Robles
-              </h1>
-            </div>
-            <p className="text-warm-gray mt-4 text-base leading-relaxed">
-              Inteligência de mercado, guias práticos e análises exclusivas do mercado imobiliário de alto padrão — direto dos especialistas Robles.
-            </p>
-          </div>
-
-          {/* Category Filter */}
-          <div className="flex flex-wrap gap-2 mt-8">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all ${
-                  cat === 'Todos'
-                    ? 'bg-charcoal text-cream'
-                    : 'bg-white border border-cream-border text-warm-gray hover:border-gold hover:text-gold'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+        {/* Category Filter */}
+        <div className="flex flex-wrap gap-2 mt-8 justify-center">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all ${
+                cat === 'Todos'
+                  ? 'bg-charcoal text-cream'
+                  : 'bg-white border border-cream-border text-warm-gray hover:border-gold hover:text-gold'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
       </div>
 

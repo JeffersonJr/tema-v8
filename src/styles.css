@@ -1,5 +1,6 @@
-@import "tailwindcss" source("../");
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+@import "tailwindcss" source("../");
+
 
 @theme {
   --color-cream: #F5F0E8;
@@ -71,6 +72,10 @@ html {
 /* Animated underline for links */
 .nav-link {
   position: relative;
+  transition: color 0.25s ease;
+}
+.nav-link:hover {
+  color: #EDBF71 !important;
 }
 .nav-link::after {
   content: '';
@@ -178,3 +183,39 @@ input:focus, select:focus, textarea:focus {
 .animate-delay-200 { animation-delay: 0.2s; }
 .animate-delay-300 { animation-delay: 0.3s; }
 .animate-delay-400 { animation-delay: 0.4s; }
+
+/* Infinite horizontal marquee tags cloud */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 50s linear infinite;
+}
+
+.animate-marquee-reverse {
+  display: flex;
+  width: max-content;
+  animation: marquee-reverse 50s linear infinite;
+}
+
+.animate-marquee:hover, .animate-marquee-reverse:hover {
+  animation-play-state: paused;
+}
+

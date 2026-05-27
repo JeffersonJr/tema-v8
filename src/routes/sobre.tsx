@@ -91,21 +91,19 @@ const values = [
 
 function SobrePage() {
   return (
-    <div className="min-h-screen pt-20">
-      {/* Hero */}
-      <div className="relative h-96 overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1600&q=85&fit=crop"
-          alt="Sobre a Robles"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-charcoal/60" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-gold text-sm uppercase tracking-widest font-semibold mb-3">Nossa História</div>
-            <h1 className="font-display text-5xl font-bold text-white">Sobre a Robles</h1>
-          </div>
+    <div className="min-h-screen bg-cream pt-28">
+      {/* Page Header */}
+      <div className="max-w-3xl mx-auto px-6 text-center mb-10">
+        <div className="inline-flex items-center gap-2 bg-gold/10 text-gold px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
+          <Heart size={12} />
+          Nossa História
         </div>
+        <h1 className="font-display text-4xl md:text-5xl font-bold text-charcoal mb-4">
+          Sobre a Robles
+        </h1>
+        <p className="text-warm-gray text-base max-w-xl mx-auto">
+          Especialistas em encontrar o imóvel ideal para cada momento da sua vida com discrição e excelência há mais de 23 anos.
+        </p>
       </div>
 
       {/* Story */}

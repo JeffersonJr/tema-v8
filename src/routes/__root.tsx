@@ -23,6 +23,15 @@ export const Route = createRootRoute({
         content:
           'Robles Imobiliária: imóveis residenciais e comerciais de alto padrão em São Paulo, Rio de Janeiro, Florianópolis, Curitiba e Belo Horizonte.',
       },
+      { name: 'generator', content: 'Microsistec CRM (https://microsistec.com.br) & Developed by Evolves Tecnologia (https://evolves.site)' },
+      { name: 'author', content: 'Jefferson Campos Beira Junior (https://github.com/JeffersonJr)' },
+      { name: 'template-author', content: 'Jefferson Campos Beira Junior' },
+      { name: 'template-author-profile', content: 'https://github.com/JeffersonJr' },
+      { name: 'template-model', content: 'Modelo V8' },
+      { name: 'crm', content: 'Microsistec' },
+      { name: 'crm-url', content: 'https://microsistec.com.br' },
+      { name: 'developer', content: 'Evolves Tecnologia' },
+      { name: 'developer-url', content: 'https://evolves.site' },
     ],
   }),
   shellComponent: RootDocument,
@@ -35,10 +44,24 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     <html lang="pt-BR">
       <head>
         <HeadContent />
+        {/* 
+          CRM: Microsistec (https://microsistec.com.br)
+          Desenvolvido por: Evolves Tecnologia (https://evolves.site)
+          Template: Modelo V8 desenvolvido por Jefferson Campos Beira Junior (https://github.com/JeffersonJr)
+        */}
       </head>
       <body>
         {children}
         <Scripts />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.microsistecCRM = { name: "Microsistec CRM", website: "https://microsistec.com.br", version: "V8" };
+              window.developedBy = { name: "Evolves Tecnologia", website: "https://evolves.site" };
+              window.templateSignature = { author: "Jefferson Campos Beira Junior", profile: "https://github.com/JeffersonJr", model: "V8" };
+            `
+          }}
+        />
       </body>
     </html>
   )
@@ -141,8 +164,8 @@ function PhoneDropdown({ textColor }: { textColor: string }) {
   }, [])
 
   const phones = [
-    { label: '(11) 4002-8922', href: 'tel:+551140028922', type: 'phone' as const },
-    { label: '(11) 99847-3821', href: 'https://wa.me/5511998473821', type: 'whatsapp' as const },
+    { label: '(11) 3568-2495', href: 'tel:+551135682495', type: 'phone' as const },
+    { label: '(11) 95033-8488', href: 'https://wa.me/5511950338488?text=Ol%C3%A1%2C%20vim%20do%20site%20e%20preciso%20de%20ajuda%20para%20encontrar%20um%20im%C3%B3vel.', type: 'whatsapp' as const },
   ]
 
   return (
@@ -232,6 +255,7 @@ function Footer() {
               <li><Link to="/anunciar" className="hover:text-gold transition-colors">Anuncie seu imóvel</Link></li>
               <li><Link to="/avaliar" className="hover:text-gold transition-colors">Avalie seu imóvel</Link></li>
               <li><Link to="/blog" className="hover:text-gold transition-colors">Blog</Link></li>
+              <li><Link to="/ligamos-para-voce" className="hover:text-gold transition-colors">Ligamos para você</Link></li>
             </ul>
           </div>
 
@@ -240,27 +264,26 @@ function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-2">
                 <Phone size={14} className="text-gold shrink-0" />
-                (11) 4002-8922
+                (11) 3568-2495
               </li>
               <li className="flex items-center gap-2">
                 <Mail size={14} className="text-gold shrink-0" />
-                contato@roblesimobiliaria.com.br
+                claudia@roblesimobiliariasp.com.br
               </li>
             </ul>
             <div className="mt-6">
               <p className="text-xs font-semibold text-cream mb-1">São Paulo — SP</p>
-              <p className="text-xs">Av. Presidente Kennedy, 7000</p>
-              <p className="text-xs">Sala 14, São Paulo — SP</p>
+              <p className="text-xs">Avenida das Nações Unidas, nº 14171</p>
+              <p className="text-xs">Marble Tower, Vila Gertrudes, São Paulo - SP</p>
               <p className="text-xs mt-3 text-xs font-semibold text-cream">CRECI-SP 28.741-J</p>
             </div>
           </div>
         </div>
 
         <div className="border-t border-cream/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
-          <p>© 2025 Robles Imobiliária. Todos os direitos reservados. | Powered by <a href="https://microsistec.com.br" target="_blank" rel="noopener noreferrer" className="hover:text-gold transition-colors font-medium">Microsistec</a></p>
+          <p>© 2025 Robles Imobiliária. Todos os direitos reservados. | Powered by <a href="https://microsistec.com.br" target="_blank" rel="noopener noreferrer" className="hover:text-gold transition-colors font-medium">Microsistec</a> | <a href="https://microsistec.com.br/site-sistema-para-imobiliaria/" target="_blank" rel="noopener noreferrer" className="hover:text-gold transition-colors font-medium">Modelo V8</a></p>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-gold transition-colors">Política de Privacidade</a>
-            <a href="#" className="hover:text-gold transition-colors">Termos de Uso</a>
+            <Link to="/politica-de-privacidade" className="hover:text-gold transition-colors">Política de Privacidade</Link>
           </div>
         </div>
       </div>
