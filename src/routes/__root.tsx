@@ -267,6 +267,17 @@ function Footer() {
                 (11) 3568-2495
               </li>
               <li className="flex items-center gap-2">
+                <a 
+                  href="https://wa.me/5511950338488?text=Ol%C3%A1%2C%20vim%20do%20site%20e%20preciso%20de%20ajuda%20para%20encontrar%20um%20im%C3%B3vel."
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-gold transition-colors flex items-center gap-2"
+                >
+                  <MessageCircle size={14} className="text-gold shrink-0" />
+                  (11) 95033-8488 (WhatsApp)
+                </a>
+              </li>
+              <li className="flex items-center gap-2">
                 <Mail size={14} className="text-gold shrink-0" />
                 claudia@roblesimobiliariasp.com.br
               </li>
