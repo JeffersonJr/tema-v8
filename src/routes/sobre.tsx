@@ -17,35 +17,35 @@ const team = [
     name: 'Rafaela Monteiro',
     role: 'Diretora Comercial — São Paulo',
     bio: 'Especialista em imóveis de alto padrão em Jardins, Moema e Pinheiros. Referência no mercado paulistano há 14 anos.',
-    photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&q=80&fit=crop',
+    photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=500&q=80&fit=crop',
     creci: 'CRECI-SP 187.342',
   },
   {
     name: 'Thiago Cavalcante',
     role: 'Diretor Comercial — Rio de Janeiro',
     bio: 'Conhece cada detalhe do mercado carioca. Especialista em Ipanema, Leblon e Barra da Tijuca há 17 anos.',
-    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80&fit=crop',
+    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&q=80&fit=crop',
     creci: 'CRECI-RJ 23.814',
   },
   {
     name: 'Marcelo Duarte',
     role: 'Gerente — Florianópolis',
     bio: 'Referência em Jurerê Internacional e Campeche. Especialista em imóveis de alto padrão no litoral catarinense.',
-    photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80&fit=crop',
+    photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=500&q=80&fit=crop',
     creci: 'CRECI-SC 18.234',
   },
   {
     name: 'Carolina Ferraz',
     role: 'Gerente — Curitiba & BH',
     bio: 'Atua no mercado de luxo de Curitiba e BH há 11 anos. Especialista em condomínios fechados e imóveis residenciais premium.',
-    photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80&fit=crop',
+    photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=500&q=80&fit=crop',
     creci: 'CRECI-PR 31.459',
   },
   {
     name: 'Bruno Nakamura',
     role: 'Gerente de Lançamentos',
     bio: 'Responsável pela área de empreendimentos e lançamentos. Experiência em incorporação imobiliária e projetos boutique.',
-    photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80&fit=crop',
+    photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=500&q=80&fit=crop',
     creci: 'CRECI-SP 204.871',
   },
 ]
@@ -205,11 +205,11 @@ function SobrePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {team.map((member) => (
               <div key={member.name} className="bg-white rounded-2xl overflow-hidden border border-cream-border group hover:-translate-y-1 transition-transform duration-300">
-                <div className="h-56 overflow-hidden">
+                <div className="aspect-[4/5] overflow-hidden bg-cream-dark">
                   <img
                     src={member.photo}
                     alt={member.name}
-                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>
                 <div className="p-6">
