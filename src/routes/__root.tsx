@@ -17,11 +17,11 @@ export const Route = createRootRoute({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'Robles Imobiliária — Imóveis de Alto Padrão' },
+      { title: 'Sites V8 - Microsistec' },
       {
         name: 'description',
         content:
-          'Robles Imobiliária: imóveis residenciais e comerciais de alto padrão em São Paulo, Rio de Janeiro, Florianópolis, Curitiba e Belo Horizonte.',
+          'V8 Portal Engine - Hub Multicliente Imobiliário da Microsistec.',
       },
       { name: 'generator', content: 'Microsistec CRM (https://microsistec.com.br) & Developed by Evolves Tecnologia (https://evolves.site)' },
       { name: 'author', content: 'Jefferson Campos Beira Junior (https://github.com/JeffersonJr)' },
@@ -43,6 +43,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
       <head>
+        <link rel="icon" type="image/png" href="/v8-fav.png" />
         <HeadContent />
         {/* 
           CRM: Microsistec (https://microsistec.com.br)

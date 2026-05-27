@@ -6,6 +6,18 @@ import { getTenantBySlug } from '@/data/tenants'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/$tenant')({
+  meta: ({ params }) => {
+    const tenant = getTenantBySlug(params.tenant || '')
+    return [
+      { title: tenant ? `${tenant.name} — ${tenant.tagline}` : 'Imobiliária V8' },
+    ]
+  },
+  links: ({ params }) => {
+    const tenant = getTenantBySlug(params.tenant || '')
+    return [
+      { rel: 'icon', type: 'image/x-icon', href: tenant ? tenant.favicon : '/v8-fav.png' },
+    ]
+  },
   component: RouteComponent,
 })
 

@@ -4,6 +4,12 @@ import { tenants } from '@/data/tenants'
 import { getProperties } from '@/data/properties'
 
 export const Route = createFileRoute('/')({
+  meta: () => [
+    { title: 'Sites V8 - Microsistec' },
+  ],
+  links: () => [
+    { rel: 'icon', type: 'image/png', href: '/v8-fav.png' },
+  ],
   component: PortalIndexPage,
 })
 

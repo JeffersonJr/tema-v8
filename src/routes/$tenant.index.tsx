@@ -32,7 +32,7 @@ const CIDADES = [
 
 function HeroSearch() {
   const navigate = useNavigate()
-  const { tenant: tenantSlug } = useParams({ strict: false })
+  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
   const [finalidade, setFinalidade] = useState<'venda' | 'aluguel' | 'lancamento'>('venda')
   const [tipo, setTipo] = useState('')
   const [cidade, setCidade] = useState('')
@@ -168,7 +168,7 @@ function StatsBar() {
 }
 
 function FeaturedSection() {
-  const { tenant: tenantSlug } = useParams({ strict: false })
+  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
   const tenant = getTenantBySlug(tenantSlug || '')
   if (!tenant) return null
 
@@ -263,7 +263,7 @@ function FeaturedSection() {
 }
 
 function CategorySection() {
-  const { tenant: tenantSlug } = useParams({ strict: false })
+  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
   const categories = [
     {
       icon: Key,
@@ -348,7 +348,7 @@ function CategorySection() {
 }
 
 function LaunchesTeaser() {
-  const { tenant: tenantSlug } = useParams({ strict: false })
+  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
   const tenant = getTenantBySlug(tenantSlug || '')
   if (!tenant) return null
 
@@ -451,7 +451,7 @@ function TestimonialsSection() {
 }
 
 function CTASection() {
-  const { tenant: tenantSlug } = useParams({ strict: false })
+  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
   return (
     <section className="py-20">
       <div className="max-w-7xl mx-auto px-6">
@@ -489,7 +489,7 @@ function CTASection() {
 }
 
 function CitiesSection() {
-  const { tenant: tenantSlug } = useParams({ strict: false })
+  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
   const cities = [
     {
       name: 'Porto Feliz',
@@ -567,7 +567,7 @@ function CitiesSection() {
 
 function HomePage() {
 
-  const { tenant: tenantSlug } = useParams({ strict: false })
+  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
   const tenant = getTenantBySlug(tenantSlug || '')
   if (!tenant) return null
 
@@ -655,7 +655,7 @@ function HomePage() {
 }
 
 function TagsCloudSection() {
-  const { tenant: tenantSlug } = useParams({ strict: false })
+  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
   const tenant = getTenantBySlug(tenantSlug || '')
   if (!tenant) return null
 
