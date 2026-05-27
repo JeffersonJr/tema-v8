@@ -57,8 +57,7 @@ function Gallery({ images, title }: { images: string[]; title: string }) {
     <div className="flex flex-col gap-3">
       <div 
         onClick={() => setLightboxOpen(true)}
-        className="relative rounded-2xl overflow-hidden cursor-zoom-in group shadow-md" 
-        style={{ height: '480px' }}
+        className="relative rounded-2xl overflow-hidden cursor-zoom-in group shadow-md h-64 sm:h-[480px]"
       >
         <img
           src={images[active]}

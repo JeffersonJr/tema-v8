@@ -53,9 +53,9 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
       <Link
         to="/imovel/$id"
         params={{ id: property.id }}
-        className="property-card group flex bg-white rounded-2xl overflow-hidden border border-cream-border relative"
+        className="property-card group flex flex-col sm:flex-row bg-white rounded-2xl overflow-hidden border border-cream-border relative"
       >
-        <div className="w-56 shrink-0 overflow-hidden relative">
+        <div className="w-full h-52 sm:w-56 sm:h-auto shrink-0 overflow-hidden relative">
           <img
             src={property.images[0]}
             alt={property.title}

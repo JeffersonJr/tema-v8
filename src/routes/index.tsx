@@ -661,7 +661,11 @@ function TagsCloudSection() {
         <p className="text-warm-gray text-xs mt-1">Navegue pelos termos mais buscados e encontre seu próximo endereço exclusivo.</p>
       </div>
 
-      <div className="flex flex-col gap-4 w-full">
+      <div className="flex flex-col gap-4 w-full relative">
+        {/* Fading Masks */}
+        <div className="absolute top-0 bottom-0 left-0 w-16 bg-gradient-to-r from-cream to-transparent z-10 pointer-events-none" />
+        <div className="absolute top-0 bottom-0 right-0 w-16 bg-gradient-to-l from-cream to-transparent z-10 pointer-events-none" />
+
         {/* Track 1: Left to Right */}
         <div className="flex w-full overflow-hidden relative">
           <div className="animate-marquee flex gap-3 whitespace-nowrap py-1">

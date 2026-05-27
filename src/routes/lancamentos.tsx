@@ -83,7 +83,7 @@ function LancamentosPage() {
       {/* Benefits */}
       <section className="bg-cream-dark py-12">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
             {benefits.map((b) => (
               <div key={b.title} className="bg-white rounded-2xl p-5 border border-cream-border">
                 <div className="w-8 h-8 bg-gold/15 rounded-lg flex items-center justify-center mb-3">

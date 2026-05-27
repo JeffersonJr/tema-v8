@@ -130,7 +130,7 @@ function Navbar() {
       </div>
 
       {open && (
-        <div className="lg:hidden bg-cream border-t border-cream-border">
+        <div className="lg:hidden bg-cream border-t border-cream-border max-h-[calc(100vh-5rem)] overflow-y-auto shadow-inner">
           <div className="px-6 py-6 flex flex-col gap-4">
             <Link to="/buscar" search={{ finalidade: 'venda' }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Comprar</Link>
             <Link to="/buscar" search={{ finalidade: 'aluguel' }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Alugar</Link>
@@ -139,6 +139,7 @@ function Navbar() {
             <Link to="/avaliar" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Avalie seu Imóvel</Link>
             <Link to="/blog" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Blog</Link>
             <Link to="/sobre" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Sobre</Link>
+            <Link to="/ligamos-para-voce" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Ligamos para você</Link>
             <Link to="/favoritos" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Favoritos</Link>
             <Link to="/contato" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2">Contato</Link>
             <Link to="/contato" onClick={() => setOpen(false)} className="btn-gold px-5 py-3 rounded-full text-sm font-medium text-center mt-2">
