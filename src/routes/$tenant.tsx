@@ -1,4 +1,4 @@
-import { Link, Outlet, useParams, notFound } from '@tanstack/react-router'
+import { Link, Outlet, useParams, notFound, useLocation } from '@tanstack/react-router'
 import { useState, useEffect, useRef } from 'react'
 import { Menu, X, Phone, Mail, Instagram, Facebook, Youtube, MessageCircle, ChevronDown as ChevDown } from 'lucide-react'
 import { getTenantBySlug } from '@/data/tenants'
@@ -55,6 +55,7 @@ function Navbar({ tenant }: { tenant: any }) {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { tenant: tenantSlug } = useParams({ strict: false })
+  const location = useLocation()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
@@ -63,7 +64,7 @@ function Navbar({ tenant }: { tenant: any }) {
   }, [])
 
   // Transparent navbar overlay only on home page of the tenant subsite
-  const isHome = window.location.pathname === `/${tenantSlug}` || window.location.pathname === `/${tenantSlug}/`
+  const isHome = location.pathname === `/${tenantSlug}` || location.pathname === `/${tenantSlug}/`
 
   const navBg = isHome
     ? scrolled
