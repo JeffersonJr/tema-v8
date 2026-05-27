@@ -14,10 +14,10 @@ import { Route as LancamentosRouteImport } from './routes/lancamentos'
 import { Route as FavoritosRouteImport } from './routes/favoritos'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as BuscarRouteImport } from './routes/buscar'
-import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AvaliarRouteImport } from './routes/avaliar'
 import { Route as AnunciarRouteImport } from './routes/anunciar'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as ImovelIdRouteImport } from './routes/imovel/$id'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 
@@ -46,11 +46,6 @@ const BuscarRoute = BuscarRouteImport.update({
   path: '/buscar',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BlogRoute = BlogRouteImport.update({
-  id: '/blog',
-  path: '/blog',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AvaliarRoute = AvaliarRouteImport.update({
   id: '/avaliar',
   path: '/avaliar',
@@ -66,22 +61,26 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ImovelIdRoute = ImovelIdRouteImport.update({
   id: '/imovel/$id',
   path: '/imovel/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => BlogRoute,
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/anunciar': typeof AnunciarRoute
   '/avaliar': typeof AvaliarRoute
-  '/blog': typeof BlogRouteWithChildren
   '/buscar': typeof BuscarRoute
   '/contato': typeof ContatoRoute
   '/favoritos': typeof FavoritosRoute
@@ -89,12 +88,12 @@ export interface FileRoutesByFullPath {
   '/sobre': typeof SobreRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/imovel/$id': typeof ImovelIdRoute
+  '/blog/': typeof BlogIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/anunciar': typeof AnunciarRoute
   '/avaliar': typeof AvaliarRoute
-  '/blog': typeof BlogRouteWithChildren
   '/buscar': typeof BuscarRoute
   '/contato': typeof ContatoRoute
   '/favoritos': typeof FavoritosRoute
@@ -102,13 +101,13 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/imovel/$id': typeof ImovelIdRoute
+  '/blog': typeof BlogIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/anunciar': typeof AnunciarRoute
   '/avaliar': typeof AvaliarRoute
-  '/blog': typeof BlogRouteWithChildren
   '/buscar': typeof BuscarRoute
   '/contato': typeof ContatoRoute
   '/favoritos': typeof FavoritosRoute
@@ -116,6 +115,7 @@ export interface FileRoutesById {
   '/sobre': typeof SobreRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/imovel/$id': typeof ImovelIdRoute
+  '/blog/': typeof BlogIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -123,7 +123,6 @@ export interface FileRouteTypes {
     | '/'
     | '/anunciar'
     | '/avaliar'
-    | '/blog'
     | '/buscar'
     | '/contato'
     | '/favoritos'
@@ -131,12 +130,12 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/blog/$slug'
     | '/imovel/$id'
+    | '/blog/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/anunciar'
     | '/avaliar'
-    | '/blog'
     | '/buscar'
     | '/contato'
     | '/favoritos'
@@ -144,12 +143,12 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/blog/$slug'
     | '/imovel/$id'
+    | '/blog'
   id:
     | '__root__'
     | '/'
     | '/anunciar'
     | '/avaliar'
-    | '/blog'
     | '/buscar'
     | '/contato'
     | '/favoritos'
@@ -157,19 +156,21 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/blog/$slug'
     | '/imovel/$id'
+    | '/blog/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnunciarRoute: typeof AnunciarRoute
   AvaliarRoute: typeof AvaliarRoute
-  BlogRoute: typeof BlogRouteWithChildren
   BuscarRoute: typeof BuscarRoute
   ContatoRoute: typeof ContatoRoute
   FavoritosRoute: typeof FavoritosRoute
   LancamentosRoute: typeof LancamentosRoute
   SobreRoute: typeof SobreRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   ImovelIdRoute: typeof ImovelIdRoute
+  BlogIndexRoute: typeof BlogIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -209,13 +210,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BuscarRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/blog': {
-      id: '/blog'
-      path: '/blog'
-      fullPath: '/blog'
-      preLoaderRoute: typeof BlogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/avaliar': {
       id: '/avaliar'
       path: '/avaliar'
@@ -237,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/imovel/$id': {
       id: '/imovel/$id'
       path: '/imovel/$id'
@@ -246,35 +247,26 @@ declare module '@tanstack/react-router' {
     }
     '/blog/$slug': {
       id: '/blog/$slug'
-      path: '/$slug'
+      path: '/blog/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
-      parentRoute: typeof BlogRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
-
-interface BlogRouteChildren {
-  BlogSlugRoute: typeof BlogSlugRoute
-}
-
-const BlogRouteChildren: BlogRouteChildren = {
-  BlogSlugRoute: BlogSlugRoute,
-}
-
-const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnunciarRoute: AnunciarRoute,
   AvaliarRoute: AvaliarRoute,
-  BlogRoute: BlogRouteWithChildren,
   BuscarRoute: BuscarRoute,
   ContatoRoute: ContatoRoute,
   FavoritosRoute: FavoritosRoute,
   LancamentosRoute: LancamentosRoute,
   SobreRoute: SobreRoute,
+  BlogSlugRoute: BlogSlugRoute,
   ImovelIdRoute: ImovelIdRoute,
+  BlogIndexRoute: BlogIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

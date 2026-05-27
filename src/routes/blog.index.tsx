@@ -2,7 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { ArrowRight, Clock, Tag, BookOpen, ChevronRight, Home } from 'lucide-react'
 import { blogPosts } from '@/data/blog'
 
-export const Route = createFileRoute('/blog')(({
+export const Route = createFileRoute('/blog/')(({
   component: BlogPage,
 }))
 
