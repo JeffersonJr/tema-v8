@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   Building, 
   Home, 
@@ -29,6 +29,7 @@ type Step = 1 | 2 | 3 | 4 | 5 | 6
 function AnunciarPage() {
   const [step, setStep] = useState<Step>(1)
   const [loading, setLoading] = useState(false)
+  const [cepLoading, setCepLoading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([])
 
@@ -59,6 +60,29 @@ function AnunciarPage() {
     ownerPhone: '',
     bestTimeToCall: 'tarde' as 'manha' | 'tarde' | 'noite'
   })
+
+  // Automatic CEP lookup via ViaCEP API
+  useEffect(() => {
+    const cleanCep = formData.cep.replace(/\D/g, '')
+    if (cleanCep.length === 8) {
+      setCepLoading(true)
+      fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.erro) {
+            setFormData(prev => ({
+              ...prev,
+              street: data.logradouro || prev.street,
+              neighborhood: data.bairro || prev.neighborhood,
+              city: data.localidade || prev.city,
+              state: data.uf || prev.state
+            }))
+          }
+        })
+        .catch(err => console.error('Erro ao buscar CEP:', err))
+        .finally(() => setCepLoading(false))
+    }
+  }, [formData.cep])
 
   const handleNext = () => {
     if (step === 1) {
@@ -256,13 +280,16 @@ function AnunciarPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-xs font-semibold uppercase text-charcoal mb-2">CEP</label>
+                  <label className="block text-xs font-semibold uppercase text-charcoal mb-2">
+                    CEP {cepLoading && <span className="text-[10px] text-gold font-normal lowercase italic ml-1">buscando...</span>}
+                  </label>
                   <input
                     type="text"
                     value={formData.cep}
                     onChange={(e) => handleInputChange('cep', e.target.value)}
                     placeholder="00000-000"
-                    className="w-full bg-cream rounded-xl border border-cream-border p-3.5 text-sm"
+                    maxLength={9}
+                    className="w-full bg-cream rounded-xl border border-cream-border p-3.5 text-sm font-semibold"
                   />
                 </div>
                 <div className="md:col-span-2">
