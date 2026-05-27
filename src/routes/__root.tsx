@@ -16,11 +16,11 @@ export const Route = createRootRoute({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'Vero Imóveis — Imóveis de Alto Padrão' },
+      { title: 'Robles Imobiliária — Imóveis de Alto Padrão' },
       {
         name: 'description',
         content:
-          'Vero Imóveis: imóveis residenciais e comerciais de alto padrão em São Paulo, Rio de Janeiro, Florianópolis, Curitiba e Belo Horizonte.',
+          'Robles Imobiliária: imóveis residenciais e comerciais de alto padrão em São Paulo, Rio de Janeiro, Florianópolis, Curitiba e Belo Horizonte.',
       },
     ],
   }),
@@ -70,7 +70,7 @@ function Navbar() {
         <Link to="/" className="transition-opacity hover:opacity-80">
           <img
             src="/logo.png"
-            alt="Vero Imóveis"
+            alt="Robles Imobiliária"
             className={`h-10 w-auto object-contain transition-all ${isHome && !scrolled ? 'brightness-0 invert' : ''}`}
           />
         </Link>
@@ -132,7 +132,7 @@ function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div className="md:col-span-1">
             <div className="mb-4">
-              <img src="/logo.png" alt="Vero Imóveis" className="h-10 w-auto object-contain brightness-0 invert" />
+              <img src="/logo.png" alt="Robles Imobiliária" className="h-10 w-auto object-contain brightness-0 invert" />
             </div>
             <p className="text-sm leading-relaxed mb-6">
               Especialistas em imóveis de alto padrão há mais de 23 anos. Encontramos o imóvel ideal para cada momento da sua vida.
@@ -182,7 +182,7 @@ function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail size={14} className="text-gold shrink-0" />
-                contato@veroimoveis.com.br
+                contato@roblesimobiliaria.com.br
               </li>
             </ul>
             <div className="mt-6">
@@ -195,7 +195,7 @@ function Footer() {
         </div>
 
         <div className="border-t border-cream/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
-          <p>© 2025 Vero Imóveis. Todos os direitos reservados.</p>
+          <p>© 2025 Robles Imobiliária. Todos os direitos reservados.</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-gold transition-colors">Política de Privacidade</a>
             <a href="#" className="hover:text-gold transition-colors">Termos de Uso</a>

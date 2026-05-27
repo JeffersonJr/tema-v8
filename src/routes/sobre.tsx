@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Award, Users, Target, Heart, ArrowRight } from 'lucide-react'
+import { Award, Heart, ArrowRight, Compass, Smile, ThumbsUp, Scale } from 'lucide-react'
 
 export const Route = createFileRoute('/sobre')({
   component: SobrePage,
@@ -7,10 +7,10 @@ export const Route = createFileRoute('/sobre')({
 
 const team = [
   {
-    name: 'Isabela Corrêa',
+    name: 'Claudia Robles',
     role: 'Diretora Geral & Fundadora',
     bio: 'Mais de 25 anos no mercado imobiliário premium. Formada em Direito pela USP com MBA em Real Estate pela FGV.',
-    photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80&fit=crop',
+    photo: '/claudia.png',
     creci: 'CRECI-SP 82.341',
   },
   {
@@ -52,24 +52,34 @@ const team = [
 
 const values = [
   {
-    icon: Target,
-    title: 'Excelência',
-    description: 'Cada imóvel que anunciamos é cuidadosamente selecionado. Trabalhamos apenas com o que é realmente bom.',
-  },
-  {
     icon: Heart,
-    title: 'Cuidado',
-    description: 'Entendemos que comprar ou alugar um imóvel é uma das decisões mais importantes da vida. Tratamos com a seriedade que merece.',
+    title: 'Respeito',
+    description: 'Priorizamos o respeito mútuo em todas as interações, valorizando a diversidade e as necessidades individuais de cada cliente.',
   },
   {
-    icon: Users,
-    title: 'Relacionamento',
-    description: 'Mais de 4.800 famílias atendidas. Muitos clientes voltam e nos indicam. Isso é o nosso maior prêmio.',
+    icon: Compass,
+    title: 'Orientação ao Cliente',
+    description: 'Colocamos as necessidades e os interesses dos clientes em primeiro lugar, fornecendo orientação personalizada e soluções adaptadas às suas circunstâncias únicas.',
+  },
+  {
+    icon: Smile,
+    title: 'Bom Atendimento',
+    description: 'Comprometemo-nos a oferecer um serviço excepcional, demonstrando profissionalismo, cortesia e eficiência em cada etapa do processo.',
   },
   {
     icon: Award,
-    title: 'Confiança',
-    description: '23 anos de mercado com reputação intacta. Transparência em cada negociação, sem exceção.',
+    title: 'Liderança',
+    description: 'Buscamos liderar pelo exemplo, mantendo os mais altos padrões de integridade, competência e inovação em tudo o que fazemos.',
+  },
+  {
+    icon: Scale,
+    title: 'Ética',
+    description: 'Agimos com integridade e honestidade em todas as nossas interações, mantendo a confiança e a transparência em nossos relacionamentos com os clientes e parceiros.',
+  },
+  {
+    icon: ThumbsUp,
+    title: 'Satisfação do Cliente',
+    description: 'Nosso objetivo é garantir a satisfação total do cliente, superando suas expectativas e proporcionando uma experiência gratificante e memorável em cada momento.',
   },
 ]
 
@@ -80,14 +90,14 @@ function SobrePage() {
       <div className="relative h-96 overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1600&q=85&fit=crop"
-          alt="Sobre a Vero"
+          alt="Sobre a Robles"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-charcoal/60" />
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
-            <div className="text-gold text-xs uppercase tracking-widest font-semibold mb-3">Nossa História</div>
-            <h1 className="font-display text-5xl font-bold text-white">Sobre a Vero</h1>
+            <div className="text-gold text-sm uppercase tracking-widest font-semibold mb-3">Nossa História</div>
+            <h1 className="font-display text-5xl font-bold text-white">Sobre a Robles</h1>
           </div>
         </div>
       </div>
@@ -101,9 +111,9 @@ function SobrePage() {
                 23 anos encontrando o imóvel certo para cada pessoa.
               </h2>
             </div>
-            <div className="space-y-4 mt-5 text-warm-gray text-sm leading-relaxed">
+            <div className="space-y-4 mt-5 text-warm-gray text-base leading-relaxed">
               <p>
-                A Vero Imóveis nasceu em 2002 da visão de Isabela Corrêa: criar uma imobiliária que tratasse cada cliente como único, entendendo não apenas o que ele quer, mas o que ele realmente precisa.
+                A Robles Imobiliária nasceu em 2002 da visão de Claudia Robles: criar uma imobiliária que tratasse cada cliente como único, entendendo não apenas o que ele quer, mas o que ele realmente precisa.
               </p>
               <p>
                 Começamos com um pequeno escritório nos Jardins, São Paulo. Hoje somos referência no mercado imobiliário de alto padrão em cinco das principais cidades do Brasil: São Paulo, Rio de Janeiro, Florianópolis, Curitiba e Belo Horizonte.
@@ -115,16 +125,26 @@ function SobrePage() {
                 R$ 2,4 bilhões em transações, 4.800 famílias atendidas e uma reputação construída negociação a negociação. Esse é o nosso legado, e é o que nos motiva a fazer ainda melhor todos os dias.
               </p>
             </div>
+            
+            <div className="mt-8 flex flex-col items-start border-t border-cream-border pt-6">
+              <img
+                src="/assinatura.png"
+                alt="Assinatura Claudia Robles"
+                className="h-14 w-auto object-contain brightness-95 filter"
+              />
+              <span className="text-lg font-semibold text-charcoal mt-2">Claudia Robles</span>
+              <span className="text-sm text-warm-gray">Fundadora & Diretora Geral</span>
+            </div>
           </div>
           <div className="relative">
             <img
-              src="https://images.unsplash.com/photo-1613977257363-707ba9348227?w=700&q=85&fit=crop"
-              alt="Nossa história"
-              className="rounded-2xl w-full h-96 object-cover"
+              src="/claudia.png"
+              alt="Claudia Robles"
+              className="rounded-2xl w-full h-auto object-contain max-h-[500px]"
             />
             <div className="absolute -bottom-6 -left-6 bg-gold text-white rounded-2xl p-6 w-40">
               <div className="font-display text-4xl font-bold">23</div>
-              <div className="text-sm mt-1 text-white/80">anos de mercado</div>
+              <div className="text-base mt-1 text-white/80">anos de mercado</div>
             </div>
           </div>
         </div>
@@ -142,7 +162,7 @@ function SobrePage() {
             ].map((s) => (
               <div key={s.label}>
                 <div className="font-display text-3xl font-bold text-gold mb-1">{s.value}</div>
-                <div className="text-cream/50 text-xs uppercase tracking-widest">{s.label}</div>
+                <div className="text-cream/50 text-sm uppercase tracking-widest">{s.label}</div>
               </div>
             ))}
           </div>
@@ -156,14 +176,16 @@ function SobrePage() {
             <h2 className="font-display text-4xl font-bold text-charcoal">Nossos Valores</h2>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {values.map((v) => (
-            <div key={v.title} className="bg-white rounded-2xl p-8 border border-cream-border hover:-translate-y-1 transition-transform duration-300">
-              <div className="w-12 h-12 bg-gold/10 rounded-xl flex items-center justify-center mb-5">
-                <v.icon size={22} className="text-gold" />
+            <div key={v.title} className="bg-white rounded-2xl p-8 border border-cream-border hover:-translate-y-1 transition-transform duration-300 flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 bg-gold/10 rounded-xl flex items-center justify-center mb-5">
+                  <v.icon size={22} className="text-gold" />
+                </div>
+                <h3 className="font-display text-xl font-bold text-charcoal mb-3">{v.title}</h3>
+                <p className="text-warm-gray text-base leading-relaxed">{v.description}</p>
               </div>
-              <h3 className="font-display text-xl font-bold text-charcoal mb-3">{v.title}</h3>
-              <p className="text-warm-gray text-sm leading-relaxed">{v.description}</p>
             </div>
           ))}
         </div>
@@ -176,7 +198,7 @@ function SobrePage() {
             <div className="section-title" style={{ textAlign: 'center' }}>
               <h2 className="font-display text-4xl font-bold text-charcoal">Nossa Equipe</h2>
             </div>
-            <p className="text-warm-gray mt-3 max-w-xl mx-auto text-sm">
+            <p className="text-warm-gray mt-3 max-w-xl mx-auto text-base">
               Especialistas apaixonados pelo mercado imobiliário, com presença nos melhores endereços do Brasil.
             </p>
           </div>
@@ -187,14 +209,14 @@ function SobrePage() {
                   <img
                     src={member.photo}
                     alt={member.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>
                 <div className="p-6">
                   <h3 className="font-display text-lg font-bold text-charcoal">{member.name}</h3>
-                  <div className="text-gold text-xs font-medium uppercase tracking-wider mt-1 mb-3">{member.role}</div>
-                  <p className="text-warm-gray text-sm leading-relaxed mb-3">{member.bio}</p>
-                  <div className="text-xs text-warm-gray/60">{member.creci}</div>
+                  <div className="text-gold text-sm font-medium uppercase tracking-wider mt-1 mb-3">{member.role}</div>
+                  <p className="text-warm-gray text-base leading-relaxed mb-3">{member.bio}</p>
+                  <div className="text-sm text-warm-gray/60">{member.creci}</div>
                 </div>
               </div>
             ))}
@@ -212,8 +234,8 @@ function SobrePage() {
                   Reconhecida pelo mercado
                 </h2>
               </div>
-              <p className="text-warm-gray text-sm mt-3 leading-relaxed">
-                Ao longo de 23 anos, a Vero Imóveis acumulou prêmios e reconhecimentos que refletem nosso compromisso com a excelência no atendimento e nas transações imobiliárias.
+              <p className="text-warm-gray text-base mt-3 leading-relaxed">
+                Ao longo de 23 anos, a Robles Imobiliária acumulou prêmios e reconhecimentos que refletem nosso compromisso com a excelência no atendimento e nas transações imobiliárias.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -225,22 +247,22 @@ function SobrePage() {
               ].map((award) => (
                 <div key={award.award} className="bg-white rounded-2xl p-4 text-center border border-cream-border">
                   <div className="text-gold font-bold text-lg">{award.year}</div>
-                  <div className="text-charcoal text-xs font-semibold mt-1 leading-tight">{award.award}</div>
-                  <div className="text-warm-gray text-[10px] mt-1">{award.entity}</div>
+                  <div className="text-charcoal text-sm font-semibold mt-1 leading-tight">{award.award}</div>
+                  <div className="text-warm-gray text-xs mt-1">{award.entity}</div>
                 </div>
               ))}
             </div>
           </div>
         </div>
       </section>
-
+ 
       {/* CTA */}
       <section className="bg-charcoal py-16">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2 className="font-display text-4xl font-bold text-cream mb-4">
             Pronto para encontrar<br />seu próximo imóvel?
           </h2>
-          <p className="text-cream/60 mb-8 text-sm">
+          <p className="text-cream/60 mb-8 text-base">
             Nossa equipe está pronta para ajudar você a encontrar o imóvel ideal.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

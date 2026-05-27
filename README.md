@@ -1,4 +1,4 @@
-# Vero Imóveis
+# Robles Imobiliária
 
 A full-featured luxury real estate website built with TanStack Start, React, and Tailwind CSS v4. Showcases high-end residential properties across Brazil with a refined minimalist aesthetic.
 
@@ -17,7 +17,7 @@ A full-featured luxury real estate website built with TanStack Start, React, and
 - [TanStack Router](https://tanstack.com/router) — File-based routing with typed search params
 - [Tailwind CSS v4](https://tailwindcss.com) — Utility-first styling with custom theme tokens
 - [Lucide React](https://lucide.dev) — Icon library
-- [Netlify](https://netlify.com) — Hosting and deployment
+- [Vercel](https://vercel.com) — Hosting and deployment
 
 ## Design System
 

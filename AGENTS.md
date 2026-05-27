@@ -1,6 +1,6 @@
-# AGENTS.md — Vero Imóveis
+# AGENTS.md — Robles Imobiliária
 
-Luxury real estate website for the Brazilian market. Built with TanStack Start and deployed on Netlify.
+Luxury real estate website for the Brazilian market. Built with TanStack Start and deployed on Vercel.
 
 ## Project Overview
 
@@ -11,7 +11,7 @@ Luxury real estate website for the Brazilian market. Built with TanStack Start a
 | Build | Vite 7 |
 | Styling | Tailwind CSS 4 |
 | Language | TypeScript 5 |
-| Deployment | Netlify |
+| Deployment | Vercel |
 
 ## Directory Structure
 

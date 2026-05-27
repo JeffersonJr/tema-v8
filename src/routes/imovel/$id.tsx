@@ -442,19 +442,22 @@ function ImovelPage() {
             {/* Map placeholder */}
             <div className="mt-8">
               <h2 className="font-display text-2xl font-bold text-charcoal mb-4">Localização</h2>
-              <div className="bg-cream-dark rounded-2xl overflow-hidden h-64 flex items-center justify-center border border-cream-border relative">
-                <div className="absolute inset-0 opacity-20"
-                  style={{
-                    backgroundImage: `repeating-linear-gradient(0deg, #C4923A 0, #C4923A 1px, transparent 1px, transparent 48px),
-                      repeating-linear-gradient(90deg, #C4923A 0, #C4923A 1px, transparent 1px, transparent 48px)`,
-                  }}
+              <div className="bg-cream-dark rounded-2xl overflow-hidden h-72 flex items-center justify-center border border-cream-border relative group shadow-sm">
+                <img
+                  src="/mapa.png"
+                  alt="Mapa de Localização"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="relative text-center">
-                  <div className="w-10 h-10 bg-gold rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
-                    <MapPin size={20} className="text-white" />
+                <div className="absolute inset-0 bg-charcoal/10" />
+                
+                <div className="relative z-10 flex flex-col items-center">
+                  <div className="w-12 h-12 bg-gold text-white rounded-full flex items-center justify-center shadow-lg border-2 border-white animate-pulse">
+                    <MapPin size={22} className="text-white" />
                   </div>
-                  <p className="text-charcoal font-medium text-sm">{property.address.neighborhood}</p>
-                  <p className="text-warm-gray text-xs">{property.address.city} — {property.address.state}</p>
+                  <div className="mt-3 bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-xl border border-cream-border shadow-md text-center max-w-xs animate-fade-in-up">
+                    <p className="text-charcoal font-semibold text-sm leading-tight">{property.address.neighborhood}</p>
+                    <p className="text-warm-gray text-xs mt-0.5">{property.address.city} — {property.address.state}</p>
+                  </div>
                 </div>
               </div>
             </div>

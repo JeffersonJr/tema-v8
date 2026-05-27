@@ -6,15 +6,15 @@ import properties, { formatPrice } from '@/data/properties'
 import type { Property } from '@/data/properties'
 
 export type BuscarSearch = {
-  finalidade: string
-  tipo: string
-  cidade: string
-  bairro: string
-  quartos: string
-  precoMin: string
-  precoMax: string
-  q: string
-  ordem: string
+  finalidade?: string
+  tipo?: string
+  cidade?: string
+  bairro?: string
+  quartos?: string
+  precoMin?: string
+  precoMax?: string
+  q?: string
+  ordem?: string
 }
 
 export const Route = createFileRoute('/buscar')({
@@ -130,7 +130,7 @@ function ActiveFilters({
   params,
   onRemove,
 }: {
-  params: z.infer<typeof searchSchema>
+  params: BuscarSearch
   onRemove: (key: string) => void
 }) {
   const chips: { key: string; label: string }[] = []
@@ -184,7 +184,7 @@ function BuscarPage() {
 
   const filtered = useMemo(() => {
     const f = filterProperties(properties, params)
-    return sortProperties(f, params.ordem)
+    return sortProperties(f, params.ordem || 'relevancia')
   }, [params])
 
   const Sidebar = () => (
@@ -196,7 +196,7 @@ function BuscarPage() {
 
       <FilterSelect
         label="Finalidade"
-        value={params.finalidade}
+        value={params.finalidade || ''}
         onChange={(v) => updateParam('finalidade', v)}
         options={[
           { value: '', label: 'Todos' },
@@ -208,7 +208,7 @@ function BuscarPage() {
 
       <FilterSelect
         label="Tipo"
-        value={params.tipo}
+        value={params.tipo || ''}
         onChange={(v) => updateParam('tipo', v)}
         options={[
           { value: '', label: 'Todos os tipos' },
@@ -218,7 +218,7 @@ function BuscarPage() {
 
       <FilterSelect
         label="Cidade"
-        value={params.cidade}
+        value={params.cidade || ''}
         onChange={(v) => updateParam('cidade', v)}
         options={[
           { value: '', label: 'Todas as cidades' },
@@ -232,7 +232,7 @@ function BuscarPage() {
           <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray" />
           <input
             type="text"
-            value={params.bairro}
+            value={params.bairro || ''}
             onChange={(e) => updateParam('bairro', e.target.value)}
             placeholder="Ex: Ipanema, Moema..."
             className="w-full bg-cream border border-cream-border rounded-xl pl-9 pr-4 py-3 text-sm text-charcoal placeholder:text-warm-gray/60"
@@ -288,7 +288,7 @@ function BuscarPage() {
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray" />
           <input
             type="text"
-            value={params.q}
+            value={params.q || ''}
             onChange={(e) => updateParam('q', e.target.value)}
             placeholder="Ex: VRO-1042"
             className="w-full bg-cream border border-cream-border rounded-xl pl-9 pr-4 py-3 text-sm text-charcoal placeholder:text-warm-gray/60"

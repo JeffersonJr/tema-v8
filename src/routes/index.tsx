@@ -6,7 +6,6 @@ import {
   ChevronDown,
   Star,
   Award,
-  Users,
   TrendingUp,
   Home,
   Building2,
@@ -197,15 +196,15 @@ function FeaturedSection() {
             <Link
               to="/imovel/$id"
               params={{ id: hero.id }}
-              className="property-card group block bg-white rounded-2xl overflow-hidden border border-cream-border h-full"
+              className="property-card group flex flex-col bg-white rounded-2xl overflow-hidden border border-cream-border h-full"
             >
-              <div className="relative overflow-hidden" style={{ height: '420px' }}>
+              <div className="relative overflow-hidden w-full flex-1 min-h-[420px]">
                 <img
                   src={hero.images[0]}
                   alt={hero.title}
-                  className="w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/70 via-charcoal/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/20 to-transparent" />
                 <div className="absolute top-5 left-5 flex gap-2">
                   <span className={`px-3 py-1 rounded-full text-[11px] font-medium uppercase tracking-wider tag-${hero.purpose}`}>
                     {hero.purpose === 'venda' ? 'Venda' : hero.purpose === 'aluguel' ? 'Aluguel' : 'Lançamento'}
@@ -214,7 +213,7 @@ function FeaturedSection() {
                     Destaque
                   </span>
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 p-6">
+                <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
                   <div className="text-white/70 text-xs uppercase tracking-widest mb-1 flex items-center gap-1">
                     <MapPin size={11} />
                     {hero.address.neighborhood}, {hero.address.city}
@@ -368,7 +367,7 @@ function TestimonialsSection() {
       name: 'Beatriz Almeida',
       role: 'Empresária',
       city: 'São Paulo',
-      text: 'A Vero superou todas as minhas expectativas. Encontrei meu apartamento nos Jardins em menos de duas semanas. O atendimento foi impecável do início ao fim.',
+      text: 'A Robles superou todas as minhas expectativas. Encontrei meu apartamento nos Jardins em menos de duas semanas. O atendimento foi impecável do início ao fim.',
       rating: 5,
       photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&q=80',
     },
@@ -376,7 +375,7 @@ function TestimonialsSection() {
       name: 'Fernando Lopes',
       role: 'Diretor de Tecnologia',
       city: 'Rio de Janeiro',
-      text: 'Investi em um apartamento na Barra indicado pela equipe Vero. Retorno excelente e toda a burocracia foi resolvida por eles. Recomendo sem hesitar.',
+      text: 'Investi em um apartamento na Barra indicado pela equipe Robles. Retorno excelente e toda a burocracia foi resolvida por eles. Recomendo sem hesitar.',
       rating: 5,
       photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80',
     },
@@ -384,7 +383,7 @@ function TestimonialsSection() {
       name: 'Camila Torres',
       role: 'Médica',
       city: 'Florianópolis',
-      text: 'Sempre quis morar em Jurerê. A Vero conhecia cada detalhe do mercado local e conseguiu um imóvel perfeito dentro do meu orçamento. Mudança de vida.',
+      text: 'Sempre quis morar em Jurerê. A Robles conhecia cada detalhe do mercado local e conseguiu um imóvel perfeito dentro do meu orçamento. Mudança de vida.',
       rating: 5,
       photo: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=80&q=80',
     },
@@ -399,7 +398,7 @@ function TestimonialsSection() {
               O que dizem nossos clientes
             </h2>
           </div>
-          <p className="text-cream/50 mt-3">Mais de 4.800 famílias que encontraram seu lar com a Vero</p>
+          <p className="text-cream/50 mt-3">Mais de 4.800 famílias que encontraram seu lar com a Robles</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((t) => (

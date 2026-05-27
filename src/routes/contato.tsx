@@ -24,7 +24,7 @@ const offices = [
     neighborhood: 'Sala 14',
     state: 'SP',
     phone: '(11) 4002-8922',
-    email: 'sp@veroimoveis.com.br',
+    email: 'sp@roblesimobiliaria.com.br',
     hours: 'Seg–Sex: 9h–19h · Sáb: 9h–14h',
     image: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=600&q=80&fit=crop',
   },
@@ -34,7 +34,7 @@ const offices = [
     neighborhood: 'Copacabana',
     state: 'RJ',
     phone: '(21) 4003-9944',
-    email: 'rj@veroimoveis.com.br',
+    email: 'rj@roblesimobiliaria.com.br',
     hours: 'Seg–Sex: 9h–19h · Sáb: 10h–14h',
     image: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=600&q=80&fit=crop',
   },
@@ -44,7 +44,7 @@ const offices = [
     neighborhood: 'Centro',
     state: 'SC',
     phone: '(48) 4002-7711',
-    email: 'sc@veroimoveis.com.br',
+    email: 'sc@roblesimobiliaria.com.br',
     hours: 'Seg–Sex: 9h–18h · Sáb: 9h–13h',
     image: 'https://images.unsplash.com/photo-1594494726020-6f36f9b6a8ac?w=600&q=80&fit=crop',
   },
@@ -57,7 +57,7 @@ const faqs = [
   },
   {
     question: 'Qual a comissão cobrada nas vendas?',
-    answer: 'A comissão de corretagem é regulamentada pelo CRECI e varia entre 5% e 8% do valor do imóvel. Na Vero, trabalhamos sempre com transparência sobre custos desde o início da negociação.',
+    answer: 'A comissão de corretagem é regulamentada pelo CRECI e varia entre 5% e 8% do valor do imóvel. Na Robles, trabalhamos sempre com transparência sobre custos desde o início da negociação.',
   },
   {
     question: 'Vocês também ajudam com financiamento?',
@@ -263,9 +263,9 @@ function ContatoPage() {
             {
               icon: Mail,
               title: 'E-mail',
-              value: 'contato@veroimoveis.com.br',
+              value: 'contato@roblesimobiliaria.com.br',
               sub: 'Resposta em até 24h',
-              href: 'mailto:contato@veroimoveis.com.br',
+              href: 'mailto:contato@roblesimobiliaria.com.br',
             },
           ].map((c) => (
             <a
@@ -306,9 +306,9 @@ function ContatoPage() {
             </p>
             <div className="space-y-3">
               {[
-                { icon: Instagram, name: '@veroimoveis', platform: 'Instagram', followers: '48,7 mil' },
-                { icon: Facebook, name: 'Vero Imóveis', platform: 'Facebook', followers: '23,4 mil' },
-                { icon: Linkedin, name: 'Vero Imóveis', platform: 'LinkedIn', followers: '12,1 mil' },
+                { icon: Instagram, name: '@roblesimobiliaria', platform: 'Instagram', followers: '48,7 mil' },
+                { icon: Facebook, name: 'Robles Imobiliária', platform: 'Facebook', followers: '23,4 mil' },
+                { icon: Linkedin, name: 'Robles Imobiliária', platform: 'LinkedIn', followers: '12,1 mil' },
               ].map((social) => (
                 <a
                   key={social.platform}
