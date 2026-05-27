@@ -34,7 +34,7 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
       const favs = JSON.parse(localStorage.getItem('robles_favoritos') || '[]')
       let newFavs
       if (favs.includes(property.id)) {
-        newFavs = favs.filter((id: number) => id !== property.id)
+        newFavs = favs.filter((id: string) => id !== property.id)
         setSaved(false)
       } else {
         newFavs = [...favs, property.id]

@@ -9,7 +9,7 @@ export const Route = createFileRoute('/favoritos')({
 })
 
 function FavoritosPage() {
-  const [favoriteIds, setFavoriteIds] = useState<number[]>([])
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([])
 
   useEffect(() => {
     // Carregar favoritos do localStorage no client-side
