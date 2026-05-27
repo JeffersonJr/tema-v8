@@ -470,34 +470,34 @@ function CTASection() {
 function CitiesSection() {
   const cities = [
     {
+      name: 'Porto Feliz',
+      state: 'SP',
+      count: 84,
+      image: 'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80&fit=crop',
+    },
+    {
+      name: 'Santana de Parnaíba',
+      state: 'SP',
+      count: 142,
+      image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&q=80&fit=crop',
+    },
+    {
       name: 'São Paulo',
       state: 'SP',
       count: 542,
       image: 'https://images.unsplash.com/photo-1543087903-1ac2ec7aa8c5?w=600&q=80&fit=crop',
     },
     {
-      name: 'Rio de Janeiro',
-      state: 'RJ',
-      count: 318,
-      image: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=600&q=80&fit=crop',
+      name: 'São Sebastião',
+      state: 'SP',
+      count: 78,
+      image: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=600&q=80&fit=crop',
     },
     {
-      name: 'Florianópolis',
-      state: 'SC',
-      count: 189,
-      image: 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=600&q=80&fit=crop',
-    },
-    {
-      name: 'Curitiba',
-      state: 'PR',
-      count: 124,
-      image: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=600&q=80&fit=crop',
-    },
-    {
-      name: 'Belo Horizonte',
-      state: 'MG',
-      count: 97,
-      image: 'https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?w=600&q=80&fit=crop',
+      name: 'Ubatuba',
+      state: 'SP',
+      count: 63,
+      image: 'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=600&q=80&fit=crop',
     },
   ]
 
