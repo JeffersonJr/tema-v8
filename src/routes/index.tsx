@@ -485,19 +485,19 @@ function CitiesSection() {
       name: 'Florianópolis',
       state: 'SC',
       count: 189,
-      image: 'https://images.unsplash.com/photo-1594494726020-6f36f9b6a8ac?w=600&q=80&fit=crop',
+      image: 'https://images.unsplash.com/photo-1573511860302-28c5243199c2?w=600&q=80&fit=crop',
     },
     {
       name: 'Curitiba',
       state: 'PR',
       count: 124,
-      image: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=600&q=80&fit=crop',
+      image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600&q=80&fit=crop',
     },
     {
       name: 'Belo Horizonte',
       state: 'MG',
       count: 97,
-      image: 'https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?w=600&q=80&fit=crop',
+      image: 'https://images.unsplash.com/photo-1597075095400-502a5c8801d9?w=600&q=80&fit=crop',
     },
   ]
 
