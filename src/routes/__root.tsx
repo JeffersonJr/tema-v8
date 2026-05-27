@@ -6,8 +6,8 @@ import {
   Link,
   useRouterState,
 } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
-import { Menu, X, Phone, Mail, Instagram, Facebook, Youtube } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Menu, X, Phone, Mail, Instagram, Facebook, Youtube, MessageCircle, ChevronDown as ChevDown } from 'lucide-react'
 
 import '../styles.css'
 
@@ -87,13 +87,7 @@ function Navbar() {
         </div>
 
         <div className="hidden lg:flex items-center gap-3">
-          <a
-            href="tel:+551140028922"
-            className={`text-sm font-medium flex items-center gap-2 ${textColor} transition-colors`}
-          >
-            <Phone size={15} />
-            (11) 4002-8922
-          </a>
+          <PhoneDropdown textColor={textColor} />
           <Link
             to="/contato"
             className="btn-gold px-5 py-2.5 rounded-full text-sm font-medium"
@@ -128,6 +122,65 @@ function Navbar() {
         </div>
       )}
     </nav>
+  )
+}
+
+function PhoneDropdown({ textColor }: { textColor: string }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const phones = [
+    { label: '(11) 4002-8922', href: 'tel:+551140028922', type: 'phone' as const },
+    { label: '(11) 99847-3821', href: 'https://wa.me/5511998473821', type: 'whatsapp' as const },
+  ]
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className={`text-sm font-medium flex items-center gap-1.5 ${textColor} transition-colors group`}
+      >
+        <Phone size={14} />
+        Contato
+        <ChevDown size={12} className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {open && (
+        <div className="absolute top-full right-0 mt-2 w-56 bg-white border border-cream-border rounded-2xl shadow-xl z-50 overflow-hidden animate-fade-in-up">
+          <div className="px-4 py-2.5 bg-cream-dark border-b border-cream-border">
+            <span className="text-[10px] font-semibold text-warm-gray uppercase tracking-widest">Fale conosco</span>
+          </div>
+          {phones.map((p) => (
+            <a
+              key={p.href}
+              href={p.href}
+              target={p.type === 'whatsapp' ? '_blank' : undefined}
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-3.5 hover:bg-cream transition-colors border-b border-cream-border last:border-0"
+            >
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                p.type === 'whatsapp' ? 'bg-green-50 text-green-600' : 'bg-gold/10 text-gold'
+              }`}>
+                {p.type === 'whatsapp' ? <MessageCircle size={14} /> : <Phone size={14} />}
+              </div>
+              <div>
+                <div className="text-charcoal text-sm font-semibold">{p.label}</div>
+                <div className="text-warm-gray text-[10px]">{p.type === 'whatsapp' ? 'WhatsApp · Resposta imediata' : 'Telefone · Seg–Sex 9h–19h'}</div>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -201,7 +254,7 @@ function Footer() {
         </div>
 
         <div className="border-t border-cream/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
-          <p>© 2025 Robles Imobiliária. Todos os direitos reservados.</p>
+          <p>© 2025 Robles Imobiliária. Todos os direitos reservados. | Powered by <a href="https://microsistec.com.br" target="_blank" rel="noopener noreferrer" className="hover:text-gold transition-colors font-medium">Microsistec</a></p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-gold transition-colors">Política de Privacidade</a>
             <a href="#" className="hover:text-gold transition-colors">Termos de Uso</a>

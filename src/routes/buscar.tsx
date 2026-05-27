@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
 import { useState, useMemo } from 'react'
-import { SlidersHorizontal, Search, X, ChevronDown, Grid2X2, List, MapPin } from 'lucide-react'
+import { SlidersHorizontal, Search, X, ChevronDown, Grid2X2, List, MapPin, Home, ChevronRight } from 'lucide-react'
 import { PropertyCard } from '@/components/PropertyCard'
 import properties, { formatPrice } from '@/data/properties'
 import type { Property } from '@/data/properties'
@@ -300,21 +300,75 @@ function BuscarPage() {
 
   return (
     <div className="min-h-screen pt-20">
+      <div className="bg-white border-b border-cream-border">
+        <div className="max-w-7xl mx-auto px-6 py-3">
+          <nav className="flex items-center gap-1.5 text-xs text-warm-gray">
+            <Link to="/" className="flex items-center gap-1 hover:text-gold transition-colors">
+              <Home size={12} />
+              Início
+            </Link>
+            <ChevronRight size={11} className="text-cream-border" />
+            <span className="text-charcoal font-medium">
+              {params.finalidade === 'venda'
+                ? 'Imóveis para Comprar'
+                : params.finalidade === 'aluguel'
+                ? 'Imóveis para Alugar'
+                : params.finalidade === 'lancamento'
+                ? 'Lançamentos'
+                : 'Buscar Imóveis'}
+            </span>
+            {params.cidade && (
+              <>
+                <ChevronRight size={11} className="text-cream-border" />
+                <span className="text-gold font-medium">{params.cidade}</span>
+              </>
+            )}
+          </nav>
+        </div>
+      </div>
+
       <div className="bg-cream-dark border-b border-cream-border">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <h1 className="font-display text-3xl font-bold text-charcoal mb-1">
-            {params.finalidade === 'venda'
-              ? 'Imóveis para Comprar'
-              : params.finalidade === 'aluguel'
-              ? 'Imóveis para Alugar'
-              : params.finalidade === 'lancamento'
-              ? 'Lançamentos'
-              : 'Todos os Imóveis'}
-          </h1>
-          <p className="text-warm-gray text-sm">
-            {filtered.length} {filtered.length === 1 ? 'imóvel encontrado' : 'imóveis encontrados'}
-            {params.cidade && ` em ${params.cidade}`}
-          </p>
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+            <div>
+              <h1 className="font-display text-2xl md:text-3xl font-bold text-charcoal">
+                {params.finalidade === 'venda'
+                  ? 'Imóveis para Comprar'
+                  : params.finalidade === 'aluguel'
+                  ? 'Imóveis para Alugar'
+                  : params.finalidade === 'lancamento'
+                  ? 'Lançamentos'
+                  : 'Todos os Imóveis'}
+                {params.cidade && <span className="text-gold"> em {params.cidade}</span>}
+              </h1>
+              <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                <span className="text-warm-gray text-sm">
+                  <strong className="text-charcoal">{filtered.length}</strong>{' '}
+                  {filtered.length === 1 ? 'imóvel encontrado' : 'imóveis encontrados'}
+                </span>
+                {(params.tipo || params.quartos || params.cidade) && (
+                  <span className="text-cream-border">|</span>
+                )}
+                {params.tipo && (
+                  <span className="inline-flex items-center bg-charcoal/8 text-charcoal text-xs px-2.5 py-1 rounded-full font-medium">
+                    {params.tipo.charAt(0).toUpperCase() + params.tipo.slice(1)}
+                  </span>
+                )}
+                {params.quartos && (
+                  <span className="inline-flex items-center bg-charcoal/8 text-charcoal text-xs px-2.5 py-1 rounded-full font-medium">
+                    {params.quartos}+ quartos
+                  </span>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={resetAll}
+              className="text-xs text-warm-gray hover:text-gold transition-colors flex items-center gap-1 self-start sm:self-end shrink-0"
+            >
+              <X size={12} />
+              Limpar todos os filtros
+            </button>
+          </div>
         </div>
       </div>
 

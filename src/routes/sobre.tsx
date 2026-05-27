@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Award, Heart, ArrowRight, Compass, Smile, ThumbsUp, Scale } from 'lucide-react'
+import { Award, Heart, ArrowRight, Compass, Smile, ThumbsUp, Scale, Instagram, Facebook, Linkedin } from 'lucide-react'
 
 export const Route = createFileRoute('/sobre')({
   component: SobrePage,
@@ -12,6 +12,7 @@ const team = [
     bio: 'Mais de 25 anos no mercado imobiliário premium. Formada em Direito pela USP com MBA em Real Estate pela FGV.',
     photo: '/claudia.png',
     creci: 'CRECI-SP 82.341',
+    socials: { instagram: 'https://www.instagram.com/roblesimobiliaria/', linkedin: '#', facebook: 'https://www.facebook.com/roblesimobiliariasp/' },
   },
   {
     name: 'Rafaela Monteiro',
@@ -19,6 +20,7 @@ const team = [
     bio: 'Especialista em imóveis de alto padrão em Jardins, Moema e Pinheiros. Referência no mercado paulistano há 14 anos.',
     photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=500&q=80&fit=crop',
     creci: 'CRECI-SP 187.342',
+    socials: { instagram: '#', linkedin: '#', facebook: '#' },
   },
   {
     name: 'Thiago Cavalcante',
@@ -26,6 +28,7 @@ const team = [
     bio: 'Conhece cada detalhe do mercado carioca. Especialista em Ipanema, Leblon e Barra da Tijuca há 17 anos.',
     photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&q=80&fit=crop',
     creci: 'CRECI-RJ 23.814',
+    socials: { instagram: '#', linkedin: '#', facebook: '#' },
   },
   {
     name: 'Marcelo Duarte',
@@ -33,6 +36,7 @@ const team = [
     bio: 'Referência em Jurerê Internacional e Campeche. Especialista em imóveis de alto padrão no litoral catarinense.',
     photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=500&q=80&fit=crop',
     creci: 'CRECI-SC 18.234',
+    socials: { instagram: '#', linkedin: '#', facebook: '#' },
   },
   {
     name: 'Carolina Ferraz',
@@ -40,6 +44,7 @@ const team = [
     bio: 'Atua no mercado de luxo de Curitiba e BH há 11 anos. Especialista em condomínios fechados e imóveis residenciais premium.',
     photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=500&q=80&fit=crop',
     creci: 'CRECI-PR 31.459',
+    socials: { instagram: '#', linkedin: '#', facebook: '#' },
   },
   {
     name: 'Bruno Nakamura',
@@ -47,6 +52,7 @@ const team = [
     bio: 'Responsável pela área de empreendimentos e lançamentos. Experiência em incorporação imobiliária e projetos boutique.',
     photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=500&q=80&fit=crop',
     creci: 'CRECI-SP 204.871',
+    socials: { instagram: '#', linkedin: '#', facebook: '#' },
   },
 ]
 
@@ -216,7 +222,23 @@ function SobrePage() {
                   <h3 className="font-display text-lg font-bold text-charcoal">{member.name}</h3>
                   <div className="text-gold text-sm font-medium uppercase tracking-wider mt-1 mb-3">{member.role}</div>
                   <p className="text-warm-gray text-base leading-relaxed mb-3">{member.bio}</p>
-                  <div className="text-sm text-warm-gray/60">{member.creci}</div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-warm-gray/60">{member.creci}</div>
+                    <div className="flex gap-2">
+                      <a href={member.socials.instagram} target="_blank" rel="noopener noreferrer"
+                        className="w-7 h-7 rounded-full border border-cream-border flex items-center justify-center text-warm-gray hover:border-gold hover:text-gold transition-colors">
+                        <Instagram size={12} />
+                      </a>
+                      <a href={member.socials.linkedin} target="_blank" rel="noopener noreferrer"
+                        className="w-7 h-7 rounded-full border border-cream-border flex items-center justify-center text-warm-gray hover:border-gold hover:text-gold transition-colors">
+                        <Linkedin size={12} />
+                      </a>
+                      <a href={member.socials.facebook} target="_blank" rel="noopener noreferrer"
+                        className="w-7 h-7 rounded-full border border-cream-border flex items-center justify-center text-warm-gray hover:border-gold hover:text-gold transition-colors">
+                        <Facebook size={12} />
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}

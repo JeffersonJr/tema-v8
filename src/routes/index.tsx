@@ -1,5 +1,5 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Search,
   ArrowRight,
@@ -550,19 +550,34 @@ function CitiesSection() {
 }
 
 function HomePage() {
+  const parallaxRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (parallaxRef.current) {
+        const scrollY = window.scrollY
+        parallaxRef.current.style.transform = `translateY(${scrollY * 0.4}px)`
+      }
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   return (
     <div>
       {/* Hero */}
       <div className="relative min-h-screen flex items-center justify-center">
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=85&fit=crop"
-            alt="Luxury property"
-            onError={(e) => {
-              e.currentTarget.src = '/placeholder.png'
-            }}
-            className="w-full h-full object-cover"
-          />
+        <div className="absolute inset-0 overflow-hidden">
+          <div ref={parallaxRef} className="absolute inset-[-20%] will-change-transform">
+            <img
+              src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=85&fit=crop"
+              alt="Luxury property"
+              onError={(e) => {
+                e.currentTarget.src = '/placeholder.png'
+              }}
+              className="w-full h-full object-cover"
+            />
+          </div>
           <div className="hero-gradient absolute inset-0" />
         </div>
 

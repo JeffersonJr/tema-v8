@@ -7,9 +7,6 @@ import {
   Briefcase, 
   MapPin, 
   DollarSign, 
-  BedDouble, 
-  Bath, 
-  Car, 
   CheckCircle2, 
   ChevronRight, 
   ChevronLeft, 
@@ -17,7 +14,7 @@ import {
   Building2,
   FileText,
   User,
-  Plus
+  Maximize2,
 } from 'lucide-react'
 
 export const Route = createFileRoute('/anunciar')({
@@ -203,7 +200,7 @@ function AnunciarPage() {
         )}
 
         {/* Wizard Form Container */}
-        <div className="bg-white border border-cream-border rounded-3xl p-8 shadow-sm">
+        <div className="bg-white border border-cream-border rounded-3xl p-8 shadow-sm relative">
           
           {/* STEP 1: Purpose and Type */}
           {step === 1 && (

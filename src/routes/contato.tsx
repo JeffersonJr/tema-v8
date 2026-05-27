@@ -46,7 +46,7 @@ const offices = [
     phone: '(48) 4002-7711',
     email: 'sc@roblesimobiliaria.com.br',
     hours: 'Seg–Sex: 9h–18h · Sáb: 9h–13h',
-    image: 'https://images.unsplash.com/photo-1594494726020-6f36f9b6a8ac?w=600&q=80&fit=crop',
+    image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600&q=80&fit=crop',
   },
 ]
 
@@ -131,7 +131,7 @@ function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">Nome completo *</label>
@@ -140,8 +140,8 @@ function ContactForm() {
             type="text"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            placeholder="Seu nome"
-            className="w-full bg-cream border border-cream-border rounded-xl px-4 py-3.5 text-sm text-charcoal placeholder:text-warm-gray/60"
+            placeholder="Seu nome completo"
+            className="w-full bg-white border-2 border-cream-border focus:border-gold rounded-xl px-4 py-3.5 text-sm text-charcoal placeholder:text-warm-gray/50 outline-none transition-colors"
           />
         </div>
         <div>
@@ -152,7 +152,7 @@ function ContactForm() {
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
             placeholder="(11) 99999-9999"
-            className="w-full bg-cream border border-cream-border rounded-xl px-4 py-3.5 text-sm text-charcoal placeholder:text-warm-gray/60"
+            className="w-full bg-white border-2 border-cream-border focus:border-gold rounded-xl px-4 py-3.5 text-sm text-charcoal placeholder:text-warm-gray/50 outline-none transition-colors"
           />
         </div>
       </div>
@@ -165,7 +165,7 @@ function ContactForm() {
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             placeholder="seu@email.com"
-            className="w-full bg-cream border border-cream-border rounded-xl px-4 py-3.5 text-sm text-charcoal placeholder:text-warm-gray/60"
+            className="w-full bg-white border-2 border-cream-border focus:border-gold rounded-xl px-4 py-3.5 text-sm text-charcoal placeholder:text-warm-gray/50 outline-none transition-colors"
           />
         </div>
         <div>
@@ -174,9 +174,9 @@ function ContactForm() {
             <select
               value={form.city}
               onChange={(e) => setForm({ ...form, city: e.target.value })}
-              className="w-full appearance-none bg-cream border border-cream-border rounded-xl px-4 py-3.5 text-sm text-charcoal pr-8"
+              className="w-full appearance-none bg-white border-2 border-cream-border focus:border-gold rounded-xl px-4 py-3.5 text-sm text-charcoal pr-8 outline-none transition-colors"
             >
-              <option value="">Selecione</option>
+              <option value="">Selecione a cidade</option>
               <option>São Paulo</option>
               <option>Rio de Janeiro</option>
               <option>Florianópolis</option>
@@ -194,7 +194,7 @@ function ContactForm() {
             required
             value={form.subject}
             onChange={(e) => setForm({ ...form, subject: e.target.value })}
-            className="w-full appearance-none bg-cream border border-cream-border rounded-xl px-4 py-3.5 text-sm text-charcoal pr-8"
+            className="w-full appearance-none bg-white border-2 border-cream-border focus:border-gold rounded-xl px-4 py-3.5 text-sm text-charcoal pr-8 outline-none transition-colors"
           >
             <option value="">Selecione o assunto</option>
             <option>Quero comprar um imóvel</option>
@@ -215,7 +215,7 @@ function ContactForm() {
           value={form.message}
           onChange={(e) => setForm({ ...form, message: e.target.value })}
           placeholder="Descreva o que você está buscando ou sua necessidade..."
-          className="w-full bg-cream border border-cream-border rounded-xl px-4 py-3.5 text-sm text-charcoal placeholder:text-warm-gray/60 resize-none"
+          className="w-full bg-white border-2 border-cream-border focus:border-gold rounded-xl px-4 py-3.5 text-sm text-charcoal placeholder:text-warm-gray/50 outline-none transition-colors resize-none"
         />
       </div>
       <button type="submit" className="btn-gold w-full py-4 rounded-xl text-sm font-semibold">
