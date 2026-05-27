@@ -299,6 +299,11 @@ function ImovelPage() {
                       Destaque
                     </span>
                   )}
+                  {property.isLaunch && (
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gold/10 text-gold border border-gold/20 uppercase tracking-widest">
+                      Reg. Inc. R.3/{property.code.replace('VRO-', '')}
+                    </span>
+                  )}
                 </div>
                 <h1 className="font-display text-3xl md:text-4xl font-bold text-charcoal leading-tight">
                   {property.title}

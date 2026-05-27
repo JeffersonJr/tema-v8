@@ -189,9 +189,14 @@ function LancamentosPage() {
                   </div>
 
                   <div className="md:w-[45%] p-8 md:p-10 flex flex-col justify-center">
-                    <div className="text-gold text-xs uppercase tracking-widest font-semibold mb-2 flex items-center gap-1.5">
-                      <MapPin size={12} />
-                      {p.address.neighborhood} · {p.address.city}/{p.address.state}
+                    <div className="flex items-center justify-between gap-4 mb-2 flex-wrap">
+                      <div className="text-gold text-xs uppercase tracking-widest font-semibold flex items-center gap-1.5">
+                        <MapPin size={12} />
+                        {p.address.neighborhood} · {p.address.city}/{p.address.state}
+                      </div>
+                      <span className="bg-gold/10 text-gold text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border border-gold/20">
+                        Reg. Inc. R.3/{p.code.replace('VRO-', '')}
+                      </span>
                     </div>
                     <h3 className="font-display text-2xl md:text-3xl font-bold text-charcoal mb-4 leading-tight">
                       {p.title}
