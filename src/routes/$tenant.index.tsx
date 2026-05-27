@@ -32,6 +32,7 @@ const CIDADES = [
 
 function HeroSearch() {
   const navigate = useNavigate()
+  const { tenant: tenantSlug } = useParams({ strict: false })
   const [finalidade, setFinalidade] = useState<'venda' | 'aluguel' | 'lancamento'>('venda')
   const [tipo, setTipo] = useState('')
   const [cidade, setCidade] = useState('')
@@ -40,10 +41,11 @@ function HeroSearch() {
 
   const handleSearch = () => {
     if (byCode && code) {
-      navigate({ to: '/buscar', search: { q: code } })
+      navigate({ to: '/$tenant/buscar', params: { tenant: tenantSlug || '' }, search: { q: code } })
     } else {
       navigate({
-        to: '/buscar',
+        to: '/$tenant/buscar',
+        params: { tenant: tenantSlug || '' },
         search: {
           finalidade,
           tipo: tipo.toLowerCase(),
@@ -166,6 +168,10 @@ function StatsBar() {
 }
 
 function FeaturedSection() {
+  const { tenant: tenantSlug } = useParams({ strict: false })
+  const tenant = getTenantBySlug(tenantSlug || '')
+  if (!tenant) return null
+
   const featured = getFeaturedProperties(tenant.id)
   const [hero, ...rest] = featured
   const secondary = rest.slice(0, 2)
@@ -257,12 +263,13 @@ function FeaturedSection() {
 }
 
 function CategorySection() {
+  const { tenant: tenantSlug } = useParams({ strict: false })
   const categories = [
     {
       icon: Key,
       title: 'Comprar',
       description: 'Mais de 800 imóveis para venda com os melhores preços e condições.',
-      href: '/buscar',
+      href: '/$tenant/buscar',
       search: { finalidade: 'venda' as const },
       count: '843 imóveis',
       bg: 'bg-charcoal',
@@ -273,7 +280,7 @@ function CategorySection() {
       icon: Home,
       title: 'Alugar',
       description: 'Locação residencial e comercial com suporte completo de nossa equipe.',
-      href: '/buscar',
+      href: '/$tenant/buscar',
       search: { finalidade: 'aluguel' as const },
       count: '312 imóveis',
       bg: 'bg-cream-dark',
@@ -284,7 +291,7 @@ function CategorySection() {
       icon: Sparkles,
       title: 'Lançamentos',
       description: 'Empreendimentos exclusivos ainda na planta com as melhores condições.',
-      href: '/lancamentos',
+      href: '/$tenant/lancamentos',
       search: {},
       count: '18 projetos',
       bg: 'bg-gold',
@@ -305,14 +312,15 @@ function CategorySection() {
             </div>
           </div>
           <p className="text-warm-gray mt-3 max-w-xl mx-auto">
-            Do imóvel dos sonhos ao investimento perfeito, temos o que você precisa.
+            Do imóvel dos sonhos ao investment perfeito, temos o que você precisa.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {categories.map((cat) => (
             <Link
               key={cat.title}
-              to={cat.href as '/buscar' | '/lancamentos'}
+              to={cat.href as '/$tenant/buscar' | '/$tenant/lancamentos'}
+              params={{ tenant: tenantSlug || '' }}
               search={cat.search}
               className={`${cat.bg} ${cat.textColor} ${cat.border} rounded-2xl p-8 flex flex-col gap-5 group hover:-translate-y-1 transition-transform duration-300`}
             >
@@ -340,6 +348,10 @@ function CategorySection() {
 }
 
 function LaunchesTeaser() {
+  const { tenant: tenantSlug } = useParams({ strict: false })
+  const tenant = getTenantBySlug(tenantSlug || '')
+  if (!tenant) return null
+
   const launches = getLaunchProperties(tenant.id)
 
   return (
@@ -439,6 +451,7 @@ function TestimonialsSection() {
 }
 
 function CTASection() {
+  const { tenant: tenantSlug } = useParams({ strict: false })
   return (
     <section className="py-20">
       <div className="max-w-7xl mx-auto px-6">
@@ -476,6 +489,7 @@ function CTASection() {
 }
 
 function CitiesSection() {
+  const { tenant: tenantSlug } = useParams({ strict: false })
   const cities = [
     {
       name: 'Porto Feliz',
@@ -641,6 +655,10 @@ function HomePage() {
 }
 
 function TagsCloudSection() {
+  const { tenant: tenantSlug } = useParams({ strict: false })
+  const tenant = getTenantBySlug(tenantSlug || '')
+  if (!tenant) return null
+
   const row1 = [
     'Apartamento de Luxo nos Jardins', 'Cobertura Duplex em Ipanema', 'Casa em Condomínio Tamboré',
     'Lançamentos em Pinheiros', 'Imóveis Alto Padrão São Paulo', 'Casas de Luxo em Porto Feliz',
