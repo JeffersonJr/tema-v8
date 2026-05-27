@@ -81,8 +81,8 @@ function Navbar() {
           <Link to="/lancamentos" className="nav-link">Lançamentos</Link>
           <Link to="/anunciar" className="nav-link">Anunciar</Link>
           <Link to="/avaliar" className="nav-link">Avaliar</Link>
+          <Link to="/blog" className="nav-link">Blog</Link>
           <Link to="/sobre" className="nav-link">Sobre</Link>
-          <Link to="/favoritos" className="nav-link">Favoritos</Link>
           <Link to="/contato" className="nav-link">Contato</Link>
         </div>
 
@@ -112,6 +112,7 @@ function Navbar() {
             <Link to="/lancamentos" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Lançamentos</Link>
             <Link to="/anunciar" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Anuncie seu Imóvel</Link>
             <Link to="/avaliar" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Avalie seu Imóvel</Link>
+            <Link to="/blog" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Blog</Link>
             <Link to="/sobre" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Sobre</Link>
             <Link to="/favoritos" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Favoritos</Link>
             <Link to="/contato" onClick={() => setOpen(false)} className="text-charcoal font-medium py-2">Contato</Link>
@@ -228,7 +229,7 @@ function Footer() {
               <li><Link to="/contato" className="hover:text-gold transition-colors">Contato</Link></li>
               <li><Link to="/anunciar" className="hover:text-gold transition-colors">Anuncie seu imóvel</Link></li>
               <li><Link to="/avaliar" className="hover:text-gold transition-colors">Avalie seu imóvel</Link></li>
-              <li><a href="#" className="hover:text-gold transition-colors">Blog</a></li>
+              <li><Link to="/blog" className="hover:text-gold transition-colors">Blog</Link></li>
             </ul>
           </div>
 
