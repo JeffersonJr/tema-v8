@@ -473,31 +473,31 @@ function CitiesSection() {
       name: 'Porto Feliz',
       state: 'SP',
       count: 84,
-      image: 'https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80&fit=crop',
+      image: '/porto_feliz.png',
     },
     {
       name: 'Santana de Parnaíba',
       state: 'SP',
       count: 142,
-      image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&q=80&fit=crop',
+      image: '/santana_parnaiba.png',
     },
     {
       name: 'São Paulo',
       state: 'SP',
       count: 542,
-      image: 'https://images.unsplash.com/photo-1543087903-1ac2ec7aa8c5?w=600&q=80&fit=crop',
+      image: '/sp_ponte.png',
     },
     {
       name: 'São Sebastião',
       state: 'SP',
       count: 78,
-      image: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=600&q=80&fit=crop',
+      image: '/sao_sebastiao.png',
     },
     {
       name: 'Ubatuba',
       state: 'SP',
       count: 63,
-      image: 'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=600&q=80&fit=crop',
+      image: '/ubatuba.png',
     },
   ]
 
