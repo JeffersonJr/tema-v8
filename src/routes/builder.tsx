@@ -717,7 +717,7 @@ function BuilderPage() {
         </section>
 
         {/* RIGHT COLUMN: Live Interactive Real-time Site Preview (Fidelity Overlay) */}
-        <section className="lg:col-span-6 bg-slate-950 flex flex-col h-full relative">
+        <section className="lg:col-span-6 bg-slate-950 flex flex-col h-[50vh] lg:h-full sticky bottom-0 lg:top-[4.5rem] z-20 border-t lg:border-t-0 border-slate-800">
           
           <div className="bg-slate-900/60 backdrop-blur border-b border-slate-850 px-6 py-3 flex items-center justify-between z-10">
             <div className="flex items-center gap-2">
