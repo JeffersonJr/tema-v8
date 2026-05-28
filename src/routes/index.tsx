@@ -9,33 +9,68 @@ export const Route = createFileRoute('/')({
   component: PortalIndexPage,
 })
 
+const slugify = (text: string) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '')
+}
+
 function PortalIndexPage() {
   const [allTenants, setAllTenants] = useState<Tenant[]>([])
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const custom = getCustomTenants()
-      setAllTenants([...tenants, ...custom])
+      const all = [...tenants, ...custom].map(t => {
+        const stored = localStorage.getItem(`${t.id}_builder_settings`)
+        if (stored) {
+          try {
+            const p = JSON.parse(stored)
+            return {
+              ...t,
+              name: p.name || t.name,
+              slug: p.slug || t.slug,
+              status: p.status || t.status || 'online',
+            }
+          } catch (e) {}
+        }
+        return {
+          ...t,
+          status: t.status || 'online',
+        }
+      })
+      setAllTenants(all)
     } else {
-      setAllTenants(tenants)
+      setAllTenants(tenants.map(t => ({ ...t, status: t.status || 'online' })))
     }
   }, [])
 
   const handleCreateNewTenant = () => {
     if (typeof window === 'undefined') return
-    const suffix = Date.now().toString().slice(-4)
+    const name = window.prompt('Qual o nome da nova imobiliária?')
+    if (!name || !name.trim()) return
+    const trimmedName = name.trim()
+    const customSlug = slugify(trimmedName) || `portal-${Date.now().toString().slice(-4)}`
+    
     const nextId = `custom_${Date.now()}`
-    const newSlug = `portal-${suffix}`
     
     const newTenant: Tenant = {
       id: nextId,
-      slug: newSlug,
-      name: `Novo Portal V8 #${suffix}`,
+      slug: customSlug,
+      name: trimmedName,
       tagline: 'Lançamentos imobiliários e design de vanguarda.',
       logo: '',
       favicon: '/favicon.ico',
       creci: 'CRECI-PR 00.000-X',
       description: 'Novo portal imobiliário criado dinamicamente com o construtor modular LEGO V8.',
+      status: 'online',
       colors: {
         cream: '#FAFAFA',
         creamDark: '#F4F4F5',
@@ -73,7 +108,7 @@ function PortalIndexPage() {
         headerStyle: 'minimal',
         footerStyle: 'simple',
         heroStyle: 'minimalist',
-        heroTitle: `Novo Portal V8 #${suffix}`,
+        heroTitle: trimmedName,
         heroSubtitle: 'Selecione e configure os seus blocos premium na barra de ferramentas lateral.',
         heroImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85&fit=crop',
         cardVariant: 'compact',
@@ -127,6 +162,7 @@ function PortalIndexPage() {
       contacts: newTenant.contacts,
       name: newTenant.name,
       slug: newTenant.slug,
+      status: newTenant.status,
       homeBlocks: ['stats', 'featured', 'categories', 'launches', 'cities', 'testimonials', 'cta', 'tags'],
       pageStructures: {
         sobre: 'editorial',
@@ -244,11 +280,24 @@ function PortalIndexPage() {
                       {tenant.name.charAt(0)}
                     </div>
 
-                    <div className="flex flex-col items-end">
+                    <div className="flex flex-col items-end gap-1.5">
                       <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${badgeColor}`}>
                         {propsCount} Imóveis
                       </span>
-                      <span className="text-[10px] text-white/40 mt-1.5 font-mono">{tenant.creci}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-white/40 font-mono">{tenant.creci}</span>
+                        {tenant.status === 'offline' ? (
+                          <span className="flex items-center gap-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 select-none">
+                            <span className="w-1 h-1 rounded-full bg-rose-500" />
+                            Offline
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 select-none">
+                            <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                            No Ar
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 

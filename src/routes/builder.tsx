@@ -41,6 +41,20 @@ export const Route = createFileRoute('/builder')({
   component: BuilderPage,
 })
 
+// ─── UTILS ──────────────────────────────────────────────────────────────────
+const slugify = (text: string) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '')
+}
+
 // ─── FONTS ──────────────────────────────────────────────────────────────────
 const FONTS_LIST = [
   { name: 'Inter', category: 'sans-serif', desc: 'Moderno, limpo e extremamente legível' },
@@ -281,6 +295,7 @@ function BuilderPage() {
   const [settings, setSettings] = useState({
     name: defaultTenant?.name || 'Lumina Curadoria',
     slug: defaultTenant?.slug || 'lumina',
+    status: (defaultTenant?.status || 'online') as 'online' | 'offline',
     headerStyle: 'minimal' as 'transparent' | 'minimal' | 'classic',
     headerFixed: true,
     footerStyle: 'simple' as 'simple' | 'detailed' | 'minimal' | 'modern-newsletter' | 'column-grid',
@@ -388,6 +403,7 @@ function BuilderPage() {
             ...p,
             name: p.name || prev.name,
             slug: p.slug || prev.slug,
+            status: p.status || prev.status || 'online',
             modules: { ...prev.modules, ...(p.modules || {}) },
             enabledPages: { ...prev.enabledPages, ...(p.enabledPages || {}) },
             pageStructures: { ...prev.pageStructures, ...(p.pageStructures || {}) },
@@ -443,6 +459,7 @@ function BuilderPage() {
             tagline: settings.heroTitle || customTenants[idx].tagline,
             creci: contacts.creci || customTenants[idx].creci,
             logo: settings.logo || customTenants[idx].logo,
+            status: settings.status,
           }
           localStorage.setItem('v8_custom_tenants', JSON.stringify(customTenants))
         }
@@ -1500,6 +1517,59 @@ function BuilderPage() {
 
         {/* ── LEFT COLUMN: Controls ─────────────────────────────────────────── */}
         <section className="lg:col-span-6 p-5 space-y-4 border-r border-slate-200 bg-slate-50/50 overflow-y-auto">
+
+          {/* 📂 CADASTRO & STATUS GERAL */}
+          <SectionAccordion icon={<Layers size={16} />} title="🏢 Cadastro & Status Geral">
+            <p className="text-[10px] text-slate-500 leading-normal -mt-1">Gerencie as informações fundamentais e o status de publicação do seu site.</p>
+            <div className="space-y-4 pt-2">
+              <InputField 
+                label="Nome da Imobiliária" 
+                value={settings.name} 
+                onChange={v => {
+                  setSettings(prev => {
+                    const next = { ...prev, name: v }
+                    if (activeTenantId.startsWith('custom_')) {
+                      next.slug = slugify(v)
+                      next.heroTitle = v
+                    }
+                    return next
+                  })
+                }} 
+                placeholder="Ex: Robles Imobiliária" 
+              />
+
+              <InputField 
+                label="Slug de Link (Link de Acesso)" 
+                value={settings.slug} 
+                onChange={v => setSettings(prev => ({ ...prev, slug: slugify(v) }))} 
+                placeholder="ex: robles" 
+              />
+
+              <div>
+                <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Status de Publicação</label>
+                <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 gap-1">
+                  {[
+                    { id: 'online', label: '🟢 No Ar (Online)', color: 'text-emerald-700 bg-emerald-50 border-emerald-250 ring-1 ring-emerald-250' },
+                    { id: 'offline', label: '🔴 Fora do Ar (Offline)', color: 'text-rose-700 bg-rose-50 border-rose-250 ring-1 ring-rose-250' }
+                  ].map(opt => {
+                    const isActive = settings.status === opt.id
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setSettings(prev => ({ ...prev, status: opt.id as any }))}
+                        className={`flex-grow py-2 px-3 rounded-lg text-[9px] font-bold text-center transition-all cursor-pointer border-0 ${
+                          isActive ? opt.color + ' shadow-sm' : 'text-slate-500 hover:text-slate-800 bg-transparent'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          </SectionAccordion>
 
           {/* 0 · BASE PRESETS */}
           <SectionAccordion icon={<Grid size={16} />} title="Bases Prontas (Estilos Completos)">

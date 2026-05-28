@@ -7,6 +7,7 @@ export interface Tenant {
   favicon: string
   creci: string
   description: string
+  status?: 'online' | 'offline'
   colors: {
     cream: string
     creamDark: string
