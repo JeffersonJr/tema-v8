@@ -12,7 +12,8 @@ import {
   Plus, 
   Trash2,
   BedDouble,
-  Maximize2
+  Maximize2,
+  Bath
 } from 'lucide-react'
 import { getTenantById } from '@/data/tenants'
 import { formatPrice } from '@/data/properties'
@@ -540,11 +541,14 @@ function BuilderPage() {
                         <div className="text-[11px] font-bold text-slate-100 line-clamp-1">{mockProperty.title}</div>
                       </div>
                       <div>
-                        <div className="flex gap-2 text-[9px] text-slate-500">
+                        <div className="flex flex-wrap gap-2 text-[9px] text-slate-500">
                           {settings.showCardBedrooms && <span>{mockProperty.bedrooms} Qts</span>}
+                          {settings.showCardBathrooms && <span>{mockProperty.bathrooms} Banh</span>}
                           {settings.showCardArea && <span>{mockProperty.area}m²</span>}
+                          {settings.showCardCondo && <span>Cond: {formatPrice(mockProperty.condoPrice)}</span>}
+                          {settings.showCardPetFriendly && <span className="text-emerald-500 font-semibold">Pet</span>}
                         </div>
-                        <div className="text-[11px] font-bold text-amber-400">{formatPrice(mockProperty.price)}</div>
+                        <div className="text-[11px] font-bold text-amber-400 mt-1">{formatPrice(mockProperty.price)}</div>
                       </div>
                     </div>
                   </div>
@@ -556,9 +560,12 @@ function BuilderPage() {
                     <div className="p-2">
                       <div className="text-[8px] font-mono text-slate-400 uppercase">{mockProperty.neighborhood}</div>
                       <div className="text-[11px] font-bold text-slate-100 line-clamp-1">{mockProperty.title}</div>
-                      <div className="flex gap-1.5 text-[9px] text-slate-500 my-1">
-                        {settings.showCardBedrooms && <span>{mockProperty.bedrooms} Q</span>}
+                      <div className="flex flex-wrap gap-1.5 text-[9px] text-slate-500 my-1">
+                        {settings.showCardBedrooms && <span>{mockProperty.bedrooms}Q</span>}
+                        {settings.showCardBathrooms && <span>· {mockProperty.bathrooms}B</span>}
                         {settings.showCardArea && <span>· {mockProperty.area}m²</span>}
+                        {settings.showCardCondo && <span className="text-[8px]">· Cond: {formatPrice(mockProperty.condoPrice)}</span>}
+                        {settings.showCardPetFriendly && <span className="text-emerald-500 text-[8px]">· Pet</span>}
                       </div>
                       <div className="text-xs font-bold text-amber-400">{formatPrice(mockProperty.price)}</div>
                     </div>
@@ -572,9 +579,12 @@ function BuilderPage() {
                     <div className="p-3">
                       <div className="text-[8px] font-mono text-slate-400 uppercase">{mockProperty.neighborhood}, {mockProperty.city}</div>
                       <div className="text-xs font-bold text-slate-100 line-clamp-1">{mockProperty.title}</div>
-                      <div className="flex gap-3 text-[10px] text-slate-400 my-2">
-                        {settings.showCardBedrooms && <span className="flex items-center gap-0.5"><BedDouble size={10} /> {mockProperty.bedrooms}</span>}
+                      <div className="flex flex-wrap gap-3 text-[10px] text-slate-400 my-2">
+                        {settings.showCardBedrooms && <span className="flex items-center gap-0.5"><BedDouble size={10} /> {mockProperty.bedrooms} Qts</span>}
+                        {settings.showCardBathrooms && <span className="flex items-center gap-0.5"><Bath size={10} /> {mockProperty.bathrooms} Banh</span>}
                         {settings.showCardArea && <span className="flex items-center gap-0.5"><Maximize2 size={10} /> {mockProperty.area}m²</span>}
+                        {settings.showCardCondo && <span className="flex items-center gap-0.5">Cond: {formatPrice(mockProperty.condoPrice)}</span>}
+                        {settings.showCardPetFriendly && <span className="text-emerald-500 font-semibold">Pet</span>}
                       </div>
                       <div className="text-sm font-bold text-amber-400">{formatPrice(mockProperty.price)}</div>
                     </div>
@@ -805,9 +815,11 @@ function BuilderPage() {
                                 <div className="text-[10px] font-bold text-charcoal truncate">{mockProperty.title}</div>
                               </div>
                               <div>
-                                <div className="flex gap-2 text-[8px] text-warm-gray mb-1">
+                                <div className="flex flex-wrap gap-2 text-[8px] text-warm-gray mb-1">
                                   {settings.showCardBedrooms && <span>{mockProperty.bedrooms} Qts</span>}
+                                  {settings.showCardBathrooms && <span>{mockProperty.bathrooms} Banh</span>}
                                   {settings.showCardArea && <span>{mockProperty.area}m²</span>}
+                                  {settings.showCardCondo && <span>Cond: {formatPrice(mockProperty.condoPrice)}</span>}
                                   {settings.showCardPetFriendly && <span className="text-emerald-600 font-semibold">Pet</span>}
                                 </div>
                                 <div className="text-xs font-bold text-charcoal font-display">{formatPrice(mockProperty.price)}</div>
