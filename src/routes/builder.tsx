@@ -409,7 +409,12 @@ function BuilderPage() {
         }))
         if (defaultTenant.colors) setColors(defaultTenant.colors)
         if (defaultTenant.fonts) setFonts(defaultTenant.fonts as any)
-        if (defaultTenant.contacts) setContacts(defaultTenant.contacts)
+        if (defaultTenant.contacts) {
+          setContacts({
+            ...defaultTenant.contacts,
+            creci: defaultTenant.creci || '',
+          })
+        }
       }
     }
   }, [activeTenantId])
