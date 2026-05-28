@@ -19,7 +19,8 @@ import {
   Phone,
   Mail,
   Instagram,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Upload
 } from 'lucide-react'
 import { getTenantById } from '@/data/tenants'
 import { formatPrice } from '@/data/properties'
@@ -273,16 +274,22 @@ function BuilderPage() {
   })
 
   const [activePreviewTab, setActivePreviewTab] = useState<'home' | 'sobre' | 'contato'>('home')
+  const [activeFontTab, setActiveFontTab] = useState<'sans' | 'display'>('sans')
   
   // Page Builder States
   const [settings, setSettings] = useState({
     headerStyle: 'minimal' as 'transparent' | 'minimal' | 'classic',
+    headerFixed: true,
     footerStyle: 'simple' as 'simple' | 'detailed' | 'minimal',
     heroStyle: 'minimalist' as 'search-centered' | 'search-left' | 'minimalist',
     heroTitle: 'Coleção Lançamentos Curitiba',
     heroSubtitle: 'Curadoria especializada de apartamentos, coberturas e residências suspensas com design assinado.',
     heroImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85&fit=crop',
-    cardVariant: 'compact' as 'default' | 'compact' | 'horizontal',
+    logo: '/logo.png',
+    marcaDagua: '',
+    favicon: '/favicon.ico',
+    cardVerticalStyle: 'classic' as 'classic' | 'minimalist' | 'glassmorphism' | 'editorial' | 'bold-border' | 'dark-elegance',
+    cardHorizontalStyle: 'cozy' as 'cozy' | 'strip' | 'overlay' | 'offset' | 'asymmetric' | 'dashboard',
     showCardBedrooms: true,
     showCardBathrooms: false,
     showCardArea: true,
@@ -312,6 +319,7 @@ function BuilderPage() {
     moduleOrder: ['featured', 'categories', 'cities', 'testimonials'] as string[],
     sobreTitle: 'Nossa História, Seu Futuro',
     sobreText: 'Na Lumina, acreditamos que encontrar um imóvel de alto padrão em Curitiba é uma arte. Selecionamos cada propriedade com rigor estético e técnico.',
+    sobreTextFontSize: 'text-sm' as 'text-xs' | 'text-sm' | 'text-base' | 'text-lg',
     sobreImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80',
     sobreStats: '15 Anos de Tradição · 400+ Sonhos Realizados · R$ 1.5B+ Negociados',
     contatoTitle: 'Conecte-se com a Exclusividade',
@@ -336,6 +344,34 @@ function BuilderPage() {
     }
   })
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, key: 'logo' | 'marcaDagua' | 'favicon' | 'heroImage') => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string
+      setSettings(prev => ({
+        ...prev,
+        [key]: base64
+      }))
+    }
+    reader.readAsDataURL(file)
+  }
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && settings.favicon) {
+      const link = document.querySelector("link[rel*='icon']") as HTMLLinkElement
+      if (link) {
+        link.href = settings.favicon
+      } else {
+        const newLink = document.createElement('link')
+        newLink.rel = 'icon'
+        newLink.href = settings.favicon
+        document.head.appendChild(newLink)
+      }
+    }
+  }, [settings.favicon])
+
   // Load configuration from localstorage on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -349,12 +385,17 @@ function BuilderPage() {
           
           setSettings({
             headerStyle: parsed.headerStyle || 'minimal',
+            headerFixed: parsed.headerFixed !== false,
             footerStyle: parsed.footerStyle || 'simple',
             heroStyle: parsed.heroStyle || 'minimalist',
             heroTitle: parsed.heroTitle || 'Coleção Lançamentos Curitiba',
             heroSubtitle: parsed.heroSubtitle || '',
             heroImage: parsed.heroImage || '',
-            cardVariant: parsed.cardVariant || 'compact',
+            logo: parsed.logo || '/logo.png',
+            marcaDagua: parsed.marcaDagua || '',
+            favicon: parsed.favicon || '/favicon.ico',
+            cardVerticalStyle: parsed.cardVerticalStyle || 'classic',
+            cardHorizontalStyle: parsed.cardHorizontalStyle || 'cozy',
             showCardBedrooms: parsed.showCardBedrooms !== false,
             showCardBathrooms: !!parsed.showCardBathrooms,
             showCardArea: parsed.showCardArea !== false,
@@ -384,6 +425,7 @@ function BuilderPage() {
             moduleOrder: parsed.moduleOrder || ['featured', 'categories', 'cities', 'testimonials'],
             sobreTitle: parsed.sobreTitle || 'Nossa História, Seu Futuro',
             sobreText: parsed.sobreText || 'Na Lumina, acreditamos que encontrar um imóvel de alto padrão em Curitiba é uma arte. Selecionamos cada propriedade com rigor estético e técnico.',
+            sobreTextFontSize: parsed.sobreTextFontSize || 'text-sm',
             sobreImage: parsed.sobreImage || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80',
             sobreStats: parsed.sobreStats || '15 Anos de Tradição · 400+ Sonhos Realizados · R$ 1.5B+ Negociados',
             contatoTitle: parsed.contatoTitle || 'Conecte-se com a Exclusividade',
@@ -416,7 +458,7 @@ function BuilderPage() {
       window.dispatchEvent(new Event('lumina_builder_updated'))
       
       if (redirectToSite) {
-        navigate({ to: '/$tenant', params: { tenant: 'Lumina' } })
+        window.open('/lumina', '_blank')
       } else {
         alert('Identidade visual LEGO e componentes atualizados!')
       }
@@ -511,8 +553,97 @@ function BuilderPage() {
     '--font-display': `${fonts.display}, serif`,
   } as React.CSSProperties
 
+  const renderVerticalCard = (property: any, styleName: string) => {
+    const isDark = styleName === 'dark-elegance';
+    
+    let cardClass = "rounded-xl overflow-hidden shadow-sm transition-all border ";
+    if (styleName === 'classic') cardClass += "bg-white border-cream-border hover:shadow-md";
+    else if (styleName === 'minimalist') cardClass += "bg-white border-slate-200 shadow-none hover:border-slate-400";
+    else if (styleName === 'glassmorphism') cardClass += "bg-white/40 backdrop-blur-md border-white/20 shadow-lg";
+    else if (styleName === 'editorial') cardClass += "bg-white border-slate-100 hover:border-slate-300";
+    else if (styleName === 'bold-border') cardClass += "bg-white border-2 border-slate-900 shadow-[4px_4px_0px_0px_#EDBF71]";
+    else if (styleName === 'dark-elegance') cardClass += "bg-slate-900 border-slate-800 hover:border-slate-700 shadow-xl";
+
+    return (
+      <div className={`${cardClass} flex flex-col h-full text-left`}>
+        <div className="relative h-28 bg-slate-100 overflow-hidden shrink-0">
+          <img src={property.image} className="w-full h-full object-cover" />
+          {styleName === 'editorial' && (
+            <span className="absolute top-2 right-2 bg-slate-900 text-white font-bold text-[7px] px-1.5 py-0.5 rounded font-display uppercase tracking-widest">
+              Collection
+            </span>
+          )}
+        </div>
+        <div className="p-3 flex flex-col justify-between flex-grow">
+          <div className="space-y-1">
+            <div className={`text-[7px] uppercase tracking-widest font-semibold ${isDark ? 'text-amber-400/90' : 'text-slate-500'}`}>
+              {property.neighborhood}
+            </div>
+            <div className={`text-[10px] font-bold line-clamp-2 leading-tight ${isDark ? 'text-white' : 'text-slate-900'} ${
+              styleName === 'classic' || styleName === 'editorial' ? 'font-display' : 'font-sans'
+            }`}>
+              {property.title}
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className={`flex flex-wrap gap-2 text-[8px] border-b pb-1.5 mb-1.5 ${isDark ? 'border-slate-800 text-slate-400' : 'border-slate-100 text-slate-500'}`}>
+              {settings.showCardBedrooms && <span>{property.bedrooms} Qts</span>}
+              {settings.showCardBathrooms && <span>{property.bathrooms} Banh</span>}
+              {settings.showCardArea && <span>{property.area}m²</span>}
+              {settings.showCardCondo && <span>Cond: {formatPrice(property.condoPrice)}</span>}
+              {settings.showCardPetFriendly && <span className="text-emerald-500 font-bold">Pet</span>}
+            </div>
+            <div className={`text-xs font-bold ${isDark ? 'text-amber-400 font-display' : 'text-slate-900 font-display'}`}>
+              {formatPrice(property.price)}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const renderHorizontalCard = (property: any, styleName: string) => {
+    let cardClass = "rounded-xl overflow-hidden shadow-sm transition-all border flex ";
+    if (styleName === 'cozy') cardClass += "bg-white border-cream-border hover:shadow-md h-24";
+    else if (styleName === 'strip') cardClass += "bg-white border-slate-200 shadow-none border-b-2 hover:border-b-slate-400 h-24";
+    else if (styleName === 'overlay') cardClass += "bg-white/50 backdrop-blur-sm border-slate-100 h-24";
+    else if (styleName === 'offset') cardClass += "bg-white border-2 border-slate-900 shadow-[4px_4px_0px_0px_#EDBF71] h-24";
+    else if (styleName === 'asymmetric') cardClass += "bg-white border-cream-border hover:shadow-md h-24";
+    else if (styleName === 'dashboard') cardClass += "bg-white border-slate-200 shadow-sm h-28";
+
+    return (
+      <div className={`${cardClass} text-left w-full`}>
+        <div className={`shrink-0 overflow-hidden bg-slate-100 relative ${
+          styleName === 'asymmetric' ? 'w-24 rounded-tr-3xl rounded-bl-3xl' : 'w-24'
+        }`}>
+          <img src={property.image} className="w-full h-full object-cover" />
+        </div>
+        <div className="p-2.5 flex flex-col justify-between flex-1 min-w-0">
+          <div className="min-w-0 space-y-0.5">
+            <div className="text-[7px] text-slate-500 uppercase tracking-widest font-semibold">{property.neighborhood}</div>
+            <div className={`text-[9px] font-bold text-slate-900 truncate ${
+              styleName === 'asymmetric' ? 'font-display' : 'font-sans'
+            }`}>
+              {property.title}
+            </div>
+          </div>
+          <div>
+            <div className="flex flex-wrap gap-1.5 text-[8px] text-slate-500 mb-1 border-t border-slate-100 pt-1">
+              {settings.showCardBedrooms && <span>{property.bedrooms}Q</span>}
+              {settings.showCardBathrooms && <span>{property.bathrooms}B</span>}
+              {settings.showCardArea && <span>{property.area}m²</span>}
+              {settings.showCardCondo && <span className="text-[7px]">Cond: {formatPrice(property.condoPrice)}</span>}
+              {settings.showCardPetFriendly && <span className="text-emerald-500 font-bold">Pet</span>}
+            </div>
+            <div className="text-[10px] font-bold text-slate-900 font-display">{formatPrice(property.price)}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-black">
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans selection:bg-amber-500 selection:text-white">
       <title>LEGO Builder — Construtor Dinâmico V8</title>
 
       {/* Font imports for visual inline sample rendering */}
@@ -525,31 +656,31 @@ function BuilderPage() {
       <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-teal-500/5 rounded-full filter blur-[150px] pointer-events-none" />
 
       {/* Header Controls workspace */}
-      <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur-md sticky top-0 z-50 px-6 py-4 flex items-center justify-between shadow-xl">
+      <header className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-50 px-6 py-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 flex items-center justify-center font-bold text-black text-lg">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 flex items-center justify-center font-bold text-white text-lg">
             V8
           </div>
           <div>
-            <h1 className="font-semibold text-sm tracking-tight text-white flex items-center gap-2">
+            <h1 className="font-semibold text-sm tracking-tight text-slate-900 flex items-center gap-2">
               LEGO Builder
-              <span className="bg-amber-500/10 text-amber-400 text-[9px] px-2 py-0.5 rounded font-mono border border-amber-500/20 uppercase tracking-widest">Active</span>
+              <span className="bg-amber-500/10 text-amber-600 text-[9px] px-2 py-0.5 rounded font-mono border border-amber-500/20 uppercase tracking-widest">Active</span>
             </h1>
-            <p className="text-[9px] text-slate-400 font-mono">CONSTRUTOR DE MÓDULOS MULTI-TENANT</p>
+            <p className="text-[9px] text-slate-500 font-mono">CONSTRUTOR DE MÓDULOS MULTI-TENANT</p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           <button 
             onClick={handleReset}
-            className="px-3.5 py-1.5 border border-slate-800 hover:bg-slate-800 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="px-3.5 py-1.5 border border-slate-200 hover:bg-slate-105 hover:bg-slate-100 text-slate-600 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <RotateCcw size={12} />
             Resetar
           </button>
           <button 
             onClick={() => handleSave(false)}
-            className="px-3.5 py-1.5 border border-slate-800 bg-slate-800/40 hover:bg-slate-800 text-slate-200 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="px-3.5 py-1.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <Save size={12} />
             Salvar Layout
@@ -568,15 +699,15 @@ function BuilderPage() {
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 w-full">
         
         {/* LEFT COLUMN: Controls Dashboard (Natural scroll) */}
-        <section className="lg:col-span-6 p-6 space-y-8 border-r border-slate-800/80 bg-slate-900/40">
+        <section className="lg:col-span-6 p-6 space-y-8 border-r border-slate-200 bg-slate-50/50">
           
           {/* SECTION 0: Bases/Estilos de Site Completos */}
-          <div className="bg-slate-900 border border-slate-850 rounded-2xl p-5 space-y-4 shadow-xl">
-            <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
-              <Grid className="text-amber-400" size={16} />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-200">Escolha uma Base Pronta (Bases Completas)</h2>
+          <div className="bg-white border border-slate-250/60 rounded-2xl p-5 space-y-4 shadow-sm">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+              <Grid className="text-amber-500" size={16} />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">Escolha uma Base Pronta (Bases Completas)</h2>
             </div>
-            <p className="text-[10px] text-slate-400 leading-normal">
+            <p className="text-[10px] text-slate-500 leading-normal">
               Selecione um estilo visual completo. Cores, fontes, cabeçalhos, layouts de cartões e páginas internas serão reconfigurados automaticamente!
             </p>
             <div className="grid grid-cols-3 gap-3">
@@ -591,26 +722,26 @@ function BuilderPage() {
                       ...preset.settings
                     }));
                   }}
-                  className="p-3 bg-slate-950 rounded-xl border border-slate-800 hover:border-amber-500/50 hover:bg-slate-900/40 text-center transition-all flex flex-col justify-between items-center space-y-2 group cursor-pointer"
+                  className="p-3 bg-slate-50 rounded-xl border border-slate-205 border-slate-200 hover:border-amber-500/50 hover:bg-slate-100/55 text-center transition-all flex flex-col justify-between items-center space-y-2 group cursor-pointer"
                 >
-                  <span className="text-[10px] font-bold text-slate-200 group-hover:text-amber-400 transition-colors uppercase tracking-wider">{preset.name}</span>
+                  <span className="text-[10px] font-bold text-slate-700 group-hover:text-amber-600 transition-colors uppercase tracking-wider">{preset.name}</span>
                   <span className="text-[8px] text-slate-500 leading-snug">{preset.desc.substring(0, 35)}...</span>
-                  <span className="text-[9px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded font-mono font-bold tracking-widest uppercase">Aplicar</span>
+                  <span className="text-[9px] bg-amber-500/10 text-amber-600 px-2 py-0.5 rounded font-mono font-bold tracking-widest uppercase">Aplicar</span>
                 </button>
               ))}
             </div>
           </div>
 
           {/* SECTION 1: Color Presets & Selection */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-6">
-            <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
-              <Palette className="text-amber-400" size={16} />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-200">Identidade Visual & Cores</h2>
+          <div className="bg-white border border-slate-250/60 rounded-2xl p-5 space-y-6 shadow-sm">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+              <Palette className="text-amber-500" size={16} />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">Identidade Visual & Cores</h2>
             </div>
 
             {/* Quick Palettes Grid */}
             <div className="space-y-3">
-              <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-400">Escolha uma Paleta Temática</label>
+              <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500">Escolha uma Paleta Temática</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {COLOR_PRESETS.map((p) => (
                   <button
@@ -618,14 +749,14 @@ function BuilderPage() {
                     onClick={() => {
                       setColors(p.colors)
                     }}
-                    className="p-3 bg-slate-950 rounded-xl border border-slate-800 hover:border-amber-500/30 text-left transition-all hover:bg-slate-950 flex flex-col justify-between h-20 group cursor-pointer"
+                    className="p-3 bg-slate-50 rounded-xl border border-slate-200 hover:border-amber-500/40 text-left transition-all hover:bg-slate-100/50 flex flex-col justify-between h-20 group cursor-pointer"
                   >
-                    <div className="text-[11px] font-semibold text-slate-200 group-hover:text-amber-400 transition-colors leading-tight">{p.name}</div>
+                    <div className="text-[11px] font-semibold text-slate-700 group-hover:text-amber-600 transition-colors leading-tight">{p.name}</div>
                     <div className="flex items-center gap-1 mt-1.5">
-                      <span className="w-5 h-5 rounded-full border border-slate-800" style={{ backgroundColor: p.colors.cream }} />
-                      <span className="w-5 h-5 rounded-full border border-slate-800" style={{ backgroundColor: p.colors.charcoal }} />
-                      <span className="w-5 h-5 rounded-full border border-slate-800" style={{ backgroundColor: p.colors.gold }} />
-                      <span className="w-5 h-5 rounded-full border border-slate-800" style={{ backgroundColor: p.colors.creamDark }} />
+                      <span className="w-5 h-5 rounded-full border border-slate-200" style={{ backgroundColor: p.colors.cream }} />
+                      <span className="w-5 h-5 rounded-full border border-slate-200" style={{ backgroundColor: p.colors.charcoal }} />
+                      <span className="w-5 h-5 rounded-full border border-slate-200" style={{ backgroundColor: p.colors.gold }} />
+                      <span className="w-5 h-5 rounded-full border border-slate-200" style={{ backgroundColor: p.colors.creamDark }} />
                     </div>
                   </button>
                 ))}
@@ -633,90 +764,297 @@ function BuilderPage() {
             </div>
 
             {/* Manual Color Pickers */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border-t border-slate-800 pt-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border-t border-slate-100 pt-4">
               <div>
                 <label className="block text-[8px] font-bold uppercase tracking-wider text-slate-500 mb-1">Base (Cream)</label>
                 <div className="flex gap-1.5 items-center">
                   <input type="color" value={colors.cream} onChange={(e) => setColors({ ...colors, cream: e.target.value })} className="w-6 h-6 border-0 rounded cursor-pointer bg-transparent" />
-                  <span className="text-[10px] font-mono uppercase">{colors.cream}</span>
+                  <span className="text-[10px] font-mono text-slate-650 uppercase">{colors.cream}</span>
                 </div>
               </div>
               <div>
                 <label className="block text-[8px] font-bold uppercase tracking-wider text-slate-500 mb-1">Dark (Charcoal)</label>
                 <div className="flex gap-1.5 items-center">
                   <input type="color" value={colors.charcoal} onChange={(e) => setColors({ ...colors, charcoal: e.target.value })} className="w-6 h-6 border-0 rounded cursor-pointer bg-transparent" />
-                  <span className="text-[10px] font-mono uppercase">{colors.charcoal}</span>
+                  <span className="text-[10px] font-mono text-slate-650 uppercase">{colors.charcoal}</span>
                 </div>
               </div>
               <div>
                 <label className="block text-[8px] font-bold uppercase tracking-wider text-slate-500 mb-1">Accent (Gold)</label>
                 <div className="flex gap-1.5 items-center">
                   <input type="color" value={colors.gold} onChange={(e) => setColors({ ...colors, gold: e.target.value })} className="w-6 h-6 border-0 rounded cursor-pointer bg-transparent" />
-                  <span className="text-[10px] font-mono uppercase">{colors.gold}</span>
+                  <span className="text-[10px] font-mono text-slate-650 uppercase">{colors.gold}</span>
                 </div>
               </div>
               <div>
                 <label className="block text-[8px] font-bold uppercase tracking-wider text-slate-500 mb-1">Secundário</label>
                 <div className="flex gap-1.5 items-center">
                   <input type="color" value={colors.creamDark} onChange={(e) => setColors({ ...colors, creamDark: e.target.value })} className="w-6 h-6 border-0 rounded cursor-pointer bg-transparent" />
-                  <span className="text-[10px] font-mono uppercase">{colors.creamDark}</span>
+                  <span className="text-[10px] font-mono text-slate-650 uppercase">{colors.creamDark}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 1.5: Upload de Mídias (Logo, Marca d'Água, Favicon & Hero) */}
+          <div className="bg-white border border-slate-250/60 rounded-2xl p-5 space-y-6 shadow-sm">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+              <Upload className="text-amber-500" size={16} />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">Uploads de Marca & Hero</h2>
+            </div>
+            <p className="text-[10px] text-slate-500 leading-normal">
+              Envie arquivos diretamente do seu computador. Os arquivos serão processados localmente em tempo real e salvos no seu tema.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Logo Upload */}
+              <div className="space-y-2 p-3 bg-slate-50 rounded-xl border border-slate-200/60 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Logo Principal</label>
+                    {settings.logo && (
+                      <button 
+                        type="button" 
+                        onClick={() => setSettings(prev => ({ ...prev, logo: '' }))}
+                        className="text-[9px] text-red-500 hover:text-red-650 font-semibold cursor-pointer"
+                      >
+                        Remover
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[8px] text-slate-450 leading-tight mb-2">Substitui o logotipo textual no cabeçalho do site.</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded bg-white border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                    {settings.logo ? (
+                      <img src={settings.logo} className="w-full h-full object-contain p-1" alt="Logo" />
+                    ) : (
+                      <span className="text-[9px] text-slate-400 font-medium">Texto</span>
+                    )}
+                  </div>
+                  <label className="flex-1 px-3 py-2 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-[10px] text-center text-slate-600 hover:text-slate-800 font-semibold rounded-lg cursor-pointer transition-colors shadow-sm">
+                    Escolher Arquivo
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={(e) => handleFileUpload(e, 'logo')} 
+                      className="hidden" 
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* Marca d'Água Upload */}
+              <div className="space-y-2 p-3 bg-slate-50 rounded-xl border border-slate-200/60 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Marca d'Água (Emblema)</label>
+                    {settings.marcaDagua && (
+                      <button 
+                        type="button" 
+                        onClick={() => setSettings(prev => ({ ...prev, marcaDagua: '' }))}
+                        className="text-[9px] text-red-500 hover:text-red-655 font-semibold cursor-pointer"
+                      >
+                        Remover
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[8px] text-slate-450 leading-tight mb-2">Usado como ícone circular e elementos de selo da marca.</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                    {settings.marcaDagua ? (
+                      <img src={settings.marcaDagua} className="w-full h-full object-cover" alt="Marca d'Água" />
+                    ) : (
+                      <span className="text-[9px] text-slate-400 font-medium">Selo</span>
+                    )}
+                  </div>
+                  <label className="flex-1 px-3 py-2 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-[10px] text-center text-slate-600 hover:text-slate-800 font-semibold rounded-lg cursor-pointer transition-colors shadow-sm">
+                    Escolher Arquivo
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={(e) => handleFileUpload(e, 'marcaDagua')} 
+                      className="hidden" 
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* Favicon Upload */}
+              <div className="space-y-2 p-3 bg-slate-50 rounded-xl border border-slate-200/60 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Favicon da Aba</label>
+                    {settings.favicon && (
+                      <button 
+                        type="button" 
+                        onClick={() => setSettings(prev => ({ ...prev, favicon: '/favicon.ico' }))}
+                        className="text-[9px] text-slate-500 hover:text-slate-700 font-semibold cursor-pointer"
+                      >
+                        Resetar
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[8px] text-slate-450 leading-tight mb-2">Ícone pequeno exibido na aba do navegador em tempo real.</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded bg-white border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                    {settings.favicon ? (
+                      <img src={settings.favicon} className="w-6 h-6 object-contain" alt="Favicon" />
+                    ) : (
+                      <span className="text-[9px] text-slate-400 font-medium">Fav</span>
+                    )}
+                  </div>
+                  <label className="flex-1 px-3 py-2 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-[10px] text-center text-slate-600 hover:text-slate-800 font-semibold rounded-lg cursor-pointer transition-colors shadow-sm">
+                    Escolher Arquivo
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={(e) => handleFileUpload(e, 'favicon')} 
+                      className="hidden" 
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* Fundo Hero Upload */}
+              <div className="space-y-2 p-3 bg-slate-50 rounded-xl border border-slate-200/60 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Fundo do Hero</label>
+                    {settings.heroImage && (
+                      <button 
+                        type="button" 
+                        onClick={() => setSettings(prev => ({ ...prev, heroImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85&fit=crop' }))}
+                        className="text-[9px] text-slate-500 hover:text-slate-700 font-semibold cursor-pointer"
+                      >
+                        Resetar
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[8px] text-slate-450 leading-tight mb-2">Imagem de plano de fundo da seção de destaque (Hero) do site.</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded bg-white border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                    {settings.heroImage ? (
+                      <img src={settings.heroImage} className="w-full h-full object-cover" alt="Hero background" />
+                    ) : (
+                      <span className="text-[9px] text-slate-400 font-medium">Hero</span>
+                    )}
+                  </div>
+                  <label className="flex-1 px-3 py-2 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-[10px] text-center text-slate-600 hover:text-slate-800 font-semibold rounded-lg cursor-pointer transition-colors shadow-sm">
+                    Escolher Arquivo
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={(e) => handleFileUpload(e, 'heroImage')} 
+                      className="hidden" 
+                    />
+                  </label>
                 </div>
               </div>
             </div>
           </div>
 
           {/* SECTION 2: Typography Selection with live inline previews */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-6">
-            <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
-              <Type className="text-amber-400" size={16} />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-200">Tipografia & Fontes</h2>
+          <div className="bg-white border border-slate-250/60 rounded-2xl p-5 space-y-6 shadow-sm">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+              <Type className="text-amber-500" size={16} />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">Tipografia & Fontes</h2>
             </div>
 
-            <div className="space-y-4">
+            {/* Quick dropdown selectors side-by-side */}
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-2">Fonte Primária (Textos & Corpo)</label>
+                <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Fonte Primária (Textos & Corpo)</label>
                 <select 
                   value={fonts.sans}
                   onChange={(e) => setFonts({ ...fonts, sans: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200"
+                  className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs text-slate-700 shadow-sm"
                 >
-                  {FONTS_LIST.filter(f => f.category === 'sans-serif').map(f => <option key={f.name} value={f.name}>{f.name}</option>)}
+                  {FONTS_LIST.map(f => <option key={f.name} value={f.name}>{f.name}</option>)}
                 </select>
               </div>
-
               <div>
-                <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-2">Fonte Secundária (Títulos & Display)</label>
+                <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Fonte Secundária (Títulos & Display)</label>
                 <select 
                   value={fonts.display}
                   onChange={(e) => setFonts({ ...fonts, display: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200"
+                  className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs text-slate-700 shadow-sm"
                 >
                   {FONTS_LIST.map(f => <option key={f.name} value={f.name}>{f.name}</option>)}
                 </select>
               </div>
             </div>
 
-            {/* Typography sample grid with tenant's dynamic name rendering */}
-            <div className="border-t border-slate-800 pt-4 space-y-3">
-              <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500">Amostragem Real ({defaultTenant?.name || 'Lumina'})</label>
-              <div className="grid grid-cols-2 gap-3">
-                {FONTS_LIST.map((f) => (
-                  <div 
-                    key={f.name}
-                    onClick={() => setFonts((prev: any) => ({ ...prev, display: f.name }))}
-                    className={`p-3 bg-slate-950 border rounded-xl text-left cursor-pointer transition-all ${
-                      fonts.display === f.name ? 'border-amber-500 bg-amber-500/5' : 'border-slate-800 hover:border-slate-700'
-                    }`}
-                  >
-                    <div className="text-[10px] text-slate-500 font-mono uppercase mb-1">{f.name}</div>
+            {/* Visual cards grid configuration */}
+            <div className="border-t border-slate-100 pt-4 space-y-4">
+              <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">Seletor Visual de Fontes</label>
+              
+              {/* Tab Selector to toggle active customization target */}
+              <div className="flex bg-slate-50 border border-slate-200 p-1 rounded-full w-full justify-between items-center">
+                <button 
+                  type="button"
+                  onClick={() => setActiveFontTab('sans')}
+                  className={`flex-1 py-1.5 px-3 rounded-full text-[10px] font-bold text-center transition-all cursor-pointer ${
+                    activeFontTab === 'sans' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  ✍️ Fonte Primária ({fonts.sans})
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setActiveFontTab('display')}
+                  className={`flex-1 py-1.5 px-3 rounded-full text-[10px] font-bold text-center transition-all cursor-pointer ${
+                    activeFontTab === 'display' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  👑 Fonte Secundária ({fonts.display})
+                </button>
+              </div>
+
+              {/* Dynamic visual font cards grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {FONTS_LIST.map((f) => {
+                  const isSelected = activeFontTab === 'sans' ? fonts.sans === f.name : fonts.display === f.name
+                  return (
                     <div 
-                      style={{ fontFamily: f.name }}
-                      className="text-sm font-bold text-white tracking-tight truncate"
+                      key={f.name}
+                      onClick={() => setFonts(prev => ({ ...prev, [activeFontTab]: f.name }))}
+                      className={`p-3 bg-slate-50 border rounded-xl text-left cursor-pointer transition-all flex flex-col justify-between h-28 ${
+                        isSelected 
+                          ? 'border-amber-500 bg-amber-500/[0.03] ring-1 ring-amber-500 shadow-sm' 
+                          : 'border-slate-200 hover:border-slate-350 hover:bg-slate-100/50'
+                      }`}
                     >
-                      {defaultTenant?.name || 'Lumina Curadoria'}
+                      <div className="flex justify-between items-start mb-1">
+                        <div>
+                          <span className="text-[10px] text-slate-700 font-bold font-sans">{f.name}</span>
+                          <span className="text-[7px] text-slate-400 font-semibold uppercase tracking-wider block">{f.category}</span>
+                        </div>
+                        {isSelected && (
+                          <span className="text-[8px] bg-amber-500/10 text-amber-700 font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">Ativo</span>
+                        )}
+                      </div>
+
+                      <div className="flex-1 flex flex-col justify-end">
+                        <span 
+                          style={{ fontFamily: f.name }}
+                          className="text-sm font-bold text-slate-800 tracking-tight truncate block mb-0.5"
+                        >
+                          {defaultTenant?.name || 'Lumina'}
+                        </span>
+                        <span 
+                          style={{ fontFamily: f.name }}
+                          className="text-[9px] text-slate-500 leading-tight block line-clamp-2"
+                        >
+                          {f.desc}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           </div>
@@ -729,83 +1067,56 @@ function BuilderPage() {
             </div>
 
             {/* LIVE CARD COMPONENT PREVIEW WIDGET */}
-            <div className="bg-slate-950/80 p-4 rounded-xl border border-slate-850 space-y-3">
-              <span className="block text-[8px] font-bold uppercase tracking-widest text-amber-400">Preview Vivo do Card Selecionado</span>
-              <div className="p-2 border border-slate-800 rounded-xl bg-slate-900/60 max-w-sm mx-auto">
-                {settings.cardVariant === 'horizontal' ? (
-                  <div className="flex gap-3 bg-slate-950 rounded-lg overflow-hidden border border-slate-800 h-28">
-                    <img src={mockProperty.image} className="w-24 object-cover h-full" />
-                    <div className="p-2 flex flex-col justify-between flex-1">
-                      <div>
-                        <div className="text-[8px] font-mono text-slate-400 uppercase">{mockProperty.type} · {mockProperty.neighborhood}</div>
-                        <div className="text-[11px] font-bold text-slate-100 line-clamp-1">{mockProperty.title}</div>
-                      </div>
-                      <div>
-                        <div className="flex flex-wrap gap-2 text-[9px] text-slate-500">
-                          {settings.showCardBedrooms && <span>{mockProperty.bedrooms} Qts</span>}
-                          {settings.showCardBathrooms && <span>{mockProperty.bathrooms} Banh</span>}
-                          {settings.showCardArea && <span>{mockProperty.area}m²</span>}
-                          {settings.showCardCondo && <span>Cond: {formatPrice(mockProperty.condoPrice)}</span>}
-                          {settings.showCardPetFriendly && <span className="text-emerald-500 font-semibold">Pet</span>}
-                        </div>
-                        <div className="text-[11px] font-bold text-amber-400 mt-1">{formatPrice(mockProperty.price)}</div>
-                      </div>
-                    </div>
+            <div className="bg-slate-950/80 p-4 rounded-xl border border-slate-850 space-y-4">
+              <span className="block text-[8px] font-bold uppercase tracking-widest text-amber-400 text-center">Amostragem dos Cards Selecionados</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-lg mx-auto">
+                <div className="space-y-1.5">
+                  <span className="block text-[8px] text-slate-500 font-bold uppercase tracking-wider text-center">Estilo Vertical ({settings.cardVerticalStyle.toUpperCase()})</span>
+                  <div className="p-2 border border-slate-800 rounded-xl bg-slate-900/60 h-64 flex flex-col justify-center">
+                    {renderVerticalCard(mockProperty, settings.cardVerticalStyle)}
                   </div>
-                ) : settings.cardVariant === 'compact' ? (
-                  <div className="bg-slate-950 rounded-lg overflow-hidden border border-slate-800">
-                    <div className="relative h-24 bg-slate-900">
-                      <img src={mockProperty.image} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="p-2">
-                      <div className="text-[8px] font-mono text-slate-400 uppercase">{mockProperty.neighborhood}</div>
-                      <div className="text-[11px] font-bold text-slate-100 line-clamp-1">{mockProperty.title}</div>
-                      <div className="flex flex-wrap gap-1.5 text-[9px] text-slate-500 my-1">
-                        {settings.showCardBedrooms && <span>{mockProperty.bedrooms}Q</span>}
-                        {settings.showCardBathrooms && <span>· {mockProperty.bathrooms}B</span>}
-                        {settings.showCardArea && <span>· {mockProperty.area}m²</span>}
-                        {settings.showCardCondo && <span className="text-[8px]">· Cond: {formatPrice(mockProperty.condoPrice)}</span>}
-                        {settings.showCardPetFriendly && <span className="text-emerald-500 text-[8px]">· Pet</span>}
-                      </div>
-                      <div className="text-xs font-bold text-amber-400">{formatPrice(mockProperty.price)}</div>
-                    </div>
+                </div>
+                <div className="space-y-1.5">
+                  <span className="block text-[8px] text-slate-500 font-bold uppercase tracking-wider text-center">Estilo Horizontal ({settings.cardHorizontalStyle.toUpperCase()})</span>
+                  <div className="p-2 border border-slate-800 rounded-xl bg-slate-900/60 h-64 flex flex-col justify-center">
+                    {renderHorizontalCard(mockProperty, settings.cardHorizontalStyle)}
                   </div>
-                ) : (
-                  <div className="bg-slate-950 rounded-lg overflow-hidden border border-slate-800">
-                    <div className="relative h-32 bg-slate-900">
-                      <img src={mockProperty.image} className="w-full h-full object-cover" />
-                      <span className="absolute top-2 left-2 bg-amber-500 text-slate-950 font-bold text-[8px] px-1.5 py-0.5 rounded">Destaque</span>
-                    </div>
-                    <div className="p-3">
-                      <div className="text-[8px] font-mono text-slate-400 uppercase">{mockProperty.neighborhood}, {mockProperty.city}</div>
-                      <div className="text-xs font-bold text-slate-100 line-clamp-1">{mockProperty.title}</div>
-                      <div className="flex flex-wrap gap-3 text-[10px] text-slate-400 my-2">
-                        {settings.showCardBedrooms && <span className="flex items-center gap-0.5"><BedDouble size={10} /> {mockProperty.bedrooms} Qts</span>}
-                        {settings.showCardBathrooms && <span className="flex items-center gap-0.5"><Bath size={10} /> {mockProperty.bathrooms} Banh</span>}
-                        {settings.showCardArea && <span className="flex items-center gap-0.5"><Maximize2 size={10} /> {mockProperty.area}m²</span>}
-                        {settings.showCardCondo && <span className="flex items-center gap-0.5">Cond: {formatPrice(mockProperty.condoPrice)}</span>}
-                        {settings.showCardPetFriendly && <span className="text-emerald-500 font-semibold">Pet</span>}
-                      </div>
-                      <div className="text-sm font-bold text-amber-400">{formatPrice(mockProperty.price)}</div>
-                    </div>
-                  </div>
-                )}
+                </div>
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-2">Variant de Cards</label>
+                <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-2">Estilo de Card Vertical (6 Versões)</label>
                 <select 
-                  value={settings.cardVariant}
-                  onChange={(e) => setSettings({ ...settings, cardVariant: e.target.value as any })}
+                  value={settings.cardVerticalStyle}
+                  onChange={(e) => setSettings({ ...settings, cardVerticalStyle: e.target.value as any })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200"
                 >
-                  <option value="default">Padrão Destaque (Completo com foto proporcional)</option>
-                  <option value="compact">Compacto Autoral (Grade densa moderna)</option>
-                  <option value="horizontal">Grade Horizontal (Lista editorial)</option>
+                  <option value="classic">Versão 1: Classic Gold (Imperial)</option>
+                  <option value="minimalist">Versão 2: Ultra Minimalist (Sharp)</option>
+                  <option value="glassmorphism">Versão 3: Glassmorphism (Frosted)</option>
+                  <option value="editorial">Versão 4: Editorial Luxury (Magazine)</option>
+                  <option value="bold-border">Versão 5: Modern Bold Border (Flat)</option>
+                  <option value="dark-elegance">Versão 6: Dark Batel Elegance (Luxo)</option>
                 </select>
               </div>
+              <div>
+                <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-2">Estilo de Card Horizontal (6 Versões)</label>
+                <select 
+                  value={settings.cardHorizontalStyle}
+                  onChange={(e) => setSettings({ ...settings, cardHorizontalStyle: e.target.value as any })}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200"
+                >
+                  <option value="cozy">Versão 1: Classic Cozy (Padrão)</option>
+                  <option value="strip">Versão 2: Minimalist Strip (Slim)</option>
+                  <option value="overlay">Versão 3: Grid Info Overlay (Flutuante)</option>
+                  <option value="offset">Versão 4: Modern Offset (Sombra)</option>
+                  <option value="asymmetric">Versão 5: Asymmetric Luxury (Domo)</option>
+                  <option value="dashboard">Versão 6: High-Tech Dashboard (Ficha)</option>
+                </select>
+              </div>
+            </div>
 
               {/* Toggles for details */}
               <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-850 grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -831,7 +1142,6 @@ function BuilderPage() {
                 </label>
               </div>
             </div>
-          </div>
 
           {/* SECTION 4: Structured Layout & Modules */}
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-6">
@@ -1114,26 +1424,26 @@ function BuilderPage() {
         </section>
 
         {/* RIGHT COLUMN: Live Interactive Real-time Site Preview (Sticky Scroll Following) */}
-        <section className="lg:col-span-6 bg-slate-950 flex flex-col lg:sticky lg:top-[6.5rem] lg:h-[calc(100vh-8.5rem)] z-20 border-t lg:border-t-0 border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+        <section className="lg:col-span-6 bg-slate-100 flex flex-col lg:sticky lg:top-[6.5rem] lg:h-[calc(100vh-8.5rem)] z-20 border lg:border-slate-200 rounded-2xl overflow-hidden shadow-lg">
           
-          <div className="bg-slate-900/60 backdrop-blur border-b border-slate-850 px-6 py-3 flex items-center justify-between z-10 shrink-0">
+          <div className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between z-10 shrink-0">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300">Live Preview Real-time (Fidelidade do Tema)</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-800">Live Preview Real-time (Fidelidade do Tema)</span>
             </div>
-            <div className="flex items-center gap-1 bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-full text-[9px] text-slate-500 font-mono">
+            <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-full text-[9px] text-slate-600 font-mono">
               <span>Lumina Subpage Overlay Mode</span>
             </div>
           </div>
 
           {/* Real-time Subpage Switcher Tab bar */}
-          <div className="p-3 bg-slate-900/40 border-b border-slate-850 flex justify-center shrink-0">
-            <div className="flex bg-slate-950 border border-slate-800 rounded-full p-1 max-w-xs w-full justify-between items-center font-sans">
+          <div className="p-3 bg-white border-b border-slate-200 flex justify-center shrink-0">
+            <div className="flex bg-slate-50 border border-slate-200 rounded-full p-1 max-w-xs w-full justify-between items-center font-sans shadow-sm">
               <button 
                 type="button"
                 onClick={() => setActivePreviewTab('home')}
                 className={`flex-1 py-1 px-2.5 rounded-full text-[9px] font-bold transition-all text-center cursor-pointer ${
-                  activePreviewTab === 'home' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-slate-200'
+                  activePreviewTab === 'home' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 🏠 Home
@@ -1142,7 +1452,7 @@ function BuilderPage() {
                 type="button"
                 onClick={() => setActivePreviewTab('sobre')}
                 className={`flex-1 py-1 px-2.5 rounded-full text-[9px] font-bold transition-all text-center cursor-pointer ${
-                  activePreviewTab === 'sobre' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-slate-200'
+                  activePreviewTab === 'sobre' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 📖 Sobre
@@ -1151,7 +1461,7 @@ function BuilderPage() {
                 type="button"
                 onClick={() => setActivePreviewTab('contato')}
                 className={`flex-1 py-1 px-2.5 rounded-full text-[9px] font-bold transition-all text-center cursor-pointer ${
-                  activePreviewTab === 'contato' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-slate-200'
+                  activePreviewTab === 'contato' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 📞 Contato
@@ -1160,12 +1470,12 @@ function BuilderPage() {
           </div>
 
           {/* Interactive Screen Simulation */}
-          <div className="flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-950 flex justify-center items-start">
+          <div className="flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-100 flex justify-center items-start">
             
             {/* Embedded simulation container styled dynamically */}
             <div 
               style={previewStyles}
-              className="w-full max-w-2xl bg-cream text-charcoal border border-slate-800 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300"
+              className="w-full max-w-2xl bg-cream text-charcoal border border-slate-200 rounded-2xl overflow-hidden shadow-xl transition-all duration-300"
             >
               <div style={{ fontFamily: fonts.sans }} className="text-charcoal leading-relaxed">
                 
@@ -1174,10 +1484,20 @@ function BuilderPage() {
                   settings.headerStyle === 'transparent' ? 'bg-cream/20 backdrop-blur-sm' : 'bg-cream-dark'
                 }`}>
                   <div className="flex items-center gap-1.5">
-                    <div className="w-7 h-7 rounded-full bg-gold flex items-center justify-center text-cream text-xs font-bold font-display">
-                      {defaultTenant?.name?.charAt(0) || 'L'}
-                    </div>
-                    <span className="text-xs font-bold font-display tracking-tight text-charcoal">{defaultTenant?.name || 'Lumina'}</span>
+                    {settings.logo ? (
+                      <img src={settings.logo} className="h-6 w-auto object-contain" alt="Logo" />
+                    ) : (
+                      <>
+                        <div className="w-7 h-7 rounded-full bg-gold flex items-center justify-center overflow-hidden text-cream text-xs font-bold font-display shrink-0">
+                          {settings.marcaDagua ? (
+                            <img src={settings.marcaDagua} className="w-full h-full object-cover" alt="Marca d'Água" />
+                          ) : (
+                            defaultTenant?.name?.charAt(0) || 'L'
+                          )}
+                        </div>
+                        <span className="text-xs font-bold font-display tracking-tight text-charcoal">{defaultTenant?.name || 'Lumina'}</span>
+                      </>
+                    )}
                   </div>
                   <nav className="flex items-center gap-3 text-[10px] font-semibold text-charcoal/70">
                     <span onClick={() => setActivePreviewTab('home')} className="cursor-pointer hover:text-charcoal transition-colors">Home</span>
@@ -1190,7 +1510,13 @@ function BuilderPage() {
                   <>
                     {/* Hero preset styling dynamic */}
                     <div className="relative px-6 py-12 text-center overflow-hidden flex flex-col justify-center min-h-[220px]">
-                      <img src={settings.heroImage} className="absolute inset-0 w-full h-full object-cover opacity-15" />
+                      <img 
+                        src={settings.heroImage || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85&fit=crop"} 
+                        onError={(e) => {
+                          e.currentTarget.src = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85&fit=crop"
+                        }}
+                        className="absolute inset-0 w-full h-full object-cover opacity-15" 
+                      />
                       <div className="relative z-10 max-w-md mx-auto space-y-2">
                         <h2 
                           style={{ fontFamily: fonts.display }}

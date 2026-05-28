@@ -70,20 +70,66 @@ function Navbar({ tenant }: { tenant: any }) {
   // Transparent navbar overlay only on home page of the tenant subsite
   const isHome = location.pathname === `/${tenantSlug}` || location.pathname === `/${tenantSlug}/`
   const headerStyle = tenant.builderSettings?.headerStyle || 'classic'
+  const headerFixed = tenant.builderSettings?.headerFixed !== false
+  const pages = tenant.builderSettings?.pages || { blog: true, launches: true, contact: true, sobre: true, anunciar: true, avaliar: false }
 
-  const navBg = headerStyle === 'transparent' && isHome
-    ? scrolled
-      ? 'bg-cream/95 backdrop-blur-md shadow-sm border-b border-cream-border'
-      : 'bg-transparent'
-    : 'bg-cream/95 backdrop-blur-md border-b border-cream-border'
+  // Classes for the nav wrapper based on options and scrolling
+  let navClasses = "z-50 transition-all duration-300 "
+  
+  // Position style (Fixed vs Static)
+  if (headerFixed) {
+    navClasses += "fixed top-0 left-0 right-0 "
+  } else {
+    navClasses += "relative "
+  }
 
-  const textColor = headerStyle === 'transparent' && isHome && !scrolled ? 'text-white' : 'text-charcoal'
+  // Header visual styles (transparent, minimal, classic)
+  let navInnerClasses = "max-w-7xl mx-auto px-6 h-20 flex items-center justify-between transition-all duration-300 "
+  let textColor = "text-charcoal"
+  let navStyleBg = "bg-cream/95 backdrop-blur-md border-b border-cream-border shadow-sm"
+
+  if (headerStyle === 'transparent') {
+    if (isHome) {
+      if (scrolled) {
+        if (headerFixed) {
+          // TRANSLUCENT FLOATING CAPSULE BAR (Substantial change!)
+          navClasses += "px-4 py-2.5 "
+          navStyleBg = "bg-white/80 dark:bg-charcoal/80 backdrop-blur-md rounded-full shadow-lg border border-white/20 dark:border-charcoal-light/20 max-w-7xl mx-auto top-2"
+          navInnerClasses = "px-6 h-14 flex items-center justify-between transition-all"
+        } else {
+          navStyleBg = "bg-cream/95 backdrop-blur-md border-b border-cream-border shadow-sm"
+        }
+        textColor = "text-charcoal"
+      } else {
+        navStyleBg = "bg-transparent border-b-0 shadow-none"
+        textColor = "text-white"
+      }
+    } else {
+      if (headerFixed && scrolled) {
+        navClasses += "px-4 py-2.5 "
+        navStyleBg = "bg-white/80 dark:bg-charcoal/80 backdrop-blur-md rounded-full shadow-lg border border-white/20 dark:border-charcoal-light/20 max-w-7xl mx-auto top-2"
+        navInnerClasses = "px-6 h-14 flex items-center justify-between transition-all"
+      } else {
+        navStyleBg = "bg-cream/95 backdrop-blur-md border-b border-cream-border"
+      }
+      textColor = "text-charcoal"
+    }
+  } else if (headerStyle === 'minimal') {
+    navStyleBg = "bg-white border-b border-slate-200 shadow-sm"
+    textColor = "text-slate-800"
+  } else if (headerStyle === 'classic') {
+    // Elegant luxury with double borderline or bottom accent
+    navStyleBg = "bg-cream border-b-4 border-double border-gold/40 shadow-sm"
+    textColor = "text-charcoal"
+  }
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navBg}`}>
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+    <nav className={`${navClasses} ${navStyleBg}`}>
+      <div className={navInnerClasses}>
         <Link to="/$tenant" params={{ tenant: tenantSlug }} className="transition-opacity hover:opacity-80 flex items-center gap-2">
-          {tenant.logo.endsWith('.svg') ? (
+          {tenant.logo && (tenant.logo.startsWith('data:image') || tenant.logo.endsWith('.png') || tenant.logo.endsWith('.jpg') || tenant.logo.endsWith('.jpeg')) ? (
+            <img src={tenant.logo} className="h-10 w-auto object-contain" />
+          ) : tenant.logo && tenant.logo.endsWith('.svg') ? (
             <svg 
               className={`h-[58px] w-auto ${textColor}`}
               viewBox="0 0 595 407" 
@@ -100,8 +146,12 @@ function Navbar({ tenant }: { tenant: any }) {
           ) : (
             <>
               {/* Logo Mark Branded dynamically with custom variables */}
-              <div className="w-9 h-9 rounded-full bg-gold flex items-center justify-center text-cream font-display font-bold text-lg shadow-sm shrink-0">
-                {tenant.name.charAt(0)}
+              <div className="w-9 h-9 rounded-full bg-gold flex items-center justify-center overflow-hidden text-cream font-display font-bold text-lg shadow-sm shrink-0">
+                {tenant.marcaDagua ? (
+                  <img src={tenant.marcaDagua} className="w-full h-full object-cover" />
+                ) : (
+                  tenant.name.charAt(0)
+                )}
               </div>
               <span className={`font-display text-lg font-bold tracking-tight ${textColor}`}>
                 {tenant.name}

@@ -30,9 +30,18 @@ function PortalIndexPage() {
               <span className="text-[10px] text-white/40 font-mono tracking-widest block uppercase">Multi-Tenant Platform</span>
             </div>
           </div>
-          <div className="flex items-center gap-3 text-xs bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full text-white/70">
-            <Cpu size={12} className="text-[#EDBF71]" />
-            <span>Versão V8 Activa</span>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/builder"
+              className="text-xs bg-gradient-to-r from-[#EDBF71] to-[#3A8266] hover:from-[#EDBF71] hover:to-[#EDBF71] text-black font-bold px-4 py-2 rounded-full transition-all duration-300 shadow-md shadow-amber-500/10 flex items-center gap-1.5 cursor-pointer"
+            >
+              <Layers size={13} />
+              LEGO Builder
+            </Link>
+            <div className="hidden sm:flex items-center gap-3 text-xs bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full text-white/70">
+              <Cpu size={12} className="text-[#EDBF71]" />
+              <span>Versão V8 Activa</span>
+            </div>
           </div>
         </div>
       </header>

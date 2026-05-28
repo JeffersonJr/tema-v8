@@ -108,7 +108,7 @@ function SobrePage() {
           Sobre a Robles
         </h1>
         <p className="text-warm-gray text-base max-w-xl mx-auto">
-          Especialistas em encontrar o imóvel ideal para cada momento da sua vida com discrição e excelência há mais de 23 anos.
+          Especialistas em encontrar o imóvel ideal para cada momento da sua vida com discrição e excelência.
         </p>
       </div>
 
@@ -118,44 +118,58 @@ function SobrePage() {
           <div>
             <div className="section-title">
               <h2 className="font-display text-4xl font-bold text-charcoal">
-                23 anos encontrando o imóvel certo para cada pessoa.
+                {tenant.builderSettings?.sobreTitle || `${tenant.name} — Curadoria Imobiliária`}
               </h2>
             </div>
-            <div className="space-y-4 mt-5 text-warm-gray text-base leading-relaxed">
-              <p>
-                A Robles Imobiliária nasceu em 2002 da visão de Claudia Robles: criar uma imobiliária que tratasse cada cliente como único, entendendo não apenas o que ele quer, mas o que ele realmente precisa.
-              </p>
-              <p>
-                Começamos com um pequeno escritório nos Jardins, São Paulo. Hoje somos referência no mercado imobiliário de alto padrão em cinco das principais cidades do Brasil: São Paulo, Rio de Janeiro, Florianópolis, Curitiba e Belo Horizonte.
-              </p>
-              <p>
-                Nossa equipe é formada por especialistas com profundo conhecimento de cada mercado onde atuamos. Mais do que corretores, somos consultores que acompanham o cliente do primeiro contato às chaves na mão — e além.
-              </p>
-              <p>
-                R$ 2,4 bilhões em transações, 4.800 famílias atendidas e uma reputação construída negociação a negociação. Esse é o nosso legado, e é o que nos motiva a fazer ainda melhor todos os dias.
-              </p>
-            </div>
+            {tenant.builderSettings?.sobreText ? (
+              <div 
+                className={`mt-5 text-warm-gray leading-relaxed space-y-4 ${
+                  tenant.builderSettings?.sobreTextFontSize || 'text-base'
+                }`}
+                dangerouslySetInnerHTML={{ __html: tenant.builderSettings.sobreText }}
+              />
+            ) : (
+              <div className="space-y-4 mt-5 text-warm-gray text-base leading-relaxed">
+                <p>
+                  A Robles Imobiliária nasceu em 2002 da visão de Claudia Robles: criar uma imobiliária que tratasse cada cliente como único, entendendo não apenas o que ele quer, mas o que ele realmente precisa.
+                </p>
+                <p>
+                  Começamos com um pequeno escritório nos Jardins, São Paulo. Hoje somos referência no mercado imobiliário de alto padrão em cinco das principais cidades do Brasil: São Paulo, Rio de Janeiro, Florianópolis, Curitiba e Belo Horizonte.
+                </p>
+                <p>
+                  Nossa equipe é formada por especialistas com profundo conhecimento de cada mercado onde atuamos. Mais do que corretores, somos consultores que acompanham o cliente do primeiro contato às chaves na mão — e além.
+                </p>
+                <p>
+                  R$ 2,4 bilhões em transações, 4.800 famílias atendidas e uma reputação construída negociação a negociação. Esse é o nosso legado, e é o que nos motiva a fazer ainda melhor todos os dias.
+                </p>
+              </div>
+            )}
             
             <div className="mt-8 flex flex-col items-start border-t border-cream-border pt-6">
               <img
-                src="/assinatura.png"
-                alt="Assinatura Claudia Robles"
+                src={tenant.aboutSignature?.image || "/assinatura.png"}
+                alt={`Assinatura ${tenant.aboutSignature?.name || tenant.name}`}
                 className="h-14 w-auto object-contain brightness-95 filter"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
               />
-              <span className="text-lg font-semibold text-charcoal mt-2">Claudia Robles</span>
-              <span className="text-sm text-warm-gray">Fundadora & Diretora Geral</span>
+              <span className="text-lg font-semibold text-charcoal mt-2">{tenant.aboutSignature?.name || "Claudia Robles"}</span>
+              <span className="text-sm text-warm-gray">{tenant.aboutSignature?.role || "Fundadora & Diretora Geral"}</span>
             </div>
           </div>
           <div className="relative">
             <img
-              src="/claudia.png"
-              alt="Claudia Robles"
-              className="rounded-2xl w-full h-auto object-contain max-h-[500px]"
+              src={tenant.builderSettings?.sobreImage || "/claudia.png"}
+              alt={tenant.name}
+              className="rounded-2xl w-full h-auto object-contain max-h-[500px] border border-cream-border/60 shadow-md bg-cream-dark"
             />
-            <div className="absolute -bottom-6 -left-6 bg-gold text-white rounded-2xl p-6 w-40">
-              <div className="font-display text-4xl font-bold">23</div>
-              <div className="text-base mt-1 text-white/80">anos de mercado</div>
-            </div>
+            {(!tenant.builderSettings?.sobreStats) && (
+              <div className="absolute -bottom-6 -left-6 bg-gold text-white rounded-2xl p-6 w-40">
+                <div className="font-display text-4xl font-bold">23</div>
+                <div className="text-base mt-1 text-white/80">anos de mercado</div>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -164,12 +178,22 @@ function SobrePage() {
       <section className="bg-charcoal py-16">
         <div className="max-w-5xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { value: 'R$ 2,4 bi', label: 'Transacionados' },
-              { value: '4.800+', label: 'Famílias atendidas' },
-              { value: '1.240+', label: 'Imóveis disponíveis' },
-              { value: '5', label: 'Cidades de atuação' },
-            ].map((s) => (
+            {(tenant.builderSettings?.sobreStats 
+              ? tenant.builderSettings.sobreStats.split(' · ').map((s: string) => {
+                  const spaceIdx = s.indexOf(' ');
+                  if (spaceIdx === -1) return { value: s, label: '' };
+                  return {
+                    value: s.substring(0, spaceIdx),
+                    label: s.substring(spaceIdx + 1)
+                  };
+                })
+              : [
+                  { value: 'R$ 2,4 bi', label: 'Transacionados' },
+                  { value: '4.800+', label: 'Famílias atendidas' },
+                  { value: '1.240+', label: 'Imóveis disponíveis' },
+                  { value: '5', label: 'Cidades de atuação' },
+                ]
+            ).map((s: any) => (
               <div key={s.label}>
                 <div className="font-display text-3xl font-bold text-gold mb-1">{s.value}</div>
                 <div className="text-cream/50 text-sm uppercase tracking-widest">{s.label}</div>
