@@ -695,6 +695,102 @@ function BuilderPage() {
                 </label>
               </div>
             </div>
+
+            {/* MINI LAYOUT FLOW PREVIEW */}
+            <div className="bg-slate-950/80 p-4 rounded-xl border border-slate-850 space-y-3">
+              <span className="block text-[8px] font-bold uppercase tracking-widest text-amber-400">Esquema Dinâmico do Layout (LEGO Blocks)</span>
+              
+              <div className="border border-slate-800 rounded-xl bg-slate-900/60 p-3 max-w-sm mx-auto space-y-2 text-[9px] font-mono text-slate-400">
+                {/* Header block preview */}
+                <div className={`p-1.5 rounded border text-center transition-all ${
+                  settings.headerStyle === 'transparent' ? 'border-dashed border-teal-500/40 bg-teal-500/5 text-teal-400' :
+                  settings.headerStyle === 'classic' ? 'border-slate-700 bg-slate-800/80 text-slate-200 font-bold' :
+                  'border-slate-800 bg-slate-900/60 text-slate-400'
+                }`}>
+                  [Header: {settings.headerStyle.toUpperCase()}]
+                </div>
+
+                {/* Hero block preview */}
+                <div className="p-3 rounded border text-center bg-gradient-to-r from-amber-500/5 to-amber-600/5 border-amber-500/20 text-amber-400 space-y-1 transition-all">
+                  <div className={`font-bold text-[10px] ${
+                    settings.heroStyle === 'search-centered' ? 'text-center' : 'text-left'
+                  }`}>
+                    {settings.heroTitle || 'Título do Hero'}
+                  </div>
+                  <div className={`text-[7px] text-slate-500 ${
+                    settings.heroStyle === 'search-centered' ? 'text-center' : 'text-left'
+                  }`}>
+                    {settings.heroSubtitle || 'Subtítulo do Hero'}
+                  </div>
+                  {settings.heroStyle !== 'minimalist' && (
+                    <div className={`mt-1.5 p-1 bg-slate-950/80 border border-slate-800 rounded text-[7px] max-w-[120px] ${
+                      settings.heroStyle === 'search-centered' ? 'mx-auto' : ''
+                    }`}>
+                      🔍 Barra de Busca
+                    </div>
+                  )}
+                </div>
+
+                {/* Active Modules Stack */}
+                <div className="space-y-1">
+                  <div className="text-[7px] uppercase tracking-wider text-slate-500 mb-1">Fluxo de Módulos (Home)</div>
+                  
+                  {settings.modules.featured ? (
+                    <div className="p-1.5 rounded border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 flex items-center justify-between px-2.5">
+                      <span>✨ Seção Destaques</span>
+                      <span className="text-[7px] bg-emerald-500/10 px-1 rounded">ATIVO</span>
+                    </div>
+                  ) : (
+                    <div className="p-1.5 rounded border border-dashed border-slate-800 bg-slate-950/20 text-slate-600 flex items-center justify-between px-2.5">
+                      <span>✨ Seção Destaques</span>
+                      <span>INATIVO</span>
+                    </div>
+                  )}
+
+                  {settings.modules.categories ? (
+                    <div className="p-1.5 rounded border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 flex items-center justify-between px-2.5">
+                      <span>🗂️ Categorias Rápidas</span>
+                      <span className="text-[7px] bg-emerald-500/10 px-1 rounded">ATIVO</span>
+                    </div>
+                  ) : (
+                    <div className="p-1.5 rounded border border-dashed border-slate-800 bg-slate-950/20 text-slate-600 flex items-center justify-between px-2.5">
+                      <span>🗂️ Categorias Rápidas</span>
+                      <span>INATIVO</span>
+                    </div>
+                  )}
+
+                  {settings.modules.cities ? (
+                    <div className="p-1.5 rounded border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 flex items-center justify-between px-2.5">
+                      <span>🏙️ Cidades & Filtros</span>
+                      <span className="text-[7px] bg-emerald-500/10 px-1 rounded">ATIVO</span>
+                    </div>
+                  ) : (
+                    <div className="p-1.5 rounded border border-dashed border-slate-800 bg-slate-950/20 text-slate-600 flex items-center justify-between px-2.5">
+                      <span>🏙️ Cidades & Filtros</span>
+                      <span>INATIVO</span>
+                    </div>
+                  )}
+
+                  {settings.modules.testimonials ? (
+                    <div className="p-1.5 rounded border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 flex items-center justify-between px-2.5">
+                      <span>💬 Depoimentos Clientes</span>
+                      <span className="text-[7px] bg-emerald-500/10 px-1 rounded">ATIVO</span>
+                    </div>
+                  ) : (
+                    <div className="p-1.5 rounded border border-dashed border-slate-800 bg-slate-950/20 text-slate-600 flex items-center justify-between px-2.5">
+                      <span>💬 Depoimentos Clientes</span>
+                      <span>INATIVO</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer preview */}
+                <div className={`p-1.5 rounded border text-center text-slate-500 border-slate-850 bg-slate-950/40 text-[7px]`}>
+                  [Footer: {settings.footerStyle.toUpperCase()} · Creci Ativo]
+                </div>
+
+              </div>
+            </div>
           </div>
 
           {/* SECTION 5: Dynamic Team Array config */}
