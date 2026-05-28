@@ -1,5 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
+import { createFileRoute } from '@tanstack/react-router'
 import { 
   Save, 
   Eye, 
@@ -13,7 +12,13 @@ import {
   Trash2,
   BedDouble,
   Maximize2,
-  Bath
+  Bath,
+  ChevronUp,
+  ChevronDown,
+  Phone,
+  Mail,
+  Instagram,
+  Image as ImageIcon
 } from 'lucide-react'
 import { getTenantById } from '@/data/tenants'
 import { formatPrice } from '@/data/properties'
@@ -166,7 +171,8 @@ function BuilderPage() {
     searchFiltersLayout: 'topbar' as 'sidebar' | 'topbar',
     detailGalleryStyle: 'slider' as 'mosaic' | 'slider' | 'grid',
     openingHours: 'Segunda a Sexta das 10h às 19h · Sábados das 10h às 16h',
-    team: [] as any[]
+    team: [] as any[],
+    moduleOrder: ['featured', 'categories', 'cities', 'testimonials'] as string[]
   })
 
   // Basic contact info
@@ -230,7 +236,8 @@ function BuilderPage() {
             searchFiltersLayout: parsed.searchFiltersLayout || 'topbar',
             detailGalleryStyle: parsed.detailGalleryStyle || 'slider',
             openingHours: parsed.openingHours || 'Segunda a Sexta das 10h às 19h · Sábados das 10h às 16h',
-            team: parsed.team || (defaultTenant?.builderSettings?.team || [])
+            team: parsed.team || (defaultTenant?.builderSettings?.team || []),
+            moduleOrder: parsed.moduleOrder || ['featured', 'categories', 'cities', 'testimonials']
           })
         } catch (e) {
           console.error(e)
@@ -300,6 +307,17 @@ function BuilderPage() {
   const removeTeamMember = (index: number) => {
     const list = settings.team.filter((_, i) => i !== index)
     setSettings(prev => ({ ...prev, team: list }))
+  }
+
+  // LEGO Blocks reordering
+  const moveModule = (index: number, direction: 'up' | 'down') => {
+    const list = [...settings.moduleOrder]
+    const targetIdx = direction === 'up' ? index - 1 : index + 1
+    if (targetIdx < 0 || targetIdx >= list.length) return
+    const temp = list[index]
+    list[index] = list[targetIdx]
+    list[targetIdx] = temp
+    setSettings(prev => ({ ...prev, moduleOrder: list }))
   }
 
   // Sample Property for Previews
@@ -733,55 +751,55 @@ function BuilderPage() {
 
                 {/* Active Modules Stack */}
                 <div className="space-y-1">
-                  <div className="text-[7px] uppercase tracking-wider text-slate-500 mb-1">Fluxo de Módulos (Home)</div>
+                  <div className="text-[7px] uppercase tracking-wider text-slate-500 mb-1 flex justify-between items-center">
+                    <span>Fluxo de Módulos (Reordenar)</span>
+                    <span className="text-[6px] text-amber-500 font-bold">USE AS SETAS</span>
+                  </div>
                   
-                  {settings.modules.featured ? (
-                    <div className="p-1.5 rounded border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 flex items-center justify-between px-2.5">
-                      <span>✨ Seção Destaques</span>
-                      <span className="text-[7px] bg-emerald-500/10 px-1 rounded">ATIVO</span>
-                    </div>
-                  ) : (
-                    <div className="p-1.5 rounded border border-dashed border-slate-800 bg-slate-950/20 text-slate-600 flex items-center justify-between px-2.5">
-                      <span>✨ Seção Destaques</span>
-                      <span>INATIVO</span>
-                    </div>
-                  )}
+                  {settings.moduleOrder.map((modKey, idx) => {
+                    const isActive = settings.modules[modKey as keyof typeof settings.modules];
+                    const label = modKey === 'featured' ? '✨ Seção Destaques' :
+                                  modKey === 'categories' ? '🗂️ Categorias Rápidas' :
+                                  modKey === 'cities' ? '🏙️ Cidades & Filtros' :
+                                  '💬 Depoimentos Clientes';
 
-                  {settings.modules.categories ? (
-                    <div className="p-1.5 rounded border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 flex items-center justify-between px-2.5">
-                      <span>🗂️ Categorias Rápidas</span>
-                      <span className="text-[7px] bg-emerald-500/10 px-1 rounded">ATIVO</span>
-                    </div>
-                  ) : (
-                    <div className="p-1.5 rounded border border-dashed border-slate-800 bg-slate-950/20 text-slate-600 flex items-center justify-between px-2.5">
-                      <span>🗂️ Categorias Rápidas</span>
-                      <span>INATIVO</span>
-                    </div>
-                  )}
-
-                  {settings.modules.cities ? (
-                    <div className="p-1.5 rounded border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 flex items-center justify-between px-2.5">
-                      <span>🏙️ Cidades & Filtros</span>
-                      <span className="text-[7px] bg-emerald-500/10 px-1 rounded">ATIVO</span>
-                    </div>
-                  ) : (
-                    <div className="p-1.5 rounded border border-dashed border-slate-800 bg-slate-950/20 text-slate-600 flex items-center justify-between px-2.5">
-                      <span>🏙️ Cidades & Filtros</span>
-                      <span>INATIVO</span>
-                    </div>
-                  )}
-
-                  {settings.modules.testimonials ? (
-                    <div className="p-1.5 rounded border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 flex items-center justify-between px-2.5">
-                      <span>💬 Depoimentos Clientes</span>
-                      <span className="text-[7px] bg-emerald-500/10 px-1 rounded">ATIVO</span>
-                    </div>
-                  ) : (
-                    <div className="p-1.5 rounded border border-dashed border-slate-800 bg-slate-950/20 text-slate-600 flex items-center justify-between px-2.5">
-                      <span>💬 Depoimentos Clientes</span>
-                      <span>INATIVO</span>
-                    </div>
-                  )}
+                    return (
+                      <div 
+                        key={modKey} 
+                        className={`p-1.5 rounded border flex items-center justify-between px-2.5 transition-all ${
+                          isActive 
+                            ? 'border-emerald-500/20 bg-emerald-500/5 text-emerald-400 font-medium' 
+                            : 'border-dashed border-slate-800 bg-slate-950/20 text-slate-600'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5">
+                          {/* Up/Down controls */}
+                          <div className="flex flex-col gap-0.5 mr-1">
+                            <button 
+                              type="button"
+                              disabled={idx === 0} 
+                              onClick={() => moveModule(idx, 'up')}
+                              className="text-slate-500 hover:text-amber-400 disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed"
+                            >
+                              <ChevronUp size={10} />
+                            </button>
+                            <button 
+                              type="button"
+                              disabled={idx === settings.moduleOrder.length - 1} 
+                              onClick={() => moveModule(idx, 'down')}
+                              className="text-slate-500 hover:text-amber-400 disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed"
+                            >
+                              <ChevronDown size={10} />
+                            </button>
+                          </div>
+                          <span>{label}</span>
+                        </div>
+                        <span className={`text-[7px] px-1 rounded ${isActive ? 'bg-emerald-500/10' : 'bg-slate-800/10 text-slate-500'}`}>
+                          {isActive ? 'ATIVO' : 'INATIVO'}
+                        </span>
+                      </div>
+                    )
+                  })}
                 </div>
 
                 {/* Footer preview */}
@@ -800,20 +818,61 @@ function BuilderPage() {
                 <Users className="text-amber-400" size={16} />
                 <h2 className="text-xs font-bold uppercase tracking-wider text-slate-200">Equipe & Corretores</h2>
               </div>
-              <button onClick={addTeamMember} className="px-2.5 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg text-[10px] font-bold flex items-center gap-1 cursor-pointer">
-                <Plus size={10} /> Add
+              <button onClick={addTeamMember} className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-md shadow-amber-500/10">
+                <Plus size={12} /> Adicionar
               </button>
             </div>
 
             <div className="space-y-4">
               {settings.team.map((member, idx) => (
-                <div key={idx} className="bg-slate-950 p-4 rounded-xl border border-slate-800 relative space-y-3">
-                  <button onClick={() => removeTeamMember(idx)} className="absolute top-2.5 right-2.5 text-slate-500 hover:text-red-400 p-1">
-                    <Trash2 size={12} />
+                <div key={idx} className="bg-slate-950 p-4 rounded-xl border border-slate-800/80 relative space-y-4 hover:border-slate-700 transition-colors">
+                  <button onClick={() => removeTeamMember(idx)} className="absolute top-3 right-3 text-slate-500 hover:text-red-400 p-1 cursor-pointer transition-colors" title="Remover corretor">
+                    <Trash2 size={14} />
                   </button>
-                  <div className="grid grid-cols-2 gap-2">
-                    <input type="text" value={member.name} onChange={(e) => updateTeamMember(idx, 'name', e.target.value)} className="bg-slate-900 border border-slate-800 rounded p-1.5 text-[11px] text-slate-200" placeholder="Nome" />
-                    <input type="text" value={member.role} onChange={(e) => updateTeamMember(idx, 'role', e.target.value)} className="bg-slate-900 border border-slate-800 rounded p-1.5 text-[11px] text-slate-200" placeholder="Cargo" />
+                  
+                  {/* Premium Header/Avatar section */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full border border-slate-800 overflow-hidden bg-slate-900 flex items-center justify-center shrink-0">
+                      {member.photo ? (
+                        <img src={member.photo} className="w-full h-full object-cover" onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none';
+                        }} />
+                      ) : (
+                        <Users size={18} className="text-slate-600" />
+                      )}
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-slate-200">{member.name || 'Sem nome'}</div>
+                      <div className="text-[10px] text-amber-500 font-mono font-medium uppercase tracking-wider">{member.role || 'Sem cargo'}</div>
+                    </div>
+                  </div>
+
+                  {/* Inputs Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-900">
+                    <div>
+                      <label className="block text-[8px] font-bold uppercase tracking-wider text-slate-500 mb-1">Nome Completo</label>
+                      <input type="text" value={member.name} onChange={(e) => updateTeamMember(idx, 'name', e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-2 py-1.5 text-[11px] text-slate-200 focus:border-slate-700 focus:outline-none" placeholder="Nome" />
+                    </div>
+                    <div>
+                      <label className="block text-[8px] font-bold uppercase tracking-wider text-slate-500 mb-1">Cargo / Especialidade</label>
+                      <input type="text" value={member.role} onChange={(e) => updateTeamMember(idx, 'role', e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-2 py-1.5 text-[11px] text-slate-200 focus:border-slate-700 focus:outline-none" placeholder="Cargo" />
+                    </div>
+                    <div>
+                      <label className="block text-[8px] font-bold uppercase tracking-wider text-slate-500 mb-1 flex items-center gap-1"><Phone size={8} /> WhatsApp</label>
+                      <input type="text" value={member.phone || ''} onChange={(e) => updateTeamMember(idx, 'phone', e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-2 py-1.5 text-[11px] text-slate-200 focus:border-slate-700 focus:outline-none" placeholder="(41) 99999-9999" />
+                    </div>
+                    <div>
+                      <label className="block text-[8px] font-bold uppercase tracking-wider text-slate-500 mb-1 flex items-center gap-1"><Mail size={8} /> E-mail Profissional</label>
+                      <input type="text" value={member.email || ''} onChange={(e) => updateTeamMember(idx, 'email', e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-2 py-1.5 text-[11px] text-slate-200 focus:border-slate-700 focus:outline-none" placeholder="nome@lumina.com.br" />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-[8px] font-bold uppercase tracking-wider text-slate-500 mb-1 flex items-center gap-1"><ImageIcon size={8} /> Link da Foto de Perfil</label>
+                      <input type="text" value={member.photo || ''} onChange={(e) => updateTeamMember(idx, 'photo', e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-2 py-1.5 text-[11px] text-slate-200 focus:border-slate-700 focus:outline-none" placeholder="https://..." />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-[8px] font-bold uppercase tracking-wider text-slate-500 mb-1 flex items-center gap-1"><Instagram size={8} /> Perfil do Instagram</label>
+                      <input type="text" value={member.instagram || ''} onChange={(e) => updateTeamMember(idx, 'instagram', e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-2 py-1.5 text-[11px] text-slate-200 focus:border-slate-700 focus:outline-none" placeholder="https://instagram.com/..." />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -886,55 +945,84 @@ function BuilderPage() {
                   </div>
                 </div>
 
-                {/* Active Modules & Card Grid */}
+                 {/* Active Modules & Card Grid rendered in dynamic order */}
                 <div className="p-6 space-y-6">
-                  
-                  {settings.modules.featured && (
-                    <div className="space-y-3">
-                      <div className="text-left">
-                        <h3 style={{ fontFamily: fonts.display }} className="text-sm font-bold uppercase tracking-wider text-charcoal font-display border-b border-cream-border pb-1">Novidades Exclusivas</h3>
-                      </div>
-                      
-                      {/* Active Card variants rendering in the live preview */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {[1, 2].map((i) => (
-                          <div 
-                            key={i} 
-                            className={`bg-white border border-cream-border rounded-xl overflow-hidden shadow-sm transition-all ${
-                              settings.cardVariant === 'horizontal' ? 'flex h-24' : ''
-                            }`}
-                          >
-                            <img src={mockProperty.image} className={settings.cardVariant === 'horizontal' ? 'w-20 object-cover' : 'w-full h-24 object-cover'} />
-                            <div className="p-2.5 flex flex-col justify-between flex-1 text-left">
-                              <div>
-                                <div className="text-[7px] text-warm-gray uppercase tracking-widest font-semibold">{mockProperty.neighborhood}</div>
-                                <div className="text-[10px] font-bold text-charcoal truncate">{mockProperty.title}</div>
-                              </div>
-                              <div>
-                                <div className="flex flex-wrap gap-2 text-[8px] text-warm-gray mb-1">
-                                  {settings.showCardBedrooms && <span>{mockProperty.bedrooms} Qts</span>}
-                                  {settings.showCardBathrooms && <span>{mockProperty.bathrooms} Banh</span>}
-                                  {settings.showCardArea && <span>{mockProperty.area}m²</span>}
-                                  {settings.showCardCondo && <span>Cond: {formatPrice(mockProperty.condoPrice)}</span>}
-                                  {settings.showCardPetFriendly && <span className="text-emerald-600 font-semibold">Pet</span>}
-                                </div>
-                                <div className="text-xs font-bold text-charcoal font-display">{formatPrice(mockProperty.price)}</div>
-                              </div>
-                            </div>
+                  {(settings.moduleOrder || ['featured', 'categories', 'cities', 'testimonials']).map((modKey) => {
+                    if (modKey === 'featured' && settings.modules.featured) {
+                      return (
+                        <div key="featured" className="space-y-3">
+                          <div className="text-left">
+                            <h3 style={{ fontFamily: fonts.display }} className="text-sm font-bold uppercase tracking-wider text-charcoal font-display border-b border-cream-border pb-1">Novidades Exclusivas</h3>
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {[1, 2].map((i) => (
+                              <div 
+                                key={i} 
+                                className={`bg-white border border-cream-border rounded-xl overflow-hidden shadow-sm transition-all ${
+                                  settings.cardVariant === 'horizontal' ? 'flex h-24' : ''
+                                }`}
+                              >
+                                <img src={mockProperty.image} className={settings.cardVariant === 'horizontal' ? 'w-20 object-cover' : 'w-full h-24 object-cover'} />
+                                <div className="p-2.5 flex flex-col justify-between flex-1 text-left">
+                                  <div>
+                                    <div className="text-[7px] text-warm-gray uppercase tracking-widest font-semibold">{mockProperty.neighborhood}</div>
+                                    <div className="text-[10px] font-bold text-charcoal truncate">{mockProperty.title}</div>
+                                  </div>
+                                  <div>
+                                    <div className="flex flex-wrap gap-2 text-[8px] text-warm-gray mb-1">
+                                      {settings.showCardBedrooms && <span>{mockProperty.bedrooms} Qts</span>}
+                                      {settings.showCardBathrooms && <span>{mockProperty.bathrooms} Banh</span>}
+                                      {settings.showCardArea && <span>{mockProperty.area}m²</span>}
+                                      {settings.showCardCondo && <span>Cond: {formatPrice(mockProperty.condoPrice)}</span>}
+                                      {settings.showCardPetFriendly && <span className="text-emerald-600 font-semibold">Pet</span>}
+                                    </div>
+                                    <div className="text-xs font-bold text-charcoal font-display">{formatPrice(mockProperty.price)}</div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    }
 
-                  {/* Testimonials module */}
-                  {settings.modules.testimonials && (
-                    <div className="bg-cream-dark p-4 rounded-xl border border-cream-border text-center space-y-2">
-                      <p className="text-[10px] italic text-charcoal/70">"Excelente atendimento, a equipe da Lumina me ajudou a comprar minha cobertura suspensa de forma descomplicada."</p>
-                      <span className="block text-[8px] font-bold uppercase tracking-wider text-gold">Beatriz Almeida · Batel</span>
-                    </div>
-                  )}
+                    if (modKey === 'categories' && settings.modules.categories) {
+                      return (
+                        <div key="categories" className="space-y-3">
+                          <h3 style={{ fontFamily: fonts.display }} className="text-sm font-bold uppercase tracking-wider text-charcoal font-display border-b border-cream-border pb-1">Categorias de Sucesso</h3>
+                          <div className="grid grid-cols-3 gap-2 text-center text-[9px] font-bold text-charcoal">
+                            <span className="bg-cream-dark p-2 rounded-lg border border-cream-border">🏢 Coberturas</span>
+                            <span className="bg-cream-dark p-2 rounded-lg border border-cream-border">🏡 Casas Batel</span>
+                            <span className="bg-cream-dark p-2 rounded-lg border border-cream-border">📈 Lançamentos</span>
+                          </div>
+                        </div>
+                      )
+                    }
 
+                    if (modKey === 'cities' && settings.modules.cities) {
+                      return (
+                        <div key="cities" className="space-y-3">
+                          <h3 style={{ fontFamily: fonts.display }} className="text-sm font-bold uppercase tracking-wider text-charcoal font-display border-b border-cream-border pb-1">Bairros Nobres</h3>
+                          <div className="flex gap-2 flex-wrap text-[8px] text-warm-gray">
+                            <span className="bg-cream-dark px-2.5 py-1 rounded-full border border-cream-border">📍 Batel</span>
+                            <span className="bg-cream-dark px-2.5 py-1 rounded-full border border-cream-border">📍 Ecoville</span>
+                            <span className="bg-cream-dark px-2.5 py-1 rounded-full border border-cream-border">📍 Cabral</span>
+                            <span className="bg-cream-dark px-2.5 py-1 rounded-full border border-cream-border">📍 Champagnat</span>
+                          </div>
+                        </div>
+                      )
+                    }
+
+                    if (modKey === 'testimonials' && settings.modules.testimonials) {
+                      return (
+                        <div key="testimonials" className="bg-cream-dark p-4 rounded-xl border border-cream-border text-center space-y-2">
+                          <p className="text-[10px] italic text-charcoal/70">"Excelente atendimento, a equipe da Lumina me ajudou a comprar minha cobertura suspensa de forma descomplicada."</p>
+                          <span className="block text-[8px] font-bold uppercase tracking-wider text-gold">Beatriz Almeida · Batel</span>
+                        </div>
+                      )
+                    }
+                    return null
+                  })}
                 </div>
 
                 {/* Footer simulation */}
