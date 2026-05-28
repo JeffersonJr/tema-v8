@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { ArrowRight, ShieldCheck, Cpu, Code2, Users, Layers } from 'lucide-react'
-import { tenants } from '@/data/tenants'
+import { ArrowRight, ShieldCheck, Cpu, Code2, Users, Layers, Plus } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { tenants, getCustomTenants } from '@/data/tenants'
+import type { Tenant } from '@/data/tenants'
 import { getProperties } from '@/data/properties'
 
 export const Route = createFileRoute('/')({
@@ -8,6 +10,150 @@ export const Route = createFileRoute('/')({
 })
 
 function PortalIndexPage() {
+  const [allTenants, setAllTenants] = useState<Tenant[]>([])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const custom = getCustomTenants()
+      setAllTenants([...tenants, ...custom])
+    } else {
+      setAllTenants(tenants)
+    }
+  }, [])
+
+  const handleCreateNewTenant = () => {
+    if (typeof window === 'undefined') return
+    const suffix = Date.now().toString().slice(-4)
+    const nextId = `custom_${Date.now()}`
+    const newSlug = `portal-${suffix}`
+    
+    const newTenant: Tenant = {
+      id: nextId,
+      slug: newSlug,
+      name: `Novo Portal V8 #${suffix}`,
+      tagline: 'Lançamentos imobiliários e design de vanguarda.',
+      logo: '',
+      favicon: '/favicon.ico',
+      creci: 'CRECI-PR 00.000-X',
+      description: 'Novo portal imobiliário criado dinamicamente com o construtor modular LEGO V8.',
+      colors: {
+        cream: '#FAFAFA',
+        creamDark: '#F4F4F5',
+        creamBorder: '#E4E4E7',
+        charcoal: '#09090B',
+        charcoalLight: '#27272A',
+        warmGray: '#717178',
+        gold: '#18181B',
+        goldLight: '#3F3F46',
+      },
+      contacts: {
+        phone: '(41) 3000-0000',
+        phoneRaw: '+554130000000',
+        whatsapp: '(41) 99999-9999',
+        whatsappRaw: '5541999999999',
+        email: 'contato@novoportalv8.com.br',
+        address: {
+          street: 'Avenida do Batel, 1000',
+          neighborhood: 'Batel',
+          city: 'Curitiba',
+          state: 'PR',
+          fullAddress: 'Avenida do Batel, 1000, Batel, Curitiba - PR',
+        },
+      },
+      socials: {
+        instagram: 'https://instagram.com/',
+        facebook: 'https://facebook.com/',
+        youtube: 'https://youtube.com/',
+      },
+      fonts: {
+        sans: 'Inter',
+        display: 'Outfit',
+      },
+      builderSettings: {
+        headerStyle: 'minimal',
+        footerStyle: 'simple',
+        heroStyle: 'minimalist',
+        heroTitle: `Novo Portal V8 #${suffix}`,
+        heroSubtitle: 'Selecione e configure os seus blocos premium na barra de ferramentas lateral.',
+        heroImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85&fit=crop',
+        cardVariant: 'compact',
+        showCardBedrooms: true,
+        showCardBathrooms: true,
+        showCardArea: true,
+        showCardCondo: true,
+        showCardPetFriendly: true,
+        modules: {
+          featured: true,
+          categories: true,
+          cities: true,
+          testimonials: false,
+          blog: true,
+          launches: true,
+        },
+        pages: {
+          blog: true,
+          launches: true,
+          contact: true,
+          sobre: true,
+          anunciar: true,
+          avaliar: false,
+        },
+        homeFilters: ['tipo', 'neighborhood'],
+        searchFiltersLayout: 'topbar',
+        detailGalleryStyle: 'slider',
+        openingHours: 'Segunda a Sexta das 9h às 18h',
+        team: [
+          {
+            name: 'Consultor de Vanguarda',
+            role: 'Diretor Comercial',
+            phone: '(41) 99999-9999',
+            email: 'diretor@novoportal.com.br',
+            photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80',
+            instagram: 'https://instagram.com/',
+          }
+        ]
+      }
+    }
+
+    const currentCustom = getCustomTenants()
+    currentCustom.push(newTenant)
+    localStorage.setItem('v8_custom_tenants', JSON.stringify(currentCustom))
+    
+    // Create direct settings key
+    localStorage.setItem(`${newTenant.id}_builder_settings`, JSON.stringify({
+      ...newTenant.builderSettings,
+      colors: newTenant.colors,
+      fonts: newTenant.fonts,
+      contacts: newTenant.contacts,
+      name: newTenant.name,
+      slug: newTenant.slug,
+      homeBlocks: ['stats', 'featured', 'categories', 'launches', 'cities', 'testimonials', 'cta', 'tags'],
+      pageStructures: {
+        sobre: 'editorial',
+        anunciar: 'editorial',
+        contato: 'editorial',
+        blog: 'editorial',
+      },
+      pageBlocks: {
+        sobre: ['text', 'stats', 'team'],
+        anunciar: ['text', 'form', 'cta'],
+        contato: ['text', 'form'],
+      },
+      teamStyle: 'grid',
+      formFields: {
+        name: { label: 'Nome Completo', enabled: true, required: true },
+        phone: { label: 'WhatsApp / Telefone', enabled: true, required: true },
+        email: { label: 'E-mail', enabled: true, required: false },
+        message: { label: 'Mensagem de Interesse', enabled: true, required: false },
+        propertyType: { label: 'Tipo de Imóvel', enabled: false, required: false },
+        neighborhood: { label: 'Bairro de Interesse', enabled: false, required: false },
+      }
+    }))
+
+    // Redirect to builder with dynamic ID
+    window.location.href = `/builder?tenantId=${newTenant.id}`
+  }
+
   return (
     <div className="min-h-screen bg-[#0F110E] text-white flex flex-col justify-between selection:bg-[#EDBF71] selection:text-black">
       <title>Sites V8 - Microsistec</title>
@@ -40,7 +186,7 @@ function PortalIndexPage() {
             </Link>
             <div className="hidden sm:flex items-center gap-3 text-xs bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full text-white/70">
               <Cpu size={12} className="text-[#EDBF71]" />
-              <span>Versão V8 Activa</span>
+              <span>Versão V8 Ativa</span>
             </div>
           </div>
         </div>
@@ -64,13 +210,20 @@ function PortalIndexPage() {
         </div>
 
         {/* Tenant Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl mb-16 animate-fade-in-up animate-delay-200">
-          {tenants.map((tenant) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl mb-16 animate-fade-in-up animate-delay-200 animate-duration-500">
+          {allTenants.map((tenant) => {
             const propsCount = getProperties(tenant.id).length
             const isRobles = tenant.id === 'robles'
-            const accentColor = isRobles ? 'group-hover:border-[#EDBF71] hover:shadow-[#EDBF71]/5' : 'group-hover:border-[#3A8266] hover:shadow-[#3A8266]/5'
-            const badgeColor = isRobles ? 'bg-[#EDBF71]/10 text-[#EDBF71] border-[#EDBF71]/20' : 'bg-[#3A8266]/10 text-[#3A8266] border-[#3A8266]/20'
-            const btnColor = isRobles ? 'bg-[#EDBF71] hover:bg-[#D4A84E] text-black' : 'bg-[#3A8266] hover:bg-[#2C624D] text-white'
+            const isCustom = tenant.id.startsWith('custom_')
+            const accentColor = isCustom 
+              ? 'hover:border-amber-400/60 hover:shadow-amber-400/5' 
+              : (isRobles ? 'group-hover:border-[#EDBF71] hover:shadow-[#EDBF71]/5' : 'group-hover:border-[#3A8266] hover:shadow-[#3A8266]/5')
+            const badgeColor = isCustom
+              ? 'bg-amber-400/10 text-amber-400 border-amber-400/20'
+              : (isRobles ? 'bg-[#EDBF71]/10 text-[#EDBF71] border-[#EDBF71]/20' : 'bg-[#3A8266]/10 text-[#3A8266] border-[#3A8266]/20')
+            const btnColor = isCustom
+              ? 'bg-amber-500 hover:bg-amber-600 text-slate-950'
+              : (isRobles ? 'bg-[#EDBF71] hover:bg-[#D4A84E] text-black' : 'bg-[#3A8266] hover:bg-[#2C624D] text-white')
 
             return (
               <div
@@ -79,21 +232,21 @@ function PortalIndexPage() {
               >
                 {/* Visual Ambient Light inside card */}
                 <div className={`absolute top-0 right-0 w-32 h-32 rounded-full filter blur-[40px] pointer-events-none opacity-0 group-hover:opacity-40 transition-opacity duration-500 ${
-                  isRobles ? 'bg-[#EDBF71]/20' : 'bg-[#3A8266]/20'
+                  isCustom ? 'bg-amber-400/10' : (isRobles ? 'bg-[#EDBF71]/20' : 'bg-[#3A8266]/20')
                 }`} />
 
                 <div>
                   <div className="flex items-center justify-between mb-8">
                     {/* Branded Dynamic Emblem */}
                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-display font-bold shadow-md transition-transform duration-300 group-hover:scale-105 ${
-                      isRobles ? 'bg-[#EDBF71] text-black' : 'bg-[#3A8266] text-white'
+                      isCustom ? 'bg-amber-500 text-slate-950' : (isRobles ? 'bg-[#EDBF71] text-black' : 'bg-[#3A8266] text-white')
                     }`}>
                       {tenant.name.charAt(0)}
                     </div>
 
                     <div className="flex flex-col items-end">
                       <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${badgeColor}`}>
-                        {propsCount} Imóveis ativos
+                        {propsCount} Imóveis
                       </span>
                       <span className="text-[10px] text-white/40 mt-1.5 font-mono">{tenant.creci}</span>
                     </div>
@@ -102,7 +255,7 @@ function PortalIndexPage() {
                   <h3 className="font-display text-2xl font-bold text-white mb-2 tracking-tight group-hover:text-white transition-colors">
                     {tenant.name}
                   </h3>
-                  <div className={`text-xs font-semibold uppercase tracking-wider mb-4 ${isRobles ? 'text-[#EDBF71]' : 'text-[#3A8266]'}`}>
+                  <div className={`text-xs font-semibold uppercase tracking-wider mb-4 ${isCustom ? 'text-amber-400' : (isRobles ? 'text-[#EDBF71]' : 'text-[#3A8266]')}`}>
                     {tenant.tagline}
                   </div>
                   <p className="text-white/50 text-sm leading-relaxed mb-8">
@@ -110,17 +263,42 @@ function PortalIndexPage() {
                   </p>
                 </div>
 
-                <Link
-                  to="/$tenant"
-                  params={{ tenant: tenant.slug }}
-                  className={`w-full py-4 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${btnColor}`}
-                >
-                  Acessar Imobiliária
-                  <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
-                </Link>
+                <div className="flex flex-col gap-2">
+                  <Link
+                    to="/$tenant"
+                    params={{ tenant: tenant.slug }}
+                    className={`w-full py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${btnColor}`}
+                  >
+                    Acessar Site
+                    <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
+                  </Link>
+                  <a
+                    href={`/builder?tenantId=${tenant.id}`}
+                    className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-white/10 hover:bg-white/5 text-white/70 hover:text-white"
+                  >
+                    <Layers size={12} />
+                    Editar no LEGO Builder
+                  </a>
+                </div>
               </div>
             )
           })}
+
+          {/* Create New V8 Card */}
+          <div
+            onClick={handleCreateNewTenant}
+            className="group bg-[#161915]/50 border-2 border-dashed border-white/10 hover:border-amber-400/40 rounded-3xl p-8 flex flex-col justify-center items-center text-center transition-all duration-400 hover:-translate-y-1.5 shadow-2xl relative overflow-hidden cursor-pointer min-h-[300px]"
+          >
+            <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-xl font-bold mb-4 group-hover:bg-amber-500 group-hover:text-slate-950 transition-all">
+              <Plus size={20} />
+            </div>
+            <h3 className="font-display text-xl font-bold text-white mb-2 group-hover:text-amber-400 transition-colors">
+              Criar Novo Portal V8
+            </h3>
+            <p className="text-white/40 text-xs leading-relaxed max-w-xs">
+              Crie um novo site imobiliário exclusivo do zero com identidade visual, domínios e blocos LEGO personalizados.
+            </p>
+          </div>
         </div>
 
         {/* Tech Stack Specs */}

@@ -300,18 +300,33 @@ export const tenants: Tenant[] = [
   },
 ]
 
+export function getCustomTenants(): Tenant[] {
+  if (typeof window === 'undefined') return []
+  const custom = window.localStorage.getItem('v8_custom_tenants')
+  if (!custom) return []
+  try {
+    return JSON.parse(custom)
+  } catch (e) {
+    console.error('Error parsing custom tenants', e)
+    return []
+  }
+}
+
 export function getTenantBySlug(slug: string): Tenant | undefined {
-  const tenant = tenants.find((t) => t.slug.toLowerCase() === slug.toLowerCase())
+  const allTenantsList = [...tenants, ...getCustomTenants()]
+  const tenant = allTenantsList.find((t) => t.slug.toLowerCase() === slug.toLowerCase())
   if (!tenant) return undefined
 
-  if (typeof window !== 'undefined' && tenant.id === 'lumina') {
-    const custom = window.localStorage.getItem('lumina_builder_settings')
+  if (typeof window !== 'undefined') {
+    const custom = window.localStorage.getItem(`${tenant.id}_builder_settings`)
     if (custom) {
       try {
         const settings = JSON.parse(custom)
         return {
           ...tenant,
           ...settings,
+          name: settings.name || tenant.name,
+          slug: settings.slug || tenant.slug,
           colors: { ...tenant.colors, ...(settings.colors || {}) },
           fonts: { ...tenant.fonts, ...(settings.fonts || {}) },
           contacts: {
@@ -333,7 +348,7 @@ export function getTenantBySlug(slug: string): Tenant | undefined {
           } : tenant.aboutSignature
         }
       } catch (e) {
-        console.error('Error parsing custom Lumina settings', e)
+        console.error('Error parsing custom settings', e)
       }
     }
   }
@@ -341,17 +356,20 @@ export function getTenantBySlug(slug: string): Tenant | undefined {
 }
 
 export function getTenantById(id: string): Tenant | undefined {
-  const tenant = tenants.find((t) => t.id === id)
+  const allTenantsList = [...tenants, ...getCustomTenants()]
+  const tenant = allTenantsList.find((t) => t.id === id)
   if (!tenant) return undefined
 
-  if (typeof window !== 'undefined' && tenant.id === 'lumina') {
-    const custom = window.localStorage.getItem('lumina_builder_settings')
+  if (typeof window !== 'undefined') {
+    const custom = window.localStorage.getItem(`${tenant.id}_builder_settings`)
     if (custom) {
       try {
         const settings = JSON.parse(custom)
         return {
           ...tenant,
           ...settings,
+          name: settings.name || tenant.name,
+          slug: settings.slug || tenant.slug,
           colors: { ...tenant.colors, ...(settings.colors || {}) },
           fonts: { ...tenant.fonts, ...(settings.fonts || {}) },
           contacts: {
@@ -373,7 +391,7 @@ export function getTenantById(id: string): Tenant | undefined {
           } : tenant.aboutSignature
         }
       } catch (e) {
-        console.error('Error parsing custom Lumina settings', e)
+        console.error('Error parsing custom settings', e)
       }
     }
   }

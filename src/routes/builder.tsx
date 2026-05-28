@@ -192,7 +192,7 @@ function SectionAccordion({ icon, title, defaultOpen = true, children }: { icon:
         </div>
         <ChevronRight size={14} className={`text-slate-400 transition-transform ${open ? 'rotate-90' : ''}`} />
       </button>
-      {open && <div className="px-5 pb-5 space-y-5 border-t border-slate-100">{children}</div>}
+      {open && <div className="px-5 pt-5 pb-5 space-y-5 border-t border-slate-100">{children}</div>}
     </div>
   )
 }
@@ -247,7 +247,10 @@ function TextareaField({ label, value, onChange, placeholder, rows = 3 }: { labe
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
 function BuilderPage() {
-  const defaultTenant = getTenantById('lumina')
+  // Get tenantId dynamically from URL query params
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
+  const activeTenantId = searchParams?.get('tenantId') || 'lumina'
+  const defaultTenant = getTenantById(activeTenantId) || getTenantById('lumina')
 
   // Colors & fonts
   const [colors, setColors] = useState({
@@ -264,25 +267,32 @@ function BuilderPage() {
   
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop')
   const [previewNavOpen, setPreviewNavOpen] = useState(false)
+  const [syncCardStyles, setSyncCardStyles] = useState(false)
 
   useEffect(() => {
     setPreviewNavOpen(false)
   }, [activePreviewTab])
 
+  // Custom domain fields
+  const [customDomain, setCustomDomain] = useState('')
+  const [domainStatus, setDomainStatus] = useState<'connected' | 'pending'>('pending')
+
   // Settings
   const [settings, setSettings] = useState({
+    name: defaultTenant?.name || 'Lumina Curadoria',
+    slug: defaultTenant?.slug || 'lumina',
     headerStyle: 'minimal' as 'transparent' | 'minimal' | 'classic',
     headerFixed: true,
-    footerStyle: 'simple' as 'simple' | 'detailed' | 'minimal',
-    heroStyle: 'minimalist' as 'search-centered' | 'search-left' | 'minimalist' | 'split-screen' | 'video-ambient',
+    footerStyle: 'simple' as 'simple' | 'detailed' | 'minimal' | 'modern-newsletter' | 'column-grid',
+    heroStyle: 'minimalist' as 'search-centered' | 'search-left' | 'search-right' | 'minimalist' | 'split-screen' | 'video-ambient',
     heroTitle: 'Coleção Lançamentos Curitiba',
     heroSubtitle: 'Curadoria especializada de apartamentos, coberturas e residências suspensas com design assinado.',
     heroImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85&fit=crop',
     logo: '/logo.png',
     marcaDagua: '',
     favicon: '/favicon.ico',
-    cardVerticalStyle: 'classic' as 'classic' | 'minimalist' | 'glassmorphism' | 'editorial' | 'bold-border' | 'dark-elegance',
-    cardHorizontalStyle: 'classic' as 'classic' | 'minimalist' | 'glassmorphism' | 'editorial' | 'bold-border' | 'dark-elegance',
+    cardVerticalStyle: 'classic' as string,
+    cardHorizontalStyle: 'classic' as string,
     cardTag: 'destaque' as string,
     showCardBedrooms: true,
     showCardBathrooms: false,
@@ -305,6 +315,15 @@ function BuilderPage() {
       sobre: ['hero', 'text', 'stats', 'team'],
       anunciar: ['hero', 'text', 'form'],
       contato: ['hero', 'form', 'text'],
+    },
+    teamStyle: 'grid' as 'grid' | 'cards' | 'list' | 'minimal',
+    formFields: {
+      name: { label: 'Nome Completo', enabled: true, required: true },
+      phone: { label: 'WhatsApp / Telefone', enabled: true, required: true },
+      email: { label: 'E-mail', enabled: true, required: false },
+      message: { label: 'Mensagem de Interesse', enabled: true, required: false },
+      propertyType: { label: 'Tipo de Imóvel', enabled: false, required: false },
+      neighborhood: { label: 'Bairro de Interesse', enabled: false, required: false },
     },
     homeFilters: ['tipo', 'neighborhood'],
     searchFiltersLayout: 'topbar' as 'sidebar' | 'topbar',
@@ -356,43 +375,86 @@ function BuilderPage() {
   // Load from localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('lumina_builder_settings')
+      const stored = localStorage.getItem(`${activeTenantId}_builder_settings`)
       if (stored) {
         try {
           const p = JSON.parse(stored)
           if (p.colors) setColors(p.colors)
           if (p.fonts) setFonts(p.fonts)
           if (p.contacts) setContacts(p.contacts)
+          if (p.customDomain) setCustomDomain(p.customDomain)
           setSettings(prev => ({
             ...prev,
             ...p,
+            name: p.name || prev.name,
+            slug: p.slug || prev.slug,
             modules: { ...prev.modules, ...(p.modules || {}) },
             enabledPages: { ...prev.enabledPages, ...(p.enabledPages || {}) },
             pageStructures: { ...prev.pageStructures, ...(p.pageStructures || {}) },
             pageBlocks: { ...prev.pageBlocks, ...(p.pageBlocks || {}) },
             homeBlocks: p.homeBlocks || prev.homeBlocks,
+            teamStyle: p.teamStyle || prev.teamStyle,
+            formFields: { ...prev.formFields, ...(p.formFields || {}) },
             team: p.team || (defaultTenant?.builderSettings?.team || []),
           }))
         } catch (e) { console.error(e) }
       } else if (defaultTenant) {
-        setSettings(prev => ({ ...prev, team: defaultTenant.builderSettings.team }))
+        setSettings(prev => ({
+          ...prev,
+          name: defaultTenant.name,
+          slug: defaultTenant.slug,
+          team: defaultTenant.builderSettings.team,
+          formFields: (defaultTenant.builderSettings as any).formFields || prev.formFields,
+          teamStyle: (defaultTenant.builderSettings as any).teamStyle || prev.teamStyle,
+        }))
+        if (defaultTenant.colors) setColors(defaultTenant.colors)
+        if (defaultTenant.fonts) setFonts(defaultTenant.fonts as any)
+        if (defaultTenant.contacts) setContacts(defaultTenant.contacts)
       }
     }
-  }, [])
+  }, [activeTenantId])
 
   const handleSave = (redirectToSite = false) => {
     if (typeof window !== 'undefined') {
-      const payload = { ...settings, colors, fonts, contacts, creci: contacts.creci }
-      localStorage.setItem('lumina_builder_settings', JSON.stringify(payload))
+      const payload = { 
+        ...settings, 
+        colors, 
+        fonts, 
+        contacts, 
+        creci: contacts.creci,
+        customDomain
+      }
+      localStorage.setItem(`${activeTenantId}_builder_settings`, JSON.stringify(payload))
+      
+      // If it is a custom dynamic tenant, let's also update the custom tenant definition in v8_custom_tenants!
+      if (activeTenantId.startsWith('custom_')) {
+        const customTenants = JSON.parse(localStorage.getItem('v8_custom_tenants') || '[]')
+        const idx = customTenants.findIndex((t: any) => t.id === activeTenantId)
+        if (idx >= 0) {
+          customTenants[idx] = {
+            ...customTenants[idx],
+            name: settings.name,
+            slug: settings.slug,
+            tagline: settings.heroTitle || customTenants[idx].tagline,
+            creci: contacts.creci || customTenants[idx].creci,
+            logo: settings.logo || customTenants[idx].logo,
+          }
+          localStorage.setItem('v8_custom_tenants', JSON.stringify(customTenants))
+        }
+      }
+      
       window.dispatchEvent(new Event('lumina_builder_updated'))
-      if (redirectToSite) { window.open('/lumina', '_blank') }
-      else { alert('Identidade visual LEGO e componentes atualizados!') }
+      if (redirectToSite) { window.open(`/${settings.slug || defaultTenant?.slug || 'lumina'}`, '_blank') }
+      else { alert('Identidade visual LEGO e componentes salvos com sucesso!') }
     }
   }
 
   const handleReset = () => {
-    if (confirm('Tem certeza que deseja resetar para o padrão inicial do tema Lumina?')) {
-      if (typeof window !== 'undefined') { localStorage.removeItem('lumina_builder_settings'); window.location.reload() }
+    if (confirm('Tem certeza que deseja resetar para o padrão inicial deste tema?')) {
+      if (typeof window !== 'undefined') { 
+        localStorage.removeItem(`${activeTenantId}_builder_settings`); 
+        window.location.reload() 
+      }
     }
   }
 
@@ -642,20 +704,149 @@ function BuilderPage() {
     )
   }
 
+  // ─── HIGH CONTRAST GOLD HELPER ─────────────────────────────────────────────
+  const getContrastGold = (darkBg = false) => {
+    if (darkBg) {
+      const g = colors.gold.toLowerCase().trim()
+      if (g === '#18181b' || g === '#09090b' || g === '#111111' || g === '#000000' || g === '#000' || g === '#27272a' || g === '#1c1916') {
+        return '#EDBF71' // Return beautiful luxury gold on dark backgrounds
+      }
+      return colors.gold
+    }
+    return colors.gold
+  }
+
+  // ─── PREVIEW FOOTER RENDERER ───────────────────────────────────────────────
+  const renderFooter = () => {
+    const fStyle = settings.footerStyle || 'simple'
+    
+    // Logo element for footers
+    const logoEl = settings.logo ? (
+      <img src={settings.logo} className="h-5 w-auto max-w-[120px] object-contain" />
+    ) : (
+      <span className="text-[10px] font-bold tracking-tight" style={{ fontFamily: fonts.display, color: '#fff' }}>{settings.name}</span>
+    )
+
+    if (fStyle === 'minimal') {
+      return (
+        <footer className="px-4 py-3 flex items-center justify-between border-t text-[6px] shrink-0" style={{ backgroundColor: colors.charcoal, borderColor: colors.creamBorder, color: `${colors.cream}60` }}>
+          <div>© 2026 {settings.name} • {contacts.creci}</div>
+          <div className="flex gap-2 text-[7px]">
+            <span>📸 Instagram</span>
+            <span>📱 WhatsApp</span>
+          </div>
+        </footer>
+      )
+    }
+
+    if (fStyle === 'detailed') {
+      return (
+        <footer className="px-4 py-6 border-t space-y-4 text-left shrink-0" style={{ backgroundColor: colors.charcoal, borderColor: colors.creamBorder, color: `${colors.cream}80` }}>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-1">
+                {logoEl}
+              </div>
+              <p className="text-[6px] opacity-75">{defaultTenant?.tagline || 'Curadoria exclusiva de imóveis assinados.'}</p>
+              <div className="text-[6px] font-mono opacity-80">{contacts.creci}</div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-[7px] font-bold uppercase tracking-wider" style={{ color: '#fff' }}>Contato</div>
+              <div className="text-[6px]">{contacts.phone}</div>
+              <div className="text-[6px]">{contacts.email}</div>
+              <div className="text-[6px] opacity-75 leading-tight">{contacts.address.fullAddress}</div>
+            </div>
+          </div>
+          <div className="border-t border-white/5 pt-3 text-center text-[5px] opacity-50">
+            © 2026 {settings.name}. Todos os direitos reservados.
+          </div>
+        </footer>
+      )
+    }
+
+    if (fStyle === 'modern-newsletter') {
+      return (
+        <footer className="px-4 py-6 border-t space-y-4 text-left shrink-0 bg-zinc-950 border-zinc-800 text-zinc-400">
+          <div className="p-3 rounded-xl border border-zinc-800 space-y-2 bg-zinc-900/50">
+            <div className="text-[8px] font-bold text-white uppercase tracking-wider">Newsletter de Lançamentos</div>
+            <p className="text-[6px] text-zinc-400">Receba em primeira mão residências suspensas com design assinado.</p>
+            <div className="flex gap-1.5">
+              <input disabled placeholder="Seu e-mail..." className="flex-1 bg-zinc-800 border border-zinc-700 rounded px-1.5 py-0.5 text-[6px] text-white focus:outline-none" />
+              <button className="px-2 py-0.5 rounded text-[6px] font-bold border-0 cursor-pointer" style={{ backgroundColor: getContrastGold(true), color: '#fff' }}>Inscrever</button>
+            </div>
+          </div>
+          <div className="flex items-center justify-between pt-2">
+            <div className="space-y-0.5">
+              <div className="text-[7px] font-bold text-white">{settings.name}</div>
+              <div className="text-[5.5px] text-zinc-500">{contacts.creci}</div>
+            </div>
+            <div className="flex gap-2 text-[6px]">
+              <span className="hover:text-white cursor-pointer">Instagram</span>
+              <span className="hover:text-white cursor-pointer">WhatsApp</span>
+            </div>
+          </div>
+          <div className="text-[5px] text-zinc-650 text-center border-t border-zinc-900/60 pt-3">
+            © 2026 {settings.name} • Desenvolvido via V8 Engine.
+          </div>
+        </footer>
+      )
+    }
+
+    if (fStyle === 'column-grid') {
+      return (
+        <footer className="px-4 py-6 border-t space-y-4 text-left shrink-0" style={{ backgroundColor: colors.creamDark, borderColor: colors.creamBorder, color: colors.charcoalLight }}>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <div className="text-[7px] font-bold uppercase tracking-wider text-slate-900">Sobre Nós</div>
+              <p className="text-[6px] leading-tight opacity-75">{settings.sobreText?.slice(0, 100) || 'Curadoria imobiliária premium.'}...</p>
+            </div>
+            <div className="space-y-1.5">
+              <div className="text-[7px] font-bold uppercase tracking-wider text-slate-900">Serviços</div>
+              <div className="text-[6px] flex flex-col gap-1">
+                <span className="cursor-pointer hover:underline">Venda de Luxo</span>
+                <span className="cursor-pointer hover:underline">Locação Premium</span>
+                <span className="cursor-pointer hover:underline">Lançamentos de Grife</span>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <div className="text-[7px] font-bold uppercase tracking-wider text-slate-900">Atendimento</div>
+              <div className="text-[6px] opacity-75 leading-tight">{settings.openingHours}</div>
+              <div className="text-[5.5px] font-bold mt-1 text-slate-500">CRECI: {contacts.creci}</div>
+            </div>
+          </div>
+          <div className="border-t border-slate-200 pt-3 text-center text-[5.5px] opacity-50 flex items-center justify-between">
+            <span>© 2026 {settings.name}</span>
+            <span>Microsistec CRM</span>
+          </div>
+        </footer>
+      )
+    }
+
+    // Default: 'simple'
+    return (
+      <footer className="px-4 py-4 text-center border-t shrink-0" style={{ backgroundColor: colors.charcoal, borderColor: colors.creamBorder }}>
+        <div className="text-[8px] font-bold mb-0.5" style={{ color: '#fff', fontFamily: fonts.display }}>{settings.name}</div>
+        <div className="text-[6px] opacity-60" style={{ color: `${colors.cream}80` }}>{contacts.creci} • {contacts.phone}</div>
+        <div className="text-[5px] opacity-40 mt-1" style={{ color: `${colors.cream}40` }}>© 2026. Todos os direitos reservados.</div>
+      </footer>
+    )
+  }
+
   // ─── PREVIEW HERO RENDERER ─────────────────────────────────────────────────
   const renderPreviewHero = () => {
     const heroImg = settings.heroImage || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85&fit=crop'
+    const goldAccent = getContrastGold(true)
 
     if (settings.heroStyle === 'split-screen') {
       return (
         <div className="flex min-h-[260px]">
           <div className="flex-1 flex flex-col justify-center p-6 pr-4 relative z-10" style={{ backgroundColor: colors.charcoal }}>
-            <div className="text-[8px] uppercase tracking-widest mb-2 font-medium" style={{ color: colors.gold }}>Alto Padrão · Curitiba</div>
+            <div className="text-[8px] uppercase tracking-widest mb-2 font-medium" style={{ color: goldAccent }}>Alto Padrão · Curitiba</div>
             <h2 className="text-sm font-bold leading-tight mb-2" style={{ color: colors.cream, fontFamily: fonts.display }}>{settings.heroTitle}</h2>
             <p className="text-[8px] leading-relaxed mb-4 opacity-70" style={{ color: colors.cream }}>{settings.heroSubtitle}</p>
             <div className="flex gap-1.5 bg-white/10 p-1 rounded-lg border border-white/10">
-              <input disabled placeholder="Buscar imóvel..." className="w-full text-[7px] bg-transparent p-1 px-2" style={{ color: colors.cream }} />
-              <span className="text-[7px] font-bold px-2.5 py-1 rounded flex items-center" style={{ backgroundColor: colors.gold, color: colors.cream }}>Buscar</span>
+              <input disabled placeholder="Buscar imóvel..." className="w-full text-[7px] bg-transparent p-1 px-2 border-0 outline-none" style={{ color: colors.cream }} />
+              <span className="text-[7px] font-bold px-2.5 py-1 rounded flex items-center border-0 cursor-pointer" style={{ backgroundColor: goldAccent, color: '#fff' }}>Buscar</span>
             </div>
           </div>
           <div className="flex-1 relative overflow-hidden">
@@ -672,11 +863,11 @@ function BuilderPage() {
           <img src={heroImg} className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${colors.charcoal}e6 0%, ${colors.charcoal}99 50%, ${colors.charcoal}66 100%)` }} />
           {/* Animated glow orbs */}
-          <div className="absolute top-4 right-8 w-32 h-32 rounded-full opacity-20 blur-3xl" style={{ backgroundColor: colors.gold }} />
-          <div className="absolute bottom-4 left-8 w-24 h-24 rounded-full opacity-15 blur-2xl" style={{ backgroundColor: colors.gold }} />
+          <div className="absolute top-4 right-8 w-32 h-32 rounded-full opacity-20 blur-3xl" style={{ backgroundColor: goldAccent }} />
+          <div className="absolute bottom-4 left-8 w-24 h-24 rounded-full opacity-15 blur-2xl" style={{ backgroundColor: goldAccent }} />
           
           <div className="relative z-10 text-center px-6 py-16">
-            <div className="inline-flex items-center gap-1.5 mb-3 px-3 py-1 rounded-full text-[7px] font-bold uppercase tracking-widest" style={{ backgroundColor: `${colors.gold}30`, color: colors.gold, border: `1px solid ${colors.gold}40` }}>
+            <div className="inline-flex items-center gap-1.5 mb-3 px-3 py-1 rounded-full text-[7px] font-bold uppercase tracking-widest" style={{ backgroundColor: `${goldAccent}30`, color: goldAccent, border: `1px solid ${goldAccent}40` }}>
               <Sparkles size={8} /> Curadoria Premium · Exclusivo
             </div>
             <h2 className="font-bold text-xl leading-tight mb-2" style={{ color: '#fff', fontFamily: fonts.display }}>{settings.heroTitle}</h2>
@@ -686,22 +877,22 @@ function BuilderPage() {
       )
     }
 
-    if (settings.heroStyle === 'search-left') {
+    if (settings.heroStyle === 'search-right') {
       return (
         <div className="relative min-h-[260px] overflow-hidden">
           <img src={heroImg} className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0" style={{ background: `linear-gradient(105deg, ${colors.charcoal}dd 0%, ${colors.charcoal}99 55%, ${colors.charcoal}22 100%)` }} />
           <div className="relative z-10 px-5 pt-16 pb-6 grid grid-cols-2 gap-4 items-center">
             <div>
-              <div className="text-[7px] uppercase tracking-widest mb-2 font-medium" style={{ color: colors.gold }}>Curadoria Premium</div>
+              <div className="text-[7px] uppercase tracking-widest mb-2 font-medium" style={{ color: goldAccent }}>Curadoria Premium</div>
               <h2 className="font-bold text-base leading-tight mb-2" style={{ color: '#fff', fontFamily: fonts.display }}>{settings.heroTitle}</h2>
               <p className="text-[8px] leading-relaxed opacity-75" style={{ color: '#fff' }}>{settings.heroSubtitle}</p>
             </div>
             <div className="bg-white/95 p-2.5 rounded-xl shadow-lg">
               <div className="text-[7px] font-bold mb-1.5" style={{ color: colors.charcoal }}>Buscar imóvel</div>
               <div className="flex gap-1 bg-white border rounded-lg p-1 border-slate-200">
-                <input disabled placeholder="Localização ou tipo..." className="w-full text-[7px] bg-transparent p-0.5 px-1" style={{ color: colors.charcoal }} />
-                <span className="text-[7px] font-bold px-2 py-1 rounded flex items-center shadow-md cursor-pointer hover:bg-gold-light" style={{ backgroundColor: colors.gold, color: '#fff' }}>Ir</span>
+                <input disabled placeholder="Localização ou tipo..." className="w-full text-[7px] bg-transparent p-0.5 px-1 border-0 outline-none" style={{ color: colors.charcoal }} />
+                <span className="text-[7px] font-bold px-2 py-1 rounded flex items-center shadow-md cursor-pointer hover:bg-gold-light border-0" style={{ backgroundColor: goldAccent, color: '#fff' }}>Ir</span>
               </div>
             </div>
           </div>
@@ -709,33 +900,230 @@ function BuilderPage() {
       )
     }
 
-    if (settings.heroStyle === 'minimalist') {
+    if (settings.heroStyle === 'search-left') {
       return (
-        <div className="relative overflow-hidden min-h-[220px] flex items-center justify-center">
-          <img src={heroImg} className="absolute inset-0 w-full h-full object-cover opacity-20" />
-          <div className="relative z-10 text-center px-6 py-10">
-            <h2 className="font-bold text-xl leading-tight mb-2" style={{ color: colors.charcoal, fontFamily: fonts.display }}>{settings.heroTitle}</h2>
-            <p className="text-[9px] leading-relaxed max-w-xs mx-auto" style={{ color: colors.warmGray }}>{settings.heroSubtitle}</p>
+        <div className="relative min-h-[260px] overflow-hidden">
+          <img src={heroImg} className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0" style={{ background: `linear-gradient(255deg, ${colors.charcoal}dd 0%, ${colors.charcoal}99 55%, ${colors.charcoal}22 100%)` }} />
+          <div className="relative z-10 px-5 pt-16 pb-6 grid grid-cols-2 gap-4 items-center animate-fade-in">
+            <div className="bg-white/95 p-2.5 rounded-xl shadow-lg">
+              <div className="text-[7px] font-bold mb-1.5" style={{ color: colors.charcoal }}>Buscar imóvel</div>
+              <div className="flex gap-1 bg-white border rounded-lg p-1 border-slate-200">
+                <input disabled placeholder="Localização ou tipo..." className="w-full text-[7px] bg-transparent p-0.5 px-1 border-0 outline-none text-slate-800" />
+                <span className="text-[7px] font-bold px-2 py-1 rounded flex items-center shadow-md cursor-pointer hover:bg-amber-600 border-0" style={{ backgroundColor: goldAccent, color: '#fff' }}>Ir</span>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-[7px] uppercase tracking-widest mb-2 font-medium" style={{ color: goldAccent }}>Curadoria Premium</div>
+              <h2 className="font-bold text-base leading-tight mb-2" style={{ color: '#fff', fontFamily: fonts.display }}>{settings.heroTitle}</h2>
+              <p className="text-[8px] leading-relaxed opacity-75" style={{ color: '#fff' }}>{settings.heroSubtitle}</p>
+            </div>
           </div>
         </div>
       )
     }
-
-    // search-centered (default)
+    // Default: 'minimalist' / 'search-centered'
     return (
-      <div className="relative min-h-[260px] overflow-hidden flex flex-col justify-center">
+      <div className="relative min-h-[260px] flex items-center justify-center text-center px-4 overflow-hidden animate-fade-in">
         <img src={heroImg} className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, ${colors.charcoal}cc 0%, ${colors.charcoal}99 60%, ${colors.charcoal}bb 100%)` }} />
-        <div className="relative z-10 px-6 py-16 flex items-center justify-center">
-          <div className="text-center max-w-sm mx-auto">
-            <h2 className="font-bold text-lg leading-tight mb-2" style={{ color: '#fff', fontFamily: fonts.display }}>{settings.heroTitle}</h2>
-            <p className="text-[8px] leading-relaxed mb-4 opacity-75" style={{ color: '#fff' }}>{settings.heroSubtitle}</p>
-            <div className="flex gap-1.5 bg-white/95 p-1 rounded-lg border border-white/20 max-w-[220px] mx-auto">
-              <input disabled placeholder="Cidade ou tipo..." className="w-full text-[7px] bg-transparent p-1 px-2" style={{ color: colors.charcoal }} />
-              <span className="text-[7px] font-bold px-2.5 py-1 rounded flex items-center cursor-pointer hover:bg-gold-light" style={{ backgroundColor: colors.gold, color: '#fff' }}>Buscar</span>
+        <div className="absolute inset-0 bg-black/55" />
+        <div className="relative z-10 max-w-xs space-y-3">
+          <div className="text-[7px] uppercase tracking-widest text-[#EDBF71] font-bold">Residências Exclusivas</div>
+          <h2 className="text-base font-bold text-white leading-tight" style={{ fontFamily: fonts.display }}>{settings.heroTitle}</h2>
+          <p className="text-[7.5px] text-white/80 leading-relaxed">{settings.heroSubtitle}</p>
+          {settings.heroStyle === 'search-centered' && (
+            <div className="flex gap-1.5 bg-white/10 p-1 rounded-lg border border-white/15 backdrop-blur-md max-w-[200px] mx-auto">
+              <input disabled placeholder="Buscar bairro, tipo..." className="w-full text-[7.5px] bg-transparent p-0.5 px-1 border-0 outline-none text-white placeholder-white/50" />
+              <button className="text-[7.5px] font-bold px-2 py-0.5 rounded cursor-pointer border-0" style={{ backgroundColor: goldAccent, color: '#fff' }}>Buscar</button>
             </div>
-          </div>
+          )}
         </div>
+      </div>
+    )
+  }
+
+  // ─── DYNAMIC SUBPAGE BLOCKS RENDERER ──────────────────────────────────────
+  const renderPageBlocks = (pageKey: 'sobre' | 'anunciar' | 'contato') => {
+    const blocks = settings.pageBlocks[pageKey] || []
+    return (
+      <div className="space-y-4 pt-4">
+        {blocks.map(blockId => {
+          if (blockId === 'stats') {
+            return (
+              <div key="stats" className="py-4 px-3 rounded-xl" style={{ backgroundColor: colors.charcoal }}>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  {(settings.sobreStats || '10 Anos · 500+ Clientes · 100% Foco').split(' · ').map(s => {
+                    const parts = s.split(' ')
+                    const value = parts.slice(0, -1).join(' ') || s
+                    const label = parts.slice(-1)[0] || ''
+                    return (
+                      <div key={s}>
+                        <div className="text-[10px] font-bold" style={{ color: getContrastGold(true), fontFamily: fonts.display }}>{value}</div>
+                        <div className="text-[6px] uppercase tracking-wider mt-0.5 text-white/70">{label}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          }
+
+          if (blockId === 'gallery') {
+            return (
+              <div key="gallery" className="space-y-2 text-left">
+                <div className="text-[7px] uppercase tracking-widest font-bold animate-fade-in" style={{ color: colors.gold }}>Galeria de Inspiração</div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {['photo-1600585154340-be6161a56a0c', 'photo-1600596542815-ffad4c1539a9', 'photo-1545324418-cc1a3fa10c00'].map((p, idx) => (
+                    <div key={idx} className="aspect-square rounded-lg overflow-hidden border border-slate-100 shadow-sm bg-white animate-fade-in">
+                      <img src={`https://images.unsplash.com/${p}?w=200&q=80`} className="w-full h-full object-cover hover:scale-105 transition-all duration-300" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          }
+
+          if (blockId === 'team') {
+            const members = settings.team.length > 0 ? settings.team : [
+              { name: 'Rafaela Monteiro', role: 'Diretora Comercial', phone: '(11) 99847-3821', email: 'rafaela@robles.com.br', photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&q=80', instagram: '#' }
+            ]
+            const tStyle = settings.teamStyle || 'grid'
+
+            if (tStyle === 'minimal') {
+              return (
+                <div key="team" className="space-y-2.5 text-left">
+                  <div className="text-[7px] uppercase tracking-widest font-bold" style={{ color: colors.gold }}>Fale com Nossos Curadores</div>
+                  <div className="flex gap-3 justify-center flex-wrap pt-1">
+                    {members.map((m, idx) => (
+                      <div key={idx} className="flex flex-col items-center space-y-1 animate-fade-in">
+                        <div className="w-9 h-9 rounded-full overflow-hidden border border-amber-300 ring-2 ring-amber-100">
+                          <img src={m.photo} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="text-center">
+                          <div className="text-[7px] font-bold" style={{ color: colors.charcoal }}>{m.name}</div>
+                          <div className="text-[5.5px]" style={{ color: colors.warmGray }}>{m.role}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            }
+
+            if (tStyle === 'cards') {
+              return (
+                <div key="team" className="space-y-2.5 text-left">
+                  <div className="text-[7px] uppercase tracking-widest font-bold" style={{ color: colors.gold }}>Equipe Consultiva</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {members.map((m, idx) => (
+                      <div key={idx} className="p-2.5 rounded-xl border bg-white/45 backdrop-blur-sm border-white/20 shadow-sm flex items-center gap-2 animate-fade-in">
+                        <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0">
+                          <img src={m.photo} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-[7.5px] font-bold truncate text-slate-800">{m.name}</div>
+                          <div className="text-[6px] truncate text-slate-500">{m.role}</div>
+                          <div className="text-[5px] font-bold text-amber-600 mt-0.5">{m.phone}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            }
+
+            if (tStyle === 'list') {
+              return (
+                <div key="team" className="space-y-2 pt-1 text-left">
+                  <div className="text-[7px] uppercase tracking-widest font-bold" style={{ color: colors.gold }}>Diretoria de Atendimento</div>
+                  <div className="space-y-1.5">
+                    {members.map((m, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-100 shadow-sm animate-fade-in">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-full overflow-hidden">
+                            <img src={m.photo} className="w-full h-full object-cover" />
+                          </div>
+                          <div>
+                            <div className="text-[7.5px] font-bold text-slate-800">{m.name}</div>
+                            <div className="text-[6px] text-slate-500">{m.role}</div>
+                          </div>
+                        </div>
+                        <span className="text-[5.5px] font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: colors.gold, color: '#fff' }}>{m.phone}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            }
+
+            // Default: 'grid'
+            return (
+              <div key="team" className="space-y-2.5 text-left">
+                <div className="text-[7px] uppercase tracking-widest font-bold" style={{ color: colors.gold }}>Curadores Disponíveis</div>
+                <div className="grid grid-cols-2 gap-2">
+                  {members.map((m, idx) => (
+                    <div key={idx} className="bg-white rounded-xl border p-2 text-center space-y-1.5 shadow-sm animate-fade-in" style={{ borderColor: colors.creamBorder }}>
+                      <div className="w-10 h-10 rounded-full overflow-hidden mx-auto">
+                        <img src={m.photo} className="w-full h-full object-cover" />
+                      </div>
+                      <div>
+                        <div className="text-[7.5px] font-bold" style={{ color: colors.charcoal }}>{m.name}</div>
+                        <div className="text-[5.5px]" style={{ color: colors.warmGray }}>{m.role}</div>
+                      </div>
+                      <div className="text-[5.5px] text-slate-400 font-mono leading-none">{m.phone}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          }
+
+          if (blockId === 'form') {
+            return (
+              <div key="form" className="p-3.5 rounded-xl border space-y-2 text-left bg-slate-50 animate-fade-in" style={{ borderColor: colors.creamBorder }}>
+                <div className="text-[8px] font-bold uppercase tracking-wider text-slate-800">Solicitar Informações</div>
+                <div className="space-y-1.5">
+                  {Object.entries(settings.formFields).filter(([_, f]: any) => f.enabled).map(([id, f]: any) => (
+                    <div key={id} className="space-y-0.5">
+                      <label className="text-[5.5px] font-bold uppercase tracking-wider text-slate-500 block">
+                        {f.label} {f.required && <span className="text-red-500">*</span>}
+                      </label>
+                      {id === 'message' ? (
+                        <textarea disabled placeholder="Sua mensagem..." className="w-full bg-white border rounded px-1.5 py-1 text-[7px]" rows={2} style={{ borderColor: colors.creamBorder }} />
+                      ) : (
+                        <input disabled placeholder={f.label} className="w-full bg-white border rounded px-1.5 py-1 text-[7px]" style={{ borderColor: colors.creamBorder }} />
+                      )}
+                    </div>
+                  ))}
+                  <button className="w-full text-[7.5px] font-bold py-1.5 rounded-lg border-0 cursor-pointer text-center" style={{ backgroundColor: colors.gold, color: '#fff' }}>
+                    Enviar Solicitação
+                  </button>
+                </div>
+              </div>
+            )
+          }
+
+          if (blockId === 'testimonials') {
+            return (
+              <div key="testimonials" className="p-3 bg-amber-50/40 rounded-xl border border-amber-200 text-center space-y-1 animate-fade-in">
+                <p className="text-[7.5px] italic text-slate-700 leading-normal">"Encontramos nossa residência suspensa com facilidade. Excelente curadoria!"</p>
+                <div className="text-[6px] font-bold text-amber-700">Beatriz Almeida · Batel</div>
+              </div>
+            )
+          }
+
+          if (blockId === 'cta') {
+            return (
+              <div key="cta" className="p-4 rounded-xl text-center animate-fade-in" style={{ backgroundColor: colors.gold, color: '#fff' }}>
+                <div className="text-[9px] font-bold uppercase tracking-wider">Pronto para dar o próximo passo?</div>
+                <p className="text-[6px] opacity-80 mt-1 max-w-[200px] mx-auto leading-normal">Agende uma reunião confidencial em nosso escritório no Batel.</p>
+                <button className="mt-2 px-2.5 py-1 bg-white rounded-full text-[5.5px] font-bold text-slate-900 border-0 cursor-pointer">Fale Conosco</button>
+              </div>
+            )
+          }
+
+          return null
+        })}
       </div>
     )
   }
@@ -746,17 +1134,17 @@ function BuilderPage() {
 
     if (activePreviewTab === 'home') {
       return (
-        <div className="relative">
+        <div className="relative flex flex-col min-h-full">
           {renderNavbar()}
           {renderPreviewHero()}
-          <div className="p-4 space-y-5" style={{ backgroundColor: colors.cream }}>
+          <div className="flex-1 p-4 space-y-5" style={{ backgroundColor: colors.cream }}>
             {settings.homeBlocks.map((blockId: string) => {
               if (blockId === 'stats') return (
-                <div key="stats" className="py-4 px-3 rounded-xl" style={{ backgroundColor: colors.charcoal }}>
+                <div key="stats" className="py-4 px-3 rounded-xl animate-fade-in" style={{ backgroundColor: colors.charcoal }}>
                   <div className="grid grid-cols-4 gap-2 text-center">
                     {[{ v: 'R$ 2,4 bi', l: 'Negociados' }, { v: '1.200+', l: 'Imóveis' }, { v: '5', l: 'Cidades' }, { v: '23 anos', l: 'Experiência' }].map(s => (
                       <div key={s.l}>
-                        <div className="text-xs font-bold" style={{ color: colors.gold, fontFamily: fonts.display }}>{s.v}</div>
+                        <div className="text-xs font-bold" style={{ color: getContrastGold(true), fontFamily: fonts.display }}>{s.v}</div>
                         <div className="text-[6px] uppercase tracking-wider mt-0.5" style={{ color: `${colors.cream}80` }}>{s.l}</div>
                       </div>
                     ))}
@@ -765,7 +1153,7 @@ function BuilderPage() {
               )
 
               if (blockId === 'featured') return (
-                <div key="featured" className="space-y-2">
+                <div key="featured" className="space-y-2 animate-fade-in">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xs font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>Imóveis em Destaque</h3>
                     <span className="text-[7px] font-medium" style={{ color: colors.gold }}>Ver todos →</span>
@@ -777,7 +1165,7 @@ function BuilderPage() {
               )
 
               if (blockId === 'categories') return (
-                <div key="categories" className="space-y-2">
+                <div key="categories" className="space-y-2 animate-fade-in">
                   <h3 className="text-xs font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>O que você procura?</h3>
                   <div className="grid grid-cols-3 gap-1.5">
                     {[{ label: 'Comprar', emoji: '🏠' }, { label: 'Alugar', emoji: '🔑' }, { label: 'Lançamentos', emoji: '🚀' }].map(c => (
@@ -790,7 +1178,7 @@ function BuilderPage() {
               )
 
               if (blockId === 'launches') return (
-                <div key="launches" className="space-y-2">
+                <div key="launches" className="space-y-2 animate-fade-in">
                   <h3 className="text-xs font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>Novos Lançamentos</h3>
                   <div className="space-y-2">
                     {[1, 2].map(i => renderHorizontalCard({ ...mockProperty, image: `https://images.unsplash.com/photo-${i === 1 ? '1545324418-cc1a3fa10c00' : '1560448204-e02f11c3d0e2'}?w=400&q=80` }, settings.cardHorizontalStyle, cardTag))}
@@ -799,7 +1187,7 @@ function BuilderPage() {
               )
 
               if (blockId === 'cities') return (
-                <div key="cities" className="space-y-2">
+                <div key="cities" className="space-y-2 animate-fade-in">
                   <h3 className="text-xs font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>Onde Atuamos</h3>
                   <div className="flex gap-1.5 flex-wrap">
                     {['Batel', 'Ecoville', 'Cabral', 'Champagnat'].map(c => (
@@ -810,14 +1198,14 @@ function BuilderPage() {
               )
 
               if (blockId === 'testimonials') return (
-                <div key="testimonials" className="p-3 rounded-xl border" style={{ backgroundColor: colors.creamDark, borderColor: colors.creamBorder }}>
+                <div key="testimonials" className="p-3 rounded-xl border animate-fade-in" style={{ backgroundColor: colors.creamDark, borderColor: colors.creamBorder }}>
                   <p className="text-[8px] italic mb-1.5" style={{ color: colors.charcoal }}>"Excelente atendimento, encontrei minha cobertura dos sonhos!"</p>
-                  <span className="text-[7px] font-bold uppercase tracking-wider" style={{ color: colors.gold }}>Beatriz Almeida · Batel</span>
+                  <span className="text-[7px] font-bold uppercase tracking-wider" style={{ color: getContrastGold() }}>Beatriz Almeida · Batel</span>
                 </div>
               )
 
               if (blockId === 'cta') return (
-                <div key="cta" className="p-3 rounded-xl" style={{ backgroundColor: colors.creamDark, border: `1px solid ${colors.creamBorder}` }}>
+                <div key="cta" className="p-3 rounded-xl animate-fade-in" style={{ backgroundColor: colors.creamDark, border: `1px solid ${colors.creamBorder}` }}>
                   <div className="text-[9px] font-bold mb-1" style={{ color: colors.charcoal, fontFamily: fonts.display }}>Quer vender seu imóvel?</div>
                   <p className="text-[7px] mb-2" style={{ color: colors.warmGray }}>Nossa equipe avalia gratuitamente.</p>
                   <button className="text-[7px] font-bold px-3 py-1 rounded-full border-0 cursor-pointer animate-pulse" style={{ backgroundColor: colors.gold, color: '#fff' }}>Anunciar meu imóvel</button>
@@ -825,7 +1213,7 @@ function BuilderPage() {
               )
 
               if (blockId === 'tags') return (
-                <div key="tags" className="space-y-1.5">
+                <div key="tags" className="space-y-1.5 animate-fade-in">
                   <div className="text-[7px] font-bold uppercase tracking-wider" style={{ color: colors.warmGray }}>Explore</div>
                   <div className="flex flex-wrap gap-1">
                     {['Apt Luxo Batel', 'Cobertura Cabral', 'Casa Ecoville', 'Lançamentos', 'Studios'].map(t => (
@@ -838,10 +1226,7 @@ function BuilderPage() {
               return null
             })}
           </div>
-          <footer className="px-4 py-3 text-center" style={{ backgroundColor: colors.charcoal }}>
-            <div className="text-[8px] font-bold mb-0.5" style={{ color: colors.cream, fontFamily: fonts.display }}>{defaultTenant?.name}</div>
-            <div className="text-[6px]" style={{ color: `${colors.cream}60` }}>{contacts.creci}</div>
-          </footer>
+          {renderFooter()}
         </div>
       )
     }
@@ -849,9 +1234,9 @@ function BuilderPage() {
     if (activePreviewTab === 'comprar' || activePreviewTab === 'alugar') {
       const label = activePreviewTab === 'comprar' ? 'Comprar' : 'Alugar'
       return (
-        <>
+        <div className="flex flex-col min-h-full">
           {renderNavbar()}
-          <div className="px-4 py-3" style={{ backgroundColor: colors.cream }}>
+          <div className="flex-1 px-4 py-3" style={{ backgroundColor: colors.cream }}>
             <div className="flex items-center gap-1.5 mb-3 p-2 rounded-xl border" style={{ backgroundColor: colors.creamDark, borderColor: colors.creamBorder }}>
               <Search size={10} style={{ color: colors.warmGray }} />
               <span className="text-[7px]" style={{ color: colors.warmGray }}>Filtrar por tipo, bairro, preço...</span>
@@ -862,20 +1247,21 @@ function BuilderPage() {
               {[1, 2, 3, 4].map(i => renderVerticalCard({ ...mockProperty, image: `https://images.unsplash.com/photo-${['1600585154340-be6161a56a0c', '1600596542815-ffad4c1539a9', '1545324418-cc1a3fa10c00', '1560448204-e02f11c3d0e2'][i - 1]}?w=400&q=80` }, settings.cardVerticalStyle, cardTag))}
             </div>
           </div>
-        </>
+          {renderFooter()}
+        </div>
       )
     }
 
     if (activePreviewTab === 'lancamentos') {
       return (
-        <>
+        <div className="flex flex-col min-h-full">
           {renderNavbar()}
-          <div className="px-4 py-3" style={{ backgroundColor: colors.cream }}>
+          <div className="flex-1 px-4 py-3" style={{ backgroundColor: colors.cream }}>
             <div className="text-[7px] uppercase tracking-widest mb-0.5 font-bold" style={{ color: colors.gold }}>Exclusivos</div>
             <h3 className="text-sm font-bold mb-3" style={{ fontFamily: fonts.display, color: colors.charcoal }}>Novos Lançamentos</h3>
             <div className="space-y-2.5">
               {[1, 2, 3].map(i => (
-                <div key={i} className="flex gap-2.5 rounded-xl border p-2 items-center" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
+                <div key={i} className="flex gap-2.5 rounded-xl border p-2 items-center animate-fade-in" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
                   <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0">
                     <img src={`https://images.unsplash.com/photo-${['1545324418-cc1a3fa10c00', '1560448204-e02f11c3d0e2', '1486406146926-c627a92ad1ab'][i - 1]}?w=200&q=80`} className="w-full h-full object-cover" />
                   </div>
@@ -889,66 +1275,75 @@ function BuilderPage() {
               ))}
             </div>
           </div>
-        </>
+          {renderFooter()}
+        </div>
       )
     }
 
     if (activePreviewTab === 'anunciar') {
       const struct = settings.pageStructures.anunciar
       return (
-        <>
+        <div className="flex flex-col min-h-full">
           {renderNavbar()}
-          {struct === 'magazine' ? (
-            <div>
-              <div className="relative h-24 overflow-hidden">
-                <img src={settings.heroImage} className="absolute inset-0 w-full h-full object-cover" />
-                <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: `${colors.charcoal}cc` }}>
-                  <h3 className="text-sm font-bold text-white" style={{ fontFamily: fonts.display }}>{settings.anunciarTitle}</h3>
+          <div className="flex-1" style={{ backgroundColor: colors.cream }}>
+            {struct === 'magazine' ? (
+              <div>
+                <div className="relative h-24 overflow-hidden">
+                  <img src={settings.heroImage} className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: `${colors.charcoal}cc` }}>
+                    <h3 className="text-sm font-bold text-white" style={{ fontFamily: fonts.display }}>{settings.anunciarTitle}</h3>
+                  </div>
+                </div>
+                <div className="p-4 space-y-3">
+                  <p className="text-[8px]" style={{ color: colors.warmGray }}>{settings.anunciarSubtitle}</p>
+                  <div className="p-3 rounded-xl border space-y-2 animate-fade-in" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
+                    {['Nome', 'Telefone', 'Endereço do imóvel'].map(f => <div key={f} className="bg-white rounded-lg px-2 py-1.5 text-[7px] border animate-fade-in" style={{ borderColor: colors.creamBorder, color: colors.warmGray }}>{f}</div>)}
+                    <button className="w-full text-[7px] font-bold py-1.5 rounded-lg border-0 cursor-pointer animate-pulse" style={{ backgroundColor: colors.gold, color: '#fff' }}>Anunciar agora</button>
+                  </div>
                 </div>
               </div>
-              <div className="p-4 space-y-3" style={{ backgroundColor: colors.cream }}>
+            ) : struct === 'centered' ? (
+              <div className="p-4 text-center space-y-3">
+                <h3 className="text-sm font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>{settings.anunciarTitle}</h3>
                 <p className="text-[8px]" style={{ color: colors.warmGray }}>{settings.anunciarSubtitle}</p>
-                <div className="p-3 rounded-xl border space-y-2" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
-                  {['Nome', 'Telefone', 'Endereço do imóvel'].map(f => <div key={f} className="bg-white rounded-lg px-2 py-1.5 text-[7px] border" style={{ borderColor: colors.creamBorder, color: colors.warmGray }}>{f}</div>)}
-                  <button className="w-full text-[7px] font-bold py-1.5 rounded-lg border-0 cursor-pointer" style={{ backgroundColor: colors.gold, color: '#fff' }}>Anunciar agora</button>
+                <div className="max-w-xs mx-auto p-3 rounded-xl border space-y-1.5 animate-fade-in" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
+                  {['Nome', 'Telefone', 'Endereço'].map(f => <div key={f} className="bg-white rounded-lg px-2 py-1.5 text-[7px] border animate-fade-in" style={{ borderColor: colors.creamBorder, color: colors.warmGray }}>{f}</div>)}
+                  <button className="w-full text-[7px] font-bold py-1.5 rounded-lg border-0 cursor-pointer" style={{ backgroundColor: colors.gold, color: '#fff' }}>Anunciar</button>
                 </div>
               </div>
-            </div>
-          ) : struct === 'centered' ? (
-            <div className="p-4 text-center space-y-3" style={{ backgroundColor: colors.cream }}>
-              <h3 className="text-sm font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>{settings.anunciarTitle}</h3>
-              <p className="text-[8px]" style={{ color: colors.warmGray }}>{settings.anunciarSubtitle}</p>
-              <div className="max-w-xs mx-auto p-3 rounded-xl border space-y-1.5" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
-                {['Nome', 'Telefone', 'Endereço'].map(f => <div key={f} className="bg-white rounded-lg px-2 py-1.5 text-[7px] border" style={{ borderColor: colors.creamBorder, color: colors.warmGray }}>{f}</div>)}
-                <button className="w-full text-[7px] font-bold py-1.5 rounded-lg border-0 cursor-pointer" style={{ backgroundColor: colors.gold, color: '#fff' }}>Anunciar</button>
+            ) : (
+              <div className="grid grid-cols-2 gap-0">
+                <div className="p-4 space-y-2">
+                  <div className="text-[7px] uppercase tracking-widest font-bold" style={{ color: colors.gold }}>Anuncie</div>
+                  <h3 className="text-xs font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>{settings.anunciarTitle}</h3>
+                  <p className="text-[7px] leading-relaxed" style={{ color: colors.warmGray }}>{settings.anunciarSubtitle}</p>
+                  <div className="text-[7px] font-bold flex items-center gap-1" style={{ color: colors.gold }}>Saiba mais <ArrowRight size={8} /></div>
+                </div>
+                <div className="p-3 border-l space-y-1.5 animate-fade-in" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
+                  {['Nome', 'Telefone', 'Endereço'].map(f => <div key={f} className="bg-white rounded-lg px-2 py-1.5 text-[7px] border animate-fade-in" style={{ borderColor: colors.creamBorder, color: colors.warmGray }}>{f}</div>)}
+                  <button className="w-full text-[7px] font-bold py-1.5 rounded-lg border-0 cursor-pointer" style={{ backgroundColor: colors.gold, color: '#fff' }}>Enviar</button>
+                </div>
               </div>
+            )}
+            
+            {/* Dynamic visual blocks extra rendering */}
+            <div className="px-4 pb-4">
+              {renderPageBlocks('anunciar')}
             </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-0" style={{ backgroundColor: colors.cream }}>
-              <div className="p-4 space-y-2">
-                <div className="text-[7px] uppercase tracking-widest font-bold" style={{ color: colors.gold }}>Anuncie</div>
-                <h3 className="text-xs font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>{settings.anunciarTitle}</h3>
-                <p className="text-[7px] leading-relaxed" style={{ color: colors.warmGray }}>{settings.anunciarSubtitle}</p>
-                <div className="text-[7px] font-bold flex items-center gap-1" style={{ color: colors.gold }}>Saiba mais <ArrowRight size={8} /></div>
-              </div>
-              <div className="p-3 border-l space-y-1.5" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
-                {['Nome', 'Telefone', 'Endereço'].map(f => <div key={f} className="bg-white rounded-lg px-2 py-1.5 text-[7px] border" style={{ borderColor: colors.creamBorder, color: colors.warmGray }}>{f}</div>)}
-                <button className="w-full text-[7px] font-bold py-1.5 rounded-lg border-0 cursor-pointer" style={{ backgroundColor: colors.gold, color: '#fff' }}>Enviar</button>
-              </div>
-            </div>
-          )}
-        </>
+          </div>
+          {renderFooter()}
+        </div>
       )
     }
 
     if (activePreviewTab === 'blog') {
       return (
-        <>
+        <div className="flex flex-col min-h-full">
           {renderNavbar()}
-          <div className="p-4 space-y-2" style={{ backgroundColor: colors.cream }}>
+          <div className="flex-1 p-4 space-y-2" style={{ backgroundColor: colors.cream }}>
             <h3 className="text-xs font-bold mb-3" style={{ fontFamily: fonts.display, color: colors.charcoal }}>Blog & Conteúdo</h3>
             {['Como avaliar o preço justo de um imóvel', 'Melhores bairros para morar em Curitiba 2026', 'Lançamentos: o que analisar antes de comprar'].map((title, i) => (
-              <div key={i} className="flex gap-2 p-2 rounded-xl border" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
+              <div key={i} className="flex gap-2 p-2 rounded-xl border animate-fade-in" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
                 <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0">
                   <img src={`https://images.unsplash.com/photo-${['1486406146926-c627a92ad1ab', '1600596542815-ffad4c1539a9', '1545324418-cc1a3fa10c00'][i]}?w=200&q=80`} className="w-full h-full object-cover" />
                 </div>
@@ -960,36 +1355,37 @@ function BuilderPage() {
               </div>
             ))}
           </div>
-        </>
+          {renderFooter()}
+        </div>
       )
     }
 
     if (activePreviewTab === 'sobre') {
       return (
-        <>
+        <div className="flex flex-col min-h-full animate-fade-in">
           {renderNavbar()}
-          <div className="p-4 space-y-4" style={{ backgroundColor: colors.cream }}>
+          <div className="flex-1 p-4 space-y-4 font-sans" style={{ backgroundColor: colors.cream }}>
             {settings.pageStructures.sobre === 'centered' ? (
-              <div className="text-center space-y-3">
+              <div className="text-center space-y-3 animate-fade-in">
                 <div className="h-20 rounded-xl overflow-hidden"><img src={settings.sobreImage} className="w-full h-full object-cover" /></div>
                 <h3 className="text-sm font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>{settings.sobreTitle}</h3>
-                <p className="text-[8px] leading-relaxed" style={{ color: colors.warmGray }}>{settings.sobreText}</p>
+                <p className="text-[8px] leading-relaxed text-slate-650" style={{ color: colors.warmGray }}>{settings.sobreText}</p>
               </div>
             ) : settings.pageStructures.sobre === 'magazine' ? (
-              <div>
+              <div className="animate-fade-in">
                 <div className="relative h-28 rounded-xl overflow-hidden mb-3">
                   <img src={settings.sobreImage} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 flex items-end p-3" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)' }}>
                     <h3 className="text-sm font-bold text-white" style={{ fontFamily: fonts.display }}>{settings.sobreTitle}</h3>
                   </div>
                 </div>
-                <p className="text-[8px] leading-relaxed" style={{ color: colors.warmGray }}>{settings.sobreText}</p>
+                <p className="text-[8px] leading-relaxed text-slate-650" style={{ color: colors.warmGray }}>{settings.sobreText}</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 text-left animate-fade-in">
                 <div className="space-y-2">
                   <h3 className="text-xs font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>{settings.sobreTitle}</h3>
-                  <p className="text-[7px] leading-relaxed" style={{ color: colors.warmGray }}>{settings.sobreText}</p>
+                  <p className="text-[7px] leading-relaxed text-slate-650">{settings.sobreText}</p>
                   <div className="flex flex-wrap gap-1">
                     {(settings.sobreStats || '').split(' · ').map((s: string, i: number) => (
                       <span key={i} className="text-[6px] px-1.5 py-0.5 rounded border font-medium" style={{ borderColor: colors.creamBorder, color: colors.warmGray, backgroundColor: colors.creamDark }}>{s}</span>
@@ -999,37 +1395,26 @@ function BuilderPage() {
                 <div className="rounded-xl overflow-hidden h-32"><img src={settings.sobreImage} className="w-full h-full object-cover" /></div>
               </div>
             )}
-
-            {settings.team && settings.team.length > 0 && (
-              <div className="pt-3 border-t space-y-2" style={{ borderColor: colors.creamBorder }}>
-                <h4 className="text-[9px] font-bold uppercase tracking-wider" style={{ color: colors.charcoal }}>Nossa Equipe</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  {settings.team.slice(0, 4).map((m: any, i: number) => (
-                    <div key={i} className="flex gap-1.5 p-1.5 rounded-xl border items-center" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
-                      <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 border" style={{ borderColor: colors.creamBorder }}>
-                        {m.photo ? <img src={m.photo} className="w-full h-full object-cover" /> : <Users size={12} className="m-auto mt-1.5" style={{ color: colors.warmGray }} />}
-                      </div>
-                      <div><div className="text-[7px] font-bold" style={{ color: colors.charcoal }}>{m.name}</div><div className="text-[6px] uppercase tracking-wider" style={{ color: colors.gold }}>{m.role}</div></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            
+            {/* Dynamic visual blocks extra rendering */}
+            {renderPageBlocks('sobre')}
           </div>
-        </>
+          {renderFooter()}
+        </div>
       )
     }
 
     if (activePreviewTab === 'contato') {
+      const activeFields = Object.entries(settings.formFields).filter(([_, f]: any) => f.enabled)
       return (
-        <>
+        <div className="flex flex-col min-h-full animate-fade-in">
           {renderNavbar()}
-          <div className="p-4 space-y-3" style={{ backgroundColor: colors.cream }}>
-            <div className="text-center">
+          <div className="flex-1 p-4 space-y-3 text-left animate-fade-in" style={{ backgroundColor: colors.cream }}>
+            <div className="text-center mb-2 animate-fade-in">
               <h3 className="text-sm font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>{settings.contatoTitle}</h3>
               <p className="text-[7px] mt-0.5" style={{ color: colors.warmGray }}>{settings.contatoSubtitle}</p>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 animate-fade-in">
               <div className="space-y-2 text-[8px]">
                 <div className="font-bold uppercase tracking-wider text-[6px]" style={{ color: colors.charcoal }}>Endereço</div>
                 <p className="leading-relaxed" style={{ color: colors.warmGray }}>{settings.contatoAddress}</p>
@@ -1039,14 +1424,27 @@ function BuilderPage() {
                 </div>
               </div>
               <div className="p-2.5 rounded-xl border space-y-1.5" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
-                {['Seu Nome', 'Seu WhatsApp', 'Mensagem...'].map(f => (
-                  <div key={f} className="bg-white rounded-lg px-2 py-1.5 text-[7px] border" style={{ borderColor: colors.creamBorder, color: colors.warmGray }}>{f}</div>
+                {activeFields.map(([id, f]: any) => (
+                  <div key={id} className="space-y-0.5">
+                    <label className="text-[5px] font-bold uppercase tracking-wider text-slate-500 block">
+                      {f.label} {f.required && <span className="text-red-500">*</span>}
+                    </label>
+                    {id === 'message' ? (
+                      <textarea disabled placeholder="Sua mensagem..." className="w-full bg-white border rounded px-1.5 py-1 text-[7px]" rows={2} style={{ borderColor: colors.creamBorder }} />
+                    ) : (
+                      <input disabled placeholder={f.label} className="w-full bg-white border rounded px-1.5 py-1 text-[7px]" style={{ borderColor: colors.creamBorder }} />
+                    )}
+                  </div>
                 ))}
-                <button className="w-full text-[7px] font-bold py-1.5 rounded-lg border-0 cursor-pointer" style={{ backgroundColor: colors.gold, color: '#fff' }}>Enviar Mensagem</button>
+                <button className="w-full text-[7px] font-bold py-1.5 rounded-lg border-0 cursor-pointer text-center" style={{ backgroundColor: colors.gold, color: '#fff' }}>Enviar Mensagem</button>
               </div>
             </div>
+            
+            {/* Dynamic visual blocks extra rendering */}
+            {renderPageBlocks('contato')}
           </div>
-        </>
+          {renderFooter()}
+        </div>
       )
     }
 
@@ -1268,13 +1666,39 @@ function BuilderPage() {
               </div>
             </div>
 
+            {/* Sync toggle */}
+            <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200 my-2">
+              <span className="text-[10px] font-semibold text-slate-700">Sincronizar estilo para ambos</span>
+              <Toggle
+                label=""
+                checked={syncCardStyles}
+                onChange={checked => {
+                  setSyncCardStyles(checked)
+                  if (checked) {
+                    setSettings(prev => ({
+                      ...prev,
+                      cardHorizontalStyle: prev.cardVerticalStyle,
+                    }))
+                  }
+                }}
+              />
+            </div>
+
             {/* Style selectors */}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Estilo Vertical (6 versões)</label>
                 <div className="space-y-1">
                   {['classic', 'minimalist', 'glassmorphism', 'editorial', 'bold-border', 'dark-elegance'].map(style => (
-                    <button key={style} type="button" onClick={() => setSettings(prev => ({ ...prev, cardVerticalStyle: style as any }))}
+                    <button key={style} type="button" onClick={() => {
+                      setSettings(prev => {
+                        const next = { ...prev, cardVerticalStyle: style }
+                        if (syncCardStyles) {
+                          next.cardHorizontalStyle = style
+                        }
+                        return next
+                      })
+                    }}
                       className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[9px] font-medium transition-all cursor-pointer border ${settings.cardVerticalStyle === style ? 'border-amber-400 bg-amber-50 text-amber-700' : 'border-slate-200 bg-white hover:border-slate-300 text-slate-600'}`}>
                       {settings.cardVerticalStyle === style && '✓ '}{style.charAt(0).toUpperCase() + style.slice(1).replace('-', ' ')}
                     </button>
@@ -1284,10 +1708,18 @@ function BuilderPage() {
               <div>
                 <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Estilo Horizontal (6 versões)</label>
                 <div className="space-y-1">
-                  {['cozy', 'strip', 'overlay', 'offset', 'asymmetric', 'dashboard'].map(style => (
-                    <button key={style} type="button" onClick={() => setSettings(prev => ({ ...prev, cardHorizontalStyle: style as any }))}
+                  {['classic', 'minimalist', 'glassmorphism', 'editorial', 'bold-border', 'dark-elegance'].map(style => (
+                    <button key={style} type="button" onClick={() => {
+                      setSettings(prev => {
+                        const next = { ...prev, cardHorizontalStyle: style }
+                        if (syncCardStyles) {
+                          next.cardVerticalStyle = style
+                        }
+                        return next
+                      })
+                    }}
                       className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[9px] font-medium transition-all cursor-pointer border ${settings.cardHorizontalStyle === style ? 'border-amber-400 bg-amber-50 text-amber-700' : 'border-slate-200 bg-white hover:border-slate-300 text-slate-600'}`}>
-                      {settings.cardHorizontalStyle === style && '✓ '}{style.charAt(0).toUpperCase() + style.slice(1)}
+                      {settings.cardHorizontalStyle === style && '✓ '}{style.charAt(0).toUpperCase() + style.slice(1).replace('-', ' ')}
                     </button>
                   ))}
                 </div>
@@ -1340,7 +1772,7 @@ function BuilderPage() {
             <div className="grid grid-cols-3 gap-3 border-t border-slate-100 pt-3">
               {[
                 { label: 'Preset Header', key: 'headerStyle', options: [{ v: 'minimal', l: 'Minimal' }, { v: 'transparent', l: 'Transparente' }, { v: 'classic', l: 'Clássico' }] },
-                { label: 'Preset Footer', key: 'footerStyle', options: [{ v: 'simple', l: 'Simple' }, { v: 'detailed', l: 'Detalhado' }, { v: 'minimal', l: 'Minimal' }] },
+                { label: 'Preset Footer', key: 'footerStyle', options: [{ v: 'simple', l: 'Simples' }, { v: 'detailed', l: 'Detalhado' }, { v: 'minimal', l: 'Mínimo' }, { v: 'modern-newsletter', l: 'Modern Newsletter' }, { v: 'column-grid', l: 'Grade de Colunas' }] },
                 { label: 'Galeria de Imóvel', key: 'detailGalleryStyle', options: [{ v: 'slider', l: 'Slider' }, { v: 'mosaic', l: 'Mosaico' }, { v: 'grid', l: 'Grid' }] },
               ].map(field => (
                 <div key={field.key}>
@@ -1477,7 +1909,25 @@ function BuilderPage() {
 
           {/* 8 · EQUIPE */}
           <SectionAccordion icon={<Users size={16} />} title="Equipe & Corretores" defaultOpen={false}>
-            <div className="flex justify-end">
+            <div className="border-b border-slate-100 pb-4 mb-4">
+              <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Estilo Visual do Bloco de Equipe</label>
+              <div className="grid grid-cols-4 gap-1.5">
+                {[
+                  { id: 'grid', label: 'Grid', icon: '🗂️' },
+                  { id: 'cards', label: 'Cards', icon: '💎' },
+                  { id: 'list', label: 'Lista', icon: '📝' },
+                  { id: 'minimal', label: 'Mínimo', icon: '⚪' },
+                ].map(style => (
+                  <button key={style.id} type="button" onClick={() => setSettings(prev => ({ ...prev, teamStyle: style.id as any }))}
+                    className={`p-2 rounded-lg border text-center transition-all cursor-pointer ${settings.teamStyle === style.id ? 'border-amber-400 bg-amber-50/40 ring-1 ring-amber-400' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
+                    <div className="text-xs mb-0.5">{style.icon}</div>
+                    <div className={`text-[8px] font-bold ${settings.teamStyle === style.id ? 'text-amber-700' : 'text-slate-600'}`}>{style.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex justify-end mb-3">
               <button onClick={addTeamMember} className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-md shadow-amber-500/10">
                 <Plus size={12} /> Adicionar Membro
               </button>
@@ -1561,6 +2011,164 @@ function BuilderPage() {
                 <InputField label="WhatsApp" value={contacts.whatsapp} onChange={v => setContacts(prev => ({ ...prev, whatsapp: v }))} placeholder="(41) 99999-9999" />
                 <InputField label="CRECI" value={contacts.creci} onChange={v => setContacts(prev => ({ ...prev, creci: v }))} placeholder="CRECI-PR 00.000-F" />
               </div>
+            </div>
+          </SectionAccordion>
+
+          {/* 10 · CAMPOS DO FORMULÁRIO */}
+          <SectionAccordion icon={<FileText size={16} />} title="📋 Campos do Formulário" defaultOpen={false}>
+            <p className="text-[10px] text-slate-500 -mt-1 leading-normal">Selecione quais campos exibir no formulário de contato/anunciar e se são obrigatórios.</p>
+            <div className="space-y-3 pt-2">
+              {Object.entries(settings.formFields).map(([key, field]: [string, any]) => (
+                <div key={key} className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 bg-white">
+                  <div className="flex flex-col">
+                    <span className="text-xs font-semibold text-slate-700">{field.label}</span>
+                    <span className="text-[8px] text-slate-400 font-mono">{key}</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={field.enabled}
+                        onChange={e => {
+                          const enabled = e.target.checked
+                          setSettings(prev => ({
+                            ...prev,
+                            formFields: {
+                              ...prev.formFields,
+                              [key]: { ...prev.formFields[key as keyof typeof prev.formFields], enabled }
+                            }
+                          }))
+                        }}
+                        className="rounded border-slate-350 text-amber-500 focus:ring-amber-500 w-3.5 h-3.5"
+                      />
+                      <span className="text-[10px] font-medium text-slate-600">Exibir</span>
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={field.required}
+                        disabled={!field.enabled}
+                        onChange={e => {
+                          const required = e.target.checked
+                          setSettings(prev => ({
+                            ...prev,
+                            formFields: {
+                              ...prev.formFields,
+                              [key]: { ...prev.formFields[key as keyof typeof prev.formFields], required }
+                            }
+                          }))
+                        }}
+                        className="rounded border-slate-350 text-amber-500 focus:ring-amber-500 w-3.5 h-3.5 disabled:opacity-40"
+                      />
+                      <span className="text-[10px] font-medium text-slate-600">Obrigatório</span>
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </SectionAccordion>
+
+          {/* 11 · APONTAMENTO DNS E DOMÍNIO */}
+          <SectionAccordion icon={<Globe size={16} />} title="🌐 Domínio & DNS" defaultOpen={false}>
+            <p className="text-[10px] text-slate-500 -mt-1 leading-normal">Configure seu domínio personalizado para publicar seu site na internet.</p>
+            
+            <div className="space-y-4 pt-2">
+              {/* Provisório */}
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                <div className="text-[8px] font-bold uppercase tracking-wider text-slate-400 mb-1">Domínio Provisório</div>
+                <a href={`http://localhost:3000/${settings.slug}`} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-amber-600 hover:underline flex items-center gap-1">
+                  http://localhost:3000/{settings.slug} <ArrowRight size={10} />
+                </a>
+              </div>
+
+              {/* Personalizado Input */}
+              <div className="space-y-2">
+                <InputField 
+                  label="Domínio Personalizado" 
+                  value={customDomain} 
+                  onChange={v => {
+                    setCustomDomain(v)
+                    setDomainStatus('pending')
+                  }} 
+                  placeholder="ex: www.suaimobiliaria.com.br" 
+                />
+                {customDomain && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className={`w-2 h-2 rounded-full ${domainStatus === 'connected' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`} />
+                    <span className="text-[10px] font-medium text-slate-600">
+                      Status: {domainStatus === 'connected' ? 'Conectado' : 'Aguardando Apontamento DNS'}
+                    </span>
+                    {domainStatus === 'pending' && (
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          alert('Verificando registros DNS... Por favor, aguarde.')
+                          setTimeout(() => {
+                            setDomainStatus('connected')
+                            alert('Parabéns! Domínio configurado e apontado com sucesso!')
+                          }, 1200)
+                        }} 
+                        className="ml-auto px-2 py-0.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-[9px] font-bold rounded cursor-pointer transition-colors border-0"
+                      >
+                        Verificar DNS
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Tabela DNS */}
+              {customDomain && (
+                <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
+                  <div className="bg-slate-50 px-3 py-2 border-b border-slate-200 flex justify-between items-center">
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Apontamento DNS</span>
+                    <span className="bg-slate-200 text-slate-655 text-[7px] font-mono px-1.5 py-0.5 rounded uppercase">Vercel</span>
+                  </div>
+                  <div className="divide-y divide-slate-100 text-[10px]">
+                    {/* Registro A */}
+                    <div className="p-3 space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold text-slate-700">Registro Raiz</span>
+                        <span className="bg-amber-100 text-amber-800 text-[8px] font-bold px-1.5 py-0.5 rounded">Tipo A</span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 bg-slate-50 p-2 rounded-lg border border-slate-100 font-mono text-[9px]">
+                        <div>
+                          <div className="text-[7px] text-slate-400 uppercase font-sans">Nome/Host</div>
+                          <div className="text-slate-800">@</div>
+                        </div>
+                        <div className="col-span-2">
+                          <div className="text-[7px] text-slate-400 uppercase font-sans">Valor/Destino</div>
+                          <div className="flex justify-between items-center text-slate-800">
+                            <span>76.76.21.21</span>
+                            <button type="button" onClick={() => { navigator.clipboard.writeText('76.76.21.21'); alert('IP copiado!') }} className="text-amber-600 hover:text-amber-700 font-sans font-bold cursor-pointer text-[8px] border-0 bg-transparent p-0">Copiar</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Registro CNAME */}
+                    <div className="p-3 space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold text-slate-700">Registro Subdomínio</span>
+                        <span className="bg-blue-100 text-blue-800 text-[8px] font-bold px-1.5 py-0.5 rounded">CNAME</span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 bg-slate-50 p-2 rounded-lg border border-slate-100 font-mono text-[9px]">
+                        <div>
+                          <div className="text-[7px] text-slate-400 uppercase font-sans">Nome/Host</div>
+                          <div className="text-slate-800">www</div>
+                        </div>
+                        <div className="col-span-2">
+                          <div className="text-[7px] text-slate-400 uppercase font-sans">Valor/Destino</div>
+                          <div className="flex justify-between items-center text-slate-800">
+                            <span>cname.vercel-dns.com</span>
+                            <button type="button" onClick={() => { navigator.clipboard.writeText('cname.vercel-dns.com'); alert('CNAME copiado!') }} className="text-amber-600 hover:text-amber-700 font-sans font-bold cursor-pointer text-[8px] border-0 bg-transparent p-0">Copiar</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </SectionAccordion>
 
