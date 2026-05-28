@@ -42,6 +42,10 @@ export interface Tenant {
     role: string
     image: string
   }
+  fonts?: {
+    sans: string
+    display: string
+  }
 }
 
 export const tenants: Tenant[] = [
@@ -88,38 +92,42 @@ export const tenants: Tenant[] = [
       role: 'Fundadora & Diretora Geral',
       image: '/assinatura.png',
     },
+    fonts: {
+      sans: 'DM Sans',
+      display: 'Playfair Display',
+    },
   },
   {
     id: 'lumina',
     slug: 'Lumina',
-    name: 'Lumina Imóveis',
-    tagline: 'A arte de viver bem em endereços exclusivos.',
-    logo: '/logo.png', // Lumina uses the same logo mark but we'll brand it with green accents!
+    name: 'Lumina Curadoria',
+    tagline: 'Lançamentos imobiliários e design autoral em Curitiba.',
+    logo: '/logo.png', // Lumina uses a minimalist dynamic logo mark
     favicon: '/favicon.ico',
-    creci: 'CRECI-SP 99.123-J',
-    description: 'Boutique imobiliária focada em arquitetura de design, sustentabilidade e vivências únicas em áreas nobres.',
+    creci: 'CRECI-PR 45.892-F',
+    description: 'Boutique imobiliária com foco exclusivo nos melhores lançamentos residenciais de Curitiba. Conectamos arquitetura de vanguarda, sustentabilidade e vivências urbanas exclusivas.',
     colors: {
-      cream: '#F2F6F4',      // Soft mint cream
-      creamDark: '#E2ECE9',  // Dark mint cream
-      creamBorder: '#C8DDD5', // Sage border
-      charcoal: '#0D2018',   // Very dark green-charcoal
-      charcoalLight: '#1C3A2E',
-      warmGray: '#60796E',   // Greenish warm gray
-      gold: '#3A8266',       // Emerald Green instead of Gold!
-      goldLight: '#55AF8C',
+      cream: '#FAFAFA',      // Minimalist pure off-white
+      creamDark: '#F4F4F5',  // Zinc 100
+      creamBorder: '#E4E4E7', // Zinc 200
+      charcoal: '#09090B',   // Zinc 950
+      charcoalLight: '#27272A', // Zinc 800
+      warmGray: '#717178',   // Zinc 500
+      gold: '#18181B',       // Deep Zinc 900 (ultra-minimal black instead of gold!)
+      goldLight: '#3F3F46',  // Zinc 700
     },
     contacts: {
-      phone: '(11) 3999-1234',
-      phoneRaw: '+551139991234',
-      whatsapp: '(11) 99999-8888',
-      whatsappRaw: '5511999998888',
-      email: 'contato@luminaimoveis.com.br',
+      phone: '(41) 3012-9876',
+      phoneRaw: '+554130129876',
+      whatsapp: '(41) 98877-6655',
+      whatsappRaw: '5541988776655',
+      email: 'curadoria@luminaimoveis.com.br',
       address: {
-        street: 'Rua Augusta, nº 2500',
-        neighborhood: 'Cerqueira César',
-        city: 'São Paulo',
-        state: 'SP',
-        fullAddress: 'Edifício Lumina, Cerqueira César, São Paulo - SP',
+        street: 'Alameda Dom Pedro II, nº 321',
+        neighborhood: 'Batel',
+        city: 'Curitiba',
+        state: 'PR',
+        fullAddress: 'Edifício Batel Workspace, Batel, Curitiba - PR',
       },
     },
     socials: {
@@ -128,9 +136,13 @@ export const tenants: Tenant[] = [
       youtube: 'https://www.youtube.com/',
     },
     aboutSignature: {
-      name: 'Arthur Lumina',
-      role: 'Diretor Criativo',
+      name: 'Mathias Ribas',
+      role: 'Fundador & Curador Chefe',
       image: '/assinatura.png',
+    },
+    fonts: {
+      sans: 'Inter',
+      display: 'Outfit',
     },
   },
 ]

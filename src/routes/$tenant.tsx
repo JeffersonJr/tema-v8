@@ -38,6 +38,8 @@ function TenantLayout({ tenant }: TenantLayoutProps) {
     '--theme-warm-gray': tenant.colors.warmGray,
     '--theme-gold': tenant.colors.gold,
     '--theme-gold-light': tenant.colors.goldLight,
+    '--theme-font-sans': tenant.fonts?.sans || 'DM Sans',
+    '--theme-font-display': tenant.fonts?.display || 'Playfair Display',
   } as React.CSSProperties
 
   return (
