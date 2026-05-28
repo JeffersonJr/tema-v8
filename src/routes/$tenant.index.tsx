@@ -630,7 +630,7 @@ function HomePage() {
               </p>
             </div>
             <div className="lg:col-span-5 w-full">
-              <HeroSearch />
+              <HeroSearch tenant={tenant} />
             </div>
           </div>
         ) : heroStyle === 'minimalist' ? (
@@ -659,7 +659,7 @@ function HomePage() {
               {heroSubtitle}
             </p>
             <div>
-              <HeroSearch />
+              <HeroSearch tenant={tenant} />
             </div>
           </div>
         )}

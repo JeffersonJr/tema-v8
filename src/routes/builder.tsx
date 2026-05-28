@@ -96,6 +96,18 @@ const COLOR_PRESETS = [
   },
 ]
 
+// ─── SYSTEM USERS (ALL CORRETORES DATABASE) ──────────────────────────────────
+const ALL_SYSTEM_USERS = [
+  { id: 'usr_claudia', name: 'Claudia Robles', role: 'Diretora Executiva (CEO)', phone: '(11) 99999-1111', email: 'claudia@robles.com.br', photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80', instagram: 'https://instagram.com/' },
+  { id: 'usr_rafaela', name: 'Rafaela Monteiro', role: 'Diretora Comercial', phone: '(11) 99847-3821', email: 'rafaela@robles.com.br', photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&q=80', instagram: 'https://instagram.com/' },
+  { id: 'usr_gustavo', name: 'Gustavo Zanin', role: 'Curador de Lançamentos', phone: '(41) 99777-5555', email: 'gustavo@lumina.com.br', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80', instagram: 'https://instagram.com/' },
+  { id: 'usr_renata', name: 'Renata Vasconcellos', role: 'Consultora High-End', phone: '(21) 99666-4444', email: 'renata@v8.com.br', photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80', instagram: 'https://instagram.com/' },
+  { id: 'usr_thiago', name: 'Thiago Castilho', role: 'Gestor de Contratos', phone: '(41) 99555-3333', email: 'thiago@v8.com.br', photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80', instagram: 'https://instagram.com/' },
+  { id: 'usr_juliana', name: 'Juliana Lins', role: 'Especialista Batel', phone: '(41) 99444-2222', email: 'juliana@lumina.com.br', photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80', instagram: 'https://instagram.com/' },
+  { id: 'usr_marcos', name: 'Marcos Pontes', role: 'Vendas Internacionais', phone: '(11) 99333-1111', email: 'marcos@robles.com.br', photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80', instagram: 'https://instagram.com/' },
+  { id: 'usr_gabriela', name: 'Gabriela Duarte', role: 'Curadora de Coberturas', phone: '(48) 99222-0000', email: 'gabriela@v8.com.br', photo: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=200&q=80', instagram: 'https://instagram.com/' }
+]
+
 // ─── STYLE PRESETS ───────────────────────────────────────────────────────────
 const STYLE_PRESETS = [
   {
@@ -121,6 +133,30 @@ const STYLE_PRESETS = [
     colors: { cream: '#FDFBF7', creamDark: '#F7F3EB', creamBorder: '#EFE6D5', charcoal: '#2D1E18', charcoalLight: '#4E3629', warmGray: '#8A7264', gold: '#EDBF71', goldLight: '#F0D080' },
     fonts: { sans: 'DM Sans', display: 'Playfair Display' },
     settings: { headerStyle: 'classic' as const, footerStyle: 'detailed' as const, heroStyle: 'search-left' as const, heroTitle: 'Residências de Prestígio Extraordinário', heroSubtitle: 'A herança viva da sofisticação e conforto no Batel, Cabral e Ecoville.', cardVariant: 'default' as const, modules: { featured: true, categories: true, cities: true, testimonials: true, blog: true, launches: true }, moduleOrder: ['featured', 'categories', 'cities', 'testimonials'], sobreTitle: 'Uma Tradição em Alto Padrão', sobreText: 'Há mais de uma década, somos sinônimo de excelência imobiliária.', sobreImage: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80', sobreStats: '15 Anos de Tradição · R$ 1.5B+ Negociados · 100% Satisfeitos', contatoTitle: 'Agende uma Reunião Privada', contatoSubtitle: 'Estamos prontos para recebê-lo em nossa sede no Batel.', contatoAddress: 'Av. do Batel, 1200 - Batel, Curitiba - PR' },
+  },
+  {
+    id: 'luxo-esmeralda',
+    name: 'Esmeralda',
+    desc: 'Verde-floresta imperial com acentos dourados e tipografia display.',
+    colors: { cream: '#FAF8F5', creamDark: '#EFECE5', creamBorder: '#E2DDD1', charcoal: '#050E0C', charcoalLight: '#122723', warmGray: '#7F9C96', gold: '#CBB279', goldLight: '#E1D5B5' },
+    fonts: { sans: 'DM Sans', display: 'Playfair Display' },
+    settings: { headerStyle: 'transparent' as const, footerStyle: 'column-grid' as const, heroStyle: 'video-ambient' as const, heroTitle: 'Coleção Imperial Esmeralda', heroSubtitle: 'Mansões contemporâneas e vilas privativas banhadas pela luz e envolvidas pelo luxo absoluto.', cardVariant: 'default' as const, modules: { featured: true, categories: true, cities: true, testimonials: true, blog: true, launches: true }, moduleOrder: ['featured', 'categories', 'cities', 'testimonials'], sobreTitle: 'Sobre a Grife Esmeralda', sobreText: 'Nossa missão é esculpir experiências e espaços sob medida.', sobreImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80', sobreStats: 'Coleção Limitada · 100% Exclusividade · Selo Ouro', contatoTitle: 'Visita Privada', contatoSubtitle: 'Solicite atendimento por nossa equipe de diretores especialistas.', contatoAddress: 'São Paulo - SP' },
+  },
+  {
+    id: 'industrial-loft',
+    name: 'Loft Urbano',
+    desc: 'Visual de concreto cru, aço escovado e tons terracota e laranja.',
+    colors: { cream: '#F2F2F2', creamDark: '#E5E5E5', creamBorder: '#CCCCCC', charcoal: '#1A1A1A', charcoalLight: '#2D2D2D', warmGray: '#8E8E8E', gold: '#D35400', goldLight: '#E67E22' },
+    fonts: { sans: 'Inter', display: 'Outfit' },
+    settings: { headerStyle: 'minimal' as const, footerStyle: 'modern-newsletter' as const, heroStyle: 'split-screen' as const, heroTitle: 'Industrial Loft Living', heroSubtitle: 'Penthouses de tijolos à vista, vigas de ferro e janelas monumentais nos bairros cosmopolitas.', cardVariant: 'compact' as const, modules: { featured: true, categories: true, cities: true, testimonials: false, blog: true, launches: true }, moduleOrder: ['featured', 'categories', 'cities', 'testimonials'], sobreTitle: 'A Estética Loft', sobreText: 'Nascido em Nova Iorque, redefinido para a sua próxima vivência urbana.', sobreImage: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80', sobreStats: 'Estilo Industrial · Conceito Aberto · Altíssimo Padrão', contatoTitle: 'Agendar Visita', contatoSubtitle: 'Conecte-se com nossa curadoria.', contatoAddress: 'Batel, Curitiba - PR' },
+  },
+  {
+    id: 'luxury-gold',
+    name: 'Realeza',
+    desc: 'Preto profundo luxuoso com dourado cintilante e sofisticação monárquica.',
+    colors: { cream: '#FFFFFF', creamDark: '#F8F9FA', creamBorder: '#E9ECEF', charcoal: '#0B0C10', charcoalLight: '#1F2833', warmGray: '#C5C6C7', gold: '#D4AF37', goldLight: '#F3E5AB' },
+    fonts: { sans: 'Inter', display: 'Playfair Display' },
+    settings: { headerStyle: 'transparent' as const, footerStyle: 'brand-glow' as const, heroStyle: 'search-centered' as const, heroTitle: 'Vilas de Altíssimo Luxo e Penthouses', heroSubtitle: 'Casas monumentais desenhadas para superar todas as expectativas de privacidade e exclusividade.', cardVariant: 'horizontal' as const, modules: { featured: true, categories: true, cities: true, testimonials: true, blog: true, launches: true }, moduleOrder: ['featured', 'categories', 'cities', 'testimonials'], sobreTitle: 'Legado de Prestígio', sobreText: 'A redefinição da alta moradia por meio de curadoria focada em arquitetura extraordinária.', sobreImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80', sobreStats: 'Casas Palacianas · Coberturas Únicas · R$ 5B+ Comercializados', contatoTitle: 'Atendimento Premium', contatoSubtitle: 'Um de nossos diretores associados retornará seu contato confidencial.', contatoAddress: 'Jardins, São Paulo - SP' },
   },
 ]
 
@@ -316,6 +352,7 @@ function BuilderPage() {
     heroSubtitle: 'Curadoria especializada de apartamentos, coberturas e residências suspensas com design assinado.',
     heroImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85&fit=crop',
     logo: '/logo.png',
+    logoLight: '',
     marcaDagua: '',
     favicon: '/favicon.ico',
     cardVerticalStyle: 'classic' as string,
@@ -380,7 +417,7 @@ function BuilderPage() {
   })
 
   // File upload
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, key: 'logo' | 'marcaDagua' | 'favicon' | 'heroImage') => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, key: 'logo' | 'logoLight' | 'marcaDagua' | 'favicon' | 'heroImage') => {
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
@@ -431,9 +468,10 @@ function BuilderPage() {
       } else if (defaultTenant) {
         setSettings(prev => ({
           ...prev,
+          ...defaultTenant.builderSettings,
           name: defaultTenant.name,
           slug: defaultTenant.slug,
-          team: defaultTenant.builderSettings.team,
+          team: defaultTenant.builderSettings.team || [],
           formFields: (defaultTenant.builderSettings as any).formFields || prev.formFields,
           teamStyle: (defaultTenant.builderSettings as any).teamStyle || prev.teamStyle,
         }))
@@ -500,6 +538,22 @@ function BuilderPage() {
   // Team
   const addTeamMember = () => {
     setSettings(prev => ({ ...prev, team: [...prev.team, { name: 'Novo Consultor', role: 'Especialista Batel', phone: '(41) 98888-7777', email: 'consultor@lumina.com.br', photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80', instagram: 'https://instagram.com/' }] }))
+  }
+  const toggleSystemUser = (sysUser: any) => {
+    setSettings(prev => {
+      const exists = prev.team.some((t: any) => t.id === sysUser.id || t.name === sysUser.name);
+      if (exists) {
+        return {
+          ...prev,
+          team: prev.team.filter((t: any) => t.id !== sysUser.id && t.name !== sysUser.name)
+        }
+      } else {
+        return {
+          ...prev,
+          team: [...prev.team, { ...sysUser }]
+        }
+      }
+    })
   }
   const updateTeamMember = (index: number, key: string, value: string) => {
     const list = [...settings.team]; list[index] = { ...list[index], [key]: value }
@@ -648,8 +702,11 @@ function BuilderPage() {
   const renderNavbar = () => {
     const isTransparentHome = settings.headerStyle === 'transparent' && activePreviewTab === 'home' && settings.heroStyle !== 'minimalist'
     
-    const logoEl = settings.logo ? (
-      <img src={settings.logo} className="h-5 w-auto object-contain" alt="Logo" />
+    const logoSrc = isTransparentHome && settings.logoLight ? settings.logoLight : settings.logo
+    const shouldInvertLogo = isTransparentHome && !settings.logoLight && settings.logo
+
+    const logoEl = logoSrc ? (
+      <img src={logoSrc} className={`h-5 w-auto object-contain transition-all ${shouldInvertLogo ? 'brightness-0 invert' : ''}`} alt="Logo" />
     ) : (
       <div className="flex items-center gap-1">
         <div className="w-5 h-5 rounded-full flex items-center justify-center overflow-hidden text-[9px] font-bold" style={{ backgroundColor: colors.gold, color: colors.cream }}>
@@ -759,17 +816,21 @@ function BuilderPage() {
   const renderFooter = () => {
     const fStyle = settings.footerStyle || 'simple'
     
-    // Logo element for footers
-    const logoEl = settings.logo ? (
-      <img src={settings.logo} className="h-5 w-auto max-w-[120px] object-contain" />
+    // Choose logo depending on background
+    const isDarkFooter = fStyle !== 'column-grid';
+    const logoSrc = isDarkFooter && settings.logoLight ? settings.logoLight : settings.logo;
+    const shouldInvertLogo = isDarkFooter && !settings.logoLight && settings.logo;
+
+    const logoEl = logoSrc ? (
+      <img src={logoSrc} className={`h-5 w-auto max-w-[120px] object-contain transition-all ${shouldInvertLogo ? 'brightness-0 invert' : ''}`} />
     ) : (
-      <span className="text-[10px] font-bold tracking-tight" style={{ fontFamily: fonts.display, color: '#fff' }}>{settings.name}</span>
+      <span className="text-[10px] font-bold tracking-tight" style={{ fontFamily: fonts.display, color: isDarkFooter ? '#fff' : colors.charcoal }}>{settings.name}</span>
     )
 
     if (fStyle === 'minimal') {
       return (
         <footer className="px-4 py-3 flex items-center justify-between border-t text-[6px] shrink-0" style={{ backgroundColor: colors.charcoal, borderColor: colors.creamBorder, color: `${colors.cream}60` }}>
-          <div>© 2026 {settings.name} • {contacts.creci}</div>
+          <div>© 2026 {settings.name} • CRECI: {contacts.creci}</div>
           <div className="flex gap-2 text-[7px]">
             <span>📸 Instagram</span>
             <span>📱 WhatsApp</span>
@@ -787,7 +848,7 @@ function BuilderPage() {
                 {logoEl}
               </div>
               <p className="text-[6px] opacity-75">{defaultTenant?.tagline || 'Curadoria exclusiva de imóveis assinados.'}</p>
-              <div className="text-[6px] font-mono opacity-80">{contacts.creci}</div>
+              <div className="text-[6px] font-mono opacity-80">CRECI: {contacts.creci}</div>
             </div>
             <div className="space-y-1">
               <div className="text-[7px] font-bold uppercase tracking-wider" style={{ color: '#fff' }}>Contato</div>
@@ -797,7 +858,7 @@ function BuilderPage() {
             </div>
           </div>
           <div className="border-t border-white/5 pt-3 text-center text-[5px] opacity-50">
-            © 2026 {settings.name}. Todos os direitos reservados.
+            © 2026 {settings.name}. Todos os direitos reservados. | Powered by Microsistec e Evolves Tecnologia
           </div>
         </footer>
       )
@@ -811,13 +872,13 @@ function BuilderPage() {
             <p className="text-[6px] text-zinc-400">Receba em primeira mão residências suspensas com design assinado.</p>
             <div className="flex gap-1.5">
               <input disabled placeholder="Seu e-mail..." className="flex-1 bg-zinc-800 border border-zinc-700 rounded px-1.5 py-0.5 text-[6px] text-white focus:outline-none" />
-              <button className="px-2 py-0.5 rounded text-[6px] font-bold border-0 cursor-pointer" style={{ backgroundColor: getContrastGold(true), color: '#fff' }}>Inscrever</button>
+              <button className="px-2 py-0.5 rounded text-[6px] font-bold border-0 cursor-pointer" style={{ backgroundColor: colors.gold, color: '#fff' }}>Inscrever</button>
             </div>
           </div>
           <div className="flex items-center justify-between pt-2">
             <div className="space-y-0.5">
               <div className="text-[7px] font-bold text-white">{settings.name}</div>
-              <div className="text-[5.5px] text-zinc-500">{contacts.creci}</div>
+              <div className="text-[5.5px] text-zinc-500">CRECI: {contacts.creci}</div>
             </div>
             <div className="flex gap-2 text-[6px]">
               <span className="hover:text-white cursor-pointer">Instagram</span>
@@ -825,7 +886,7 @@ function BuilderPage() {
             </div>
           </div>
           <div className="text-[5px] text-zinc-650 text-center border-t border-zinc-900/60 pt-3">
-            © 2026 {settings.name} • Desenvolvido via V8 Engine.
+            © 2026 {settings.name} • Powered by Microsistec e Evolves Tecnologia
           </div>
         </footer>
       )
@@ -849,24 +910,84 @@ function BuilderPage() {
             </div>
             <div className="space-y-1.5">
               <div className="text-[7px] font-bold uppercase tracking-wider text-slate-900">Atendimento</div>
-              <div className="text-[6px] opacity-75 leading-tight">{settings.openingHours}</div>
+              <div className="text-[6px] opacity-75 leading-tight">{settings.openingHours || 'Segunda a Sexta das 9h às 18h · Sábados das 9h às 13h'}</div>
               <div className="text-[5.5px] font-bold mt-1 text-slate-500">CRECI: {contacts.creci}</div>
             </div>
           </div>
           <div className="border-t border-slate-200 pt-3 text-center text-[5.5px] opacity-50 flex items-center justify-between">
             <span>© 2026 {settings.name}</span>
-            <span>Microsistec CRM</span>
+            <span>Microsistec e Evolves Tecnologia</span>
           </div>
         </footer>
       )
     }
 
-    // Default: 'simple'
+    if (fStyle === 'brand-glow') {
+      return (
+        <footer className="px-4 py-8 border-t space-y-4 text-center shrink-0 bg-zinc-950 border-zinc-900 text-zinc-400 relative overflow-hidden">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-12 bg-amber-500/5 rounded-full filter blur-xl pointer-events-none" />
+          <div className="flex flex-col items-center gap-2 relative z-10">
+            {logoEl}
+            <div className="text-[6px] uppercase tracking-widest text-amber-500/80 font-bold">{settings.heroTitle}</div>
+          </div>
+          <div className="w-12 h-[1px] bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto my-2" />
+          <div className="flex justify-center gap-4 text-[7px] font-semibold text-zinc-300">
+            <span>Home</span>
+            <span>Comprar</span>
+            <span>Lançamentos</span>
+            <span>Sobre</span>
+            <span>Contato</span>
+          </div>
+          <div className="border-t border-zinc-900/60 pt-3 flex items-center justify-between text-[5px] text-zinc-500">
+            <span>© 2026 {settings.name}</span>
+            <span>CRECI: {contacts.creci}</span>
+            <span>Powered by Microsistec e Evolves Tecnologia</span>
+          </div>
+        </footer>
+      )
+    }
+
+    // Default: 'simple' (Robles standard)
     return (
-      <footer className="px-4 py-4 text-center border-t shrink-0" style={{ backgroundColor: colors.charcoal, borderColor: colors.creamBorder }}>
-        <div className="text-[8px] font-bold mb-0.5" style={{ color: '#fff', fontFamily: fonts.display }}>{settings.name}</div>
-        <div className="text-[6px] opacity-60" style={{ color: `${colors.cream}80` }}>{contacts.creci} • {contacts.phone}</div>
-        <div className="text-[5px] opacity-40 mt-1" style={{ color: `${colors.cream}40` }}>© 2026. Todos os direitos reservados.</div>
+      <footer className="px-4 py-8 border-t space-y-6 text-left shrink-0" style={{ backgroundColor: colors.charcoal, borderColor: colors.creamBorder, color: `${colors.cream}80` }}>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="space-y-1.5 col-span-2 sm:col-span-1">
+            <div className="flex items-center gap-1">
+              {logoEl}
+            </div>
+            <p className="text-[6px] opacity-75">{settings.sobreText?.slice(0, 100) || 'Curadoria exclusiva de imóveis assinados.'}</p>
+            <div className="flex gap-2 pt-1 text-[7px]">
+              <span>📸 Insta</span>
+              <span>📱 Face</span>
+            </div>
+          </div>
+          <div>
+            <div className="text-[7px] font-bold uppercase tracking-wider mb-2" style={{ color: '#fff' }}>Imóveis</div>
+            <div className="text-[6px] flex flex-col gap-1">
+              <span>Comprar</span>
+              <span>Alugar</span>
+              <span>Lançamentos</span>
+            </div>
+          </div>
+          <div>
+            <div className="text-[7px] font-bold uppercase tracking-wider mb-2" style={{ color: '#fff' }}>Empresa</div>
+            <div className="text-[6px] flex flex-col gap-1">
+              <span>Sobre nós</span>
+              <span>Contato</span>
+              <span>Anuncie</span>
+            </div>
+          </div>
+          <div>
+            <div className="text-[7px] font-bold uppercase tracking-wider mb-2" style={{ color: '#fff' }}>Contato</div>
+            <div className="text-[6px]">{contacts.phone}</div>
+            <div className="text-[6px]">{contacts.email}</div>
+            <div className="text-[6px] opacity-75 leading-tight">{contacts.address.fullAddress}</div>
+            <div className="text-[5.5px] font-bold mt-1 text-slate-400">CRECI: {contacts.creci}</div>
+          </div>
+        </div>
+        <div className="border-t border-white/5 pt-3 text-center text-[5px] opacity-50">
+          © 2026 {settings.name}. Todos os direitos reservados. | Powered by Microsistec e Evolves Tecnologia
+        </div>
       </footer>
     )
   }
@@ -1652,7 +1773,8 @@ function BuilderPage() {
             <p className="text-[10px] text-slate-500 -mt-1 leading-normal">Arquivos processados localmente. As imagens aparecem imediatamente no preview ao lado.</p>
             <div className="grid grid-cols-2 gap-3">
               {([
-                { key: 'logo', label: 'Logo Principal', desc: 'Substitui o logotipo textual no header' },
+                { key: 'logo', label: 'Logo Principal (Fundo Claro)', desc: 'Substitui o logotipo textual no header' },
+                { key: 'logoLight', label: 'Logo para Fundo Escuro', desc: 'Substitui o logotipo quando sobreposto ao banner' },
                 { key: 'marcaDagua', label: "Marca d'Água", desc: 'Ícone circular e elemento de selo' },
                 { key: 'favicon', label: 'Favicon da Aba', desc: 'Ícone da aba do navegador' },
                 { key: 'heroImage', label: 'Fundo do Hero', desc: 'Imagem de plano de fundo do hero' },
@@ -1856,9 +1978,45 @@ function BuilderPage() {
               ))}
             </div>
 
-            <div className="space-y-3 border-t border-slate-100 pt-4">
+             <div className="space-y-3 border-t border-slate-100 pt-4">
               <InputField label="Título Principal do Hero" value={settings.heroTitle} onChange={v => setSettings(prev => ({ ...prev, heroTitle: v }))} placeholder="Ex: Residências de Prestígio" />
               <TextareaField label="Subtítulo / Chamada" value={settings.heroSubtitle} onChange={v => setSettings(prev => ({ ...prev, heroSubtitle: v }))} placeholder="Descrição do hero..." />
+            </div>
+
+            {/* homeFilters config */}
+            <div className="border-t border-slate-100 pt-3">
+              <label className="block text-[8px] font-bold uppercase tracking-wider text-slate-500 mb-2">Filtros de Busca Ativos no Hero</label>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { id: 'finalidade', label: 'Finalidade (Comprar/Alugar)' },
+                  { id: 'tipo', label: 'Tipo de Imóvel' },
+                  { id: 'neighborhood', label: 'Cidade ou Bairro' },
+                  { id: 'bedrooms', label: 'Quartos' },
+                  { id: 'preco', label: 'Faixa de Preço' },
+                ].map(filter => {
+                  const isChecked = settings.homeFilters?.includes(filter.id) ?? true;
+                  return (
+                    <label key={filter.id} className="flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-white cursor-pointer hover:bg-slate-50 select-none">
+                      <input 
+                        type="checkbox" 
+                        checked={isChecked} 
+                        onChange={e => {
+                          const checked = e.target.checked;
+                          setSettings(prev => {
+                            const current = prev.homeFilters || [];
+                            const next = checked 
+                              ? [...current, filter.id] 
+                              : current.filter(id => id !== filter.id);
+                            return { ...prev, homeFilters: next };
+                          });
+                        }}
+                        className="rounded text-amber-500 focus:ring-amber-400"
+                      />
+                      <span className="text-[10px] text-slate-700 font-semibold">{filter.label}</span>
+                    </label>
+                  )
+                })}
+              </div>
             </div>
 
             <div className="grid grid-cols-3 gap-3 border-t border-slate-100 pt-3">
@@ -2016,6 +2174,42 @@ function BuilderPage() {
                     <div className={`text-[8px] font-bold ${settings.teamStyle === style.id ? 'text-amber-700' : 'text-slate-600'}`}>{style.label}</div>
                   </button>
                 ))}
+              </div>
+            </div>
+
+            <div className="border-b border-slate-100 pb-4 mb-4">
+              <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Selecionar Corretores Cadastrados do Sistema</label>
+              <div className="grid grid-cols-2 gap-2">
+                {ALL_SYSTEM_USERS.map(sysUser => {
+                  const isSelected = settings.team.some((t: any) => t.id === sysUser.id || t.name === sysUser.name);
+                  return (
+                    <button
+                      key={sysUser.id}
+                      type="button"
+                      onClick={() => toggleSystemUser(sysUser)}
+                      className={`flex items-center gap-2 p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                        isSelected 
+                          ? 'border-amber-400 bg-amber-50/40 ring-1 ring-amber-400' 
+                          : 'border-slate-200 bg-white hover:border-slate-300'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-100 shrink-0">
+                        <img src={sysUser.photo} className="w-full h-full object-cover" alt={sysUser.name} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[10px] font-bold text-slate-800 truncate">{sysUser.name}</div>
+                        <div className="text-[8px] text-slate-500 truncate">{sysUser.role}</div>
+                      </div>
+                      <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                        isSelected 
+                          ? 'border-amber-500 bg-amber-500 text-white text-[8px] font-bold border-amber-500' 
+                          : 'border-slate-300 bg-white'
+                      }`}>
+                        {isSelected && '✓'}
+                      </div>
+                    </button>
+                  )
+                })}
               </div>
             </div>
 

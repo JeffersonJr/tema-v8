@@ -66,11 +66,11 @@ function PortalIndexPage() {
       id: nextId,
       slug: customSlug,
       name: trimmedName,
-      tagline: 'Lançamentos imobiliários e design de vanguarda.',
+      tagline: '',
       logo: '',
       favicon: '/favicon.ico',
-      creci: 'CRECI-PR 00.000-X',
-      description: 'Novo portal imobiliário criado dinamicamente com o construtor modular LEGO V8.',
+      creci: '',
+      description: '',
       status: 'online',
       colors: {
         cream: '#FAFAFA',
@@ -83,23 +83,23 @@ function PortalIndexPage() {
         goldLight: '#3F3F46',
       },
       contacts: {
-        phone: '(41) 3000-0000',
-        phoneRaw: '+554130000000',
-        whatsapp: '(41) 99999-9999',
-        whatsappRaw: '5541999999999',
-        email: 'contato@novoportalv8.com.br',
+        phone: '',
+        phoneRaw: '',
+        whatsapp: '',
+        whatsappRaw: '',
+        email: '',
         address: {
-          street: 'Avenida do Batel, 1000',
-          neighborhood: 'Batel',
-          city: 'Curitiba',
-          state: 'PR',
-          fullAddress: 'Avenida do Batel, 1000, Batel, Curitiba - PR',
+          street: '',
+          neighborhood: '',
+          city: '',
+          state: '',
+          fullAddress: '',
         },
       },
       socials: {
-        instagram: 'https://instagram.com/',
-        facebook: 'https://facebook.com/',
-        youtube: 'https://youtube.com/',
+        instagram: '',
+        facebook: '',
+        youtube: '',
       },
       fonts: {
         sans: 'Inter',
@@ -110,8 +110,8 @@ function PortalIndexPage() {
         footerStyle: 'simple',
         heroStyle: 'minimalist',
         heroTitle: trimmedName,
-        heroSubtitle: 'Selecione e configure os seus blocos premium na barra de ferramentas lateral.',
-        heroImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85&fit=crop',
+        heroSubtitle: '',
+        heroImage: '',
         cardVariant: 'compact',
         showCardBedrooms: true,
         showCardBathrooms: true,
@@ -137,17 +137,8 @@ function PortalIndexPage() {
         homeFilters: ['tipo', 'neighborhood'],
         searchFiltersLayout: 'topbar',
         detailGalleryStyle: 'slider',
-        openingHours: 'Segunda a Sexta das 9h às 18h',
-        team: [
-          {
-            name: 'Consultor de Vanguarda',
-            role: 'Diretor Comercial',
-            phone: '(41) 99999-9999',
-            email: 'diretor@novoportal.com.br',
-            photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80',
-            instagram: 'https://instagram.com/',
-          }
-        ]
+        openingHours: '',
+        team: []
       }
     }
 
@@ -155,9 +146,11 @@ function PortalIndexPage() {
     currentCustom.push(newTenant)
     localStorage.setItem('v8_custom_tenants', JSON.stringify(currentCustom))
     
-    // Create direct settings key
     localStorage.setItem(`${newTenant.id}_builder_settings`, JSON.stringify({
       ...newTenant.builderSettings,
+      logo: '',
+      logoLight: '',
+      marcaDagua: '',
       colors: newTenant.colors,
       fonts: newTenant.fonts,
       contacts: newTenant.contacts,
@@ -184,7 +177,16 @@ function PortalIndexPage() {
         message: { label: 'Mensagem de Interesse', enabled: true, required: false },
         propertyType: { label: 'Tipo de Imóvel', enabled: false, required: false },
         neighborhood: { label: 'Bairro de Interesse', enabled: false, required: false },
-      }
+      },
+      sobreTitle: '',
+      sobreText: '',
+      sobreImage: '',
+      sobreStats: '',
+      anunciarTitle: '',
+      anunciarSubtitle: '',
+      contatoTitle: '',
+      contatoSubtitle: '',
+      contatoAddress: '',
     }))
 
     // Redirect to builder with dynamic ID
