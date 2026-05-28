@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as BuilderRouteImport } from './routes/builder'
 import { Route as TenantRouteImport } from './routes/$tenant'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TenantIndexRouteImport } from './routes/$tenant.index'
@@ -25,6 +26,11 @@ import { Route as TenantBlogIndexRouteImport } from './routes/$tenant.blog.index
 import { Route as TenantImovelIdRouteImport } from './routes/$tenant.imovel.$id'
 import { Route as TenantBlogSlugRouteImport } from './routes/$tenant.blog.$slug'
 
+const BuilderRoute = BuilderRouteImport.update({
+  id: '/builder',
+  path: '/builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TenantRoute = TenantRouteImport.update({
   id: '/$tenant',
   path: '/$tenant',
@@ -105,6 +111,7 @@ const TenantBlogSlugRoute = TenantBlogSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$tenant': typeof TenantRouteWithChildren
+  '/builder': typeof BuilderRoute
   '/$tenant/anunciar': typeof TenantAnunciarRoute
   '/$tenant/avaliar': typeof TenantAvaliarRoute
   '/$tenant/buscar': typeof TenantBuscarRoute
@@ -121,6 +128,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/builder': typeof BuilderRoute
   '/$tenant/anunciar': typeof TenantAnunciarRoute
   '/$tenant/avaliar': typeof TenantAvaliarRoute
   '/$tenant/buscar': typeof TenantBuscarRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$tenant': typeof TenantRouteWithChildren
+  '/builder': typeof BuilderRoute
   '/$tenant/anunciar': typeof TenantAnunciarRoute
   '/$tenant/avaliar': typeof TenantAvaliarRoute
   '/$tenant/buscar': typeof TenantBuscarRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/$tenant'
+    | '/builder'
     | '/$tenant/anunciar'
     | '/$tenant/avaliar'
     | '/$tenant/buscar'
@@ -174,6 +184,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/builder'
     | '/$tenant/anunciar'
     | '/$tenant/avaliar'
     | '/$tenant/buscar'
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/$tenant'
+    | '/builder'
     | '/$tenant/anunciar'
     | '/$tenant/avaliar'
     | '/$tenant/buscar'
@@ -209,10 +221,18 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   TenantRoute: typeof TenantRouteWithChildren
+  BuilderRoute: typeof BuilderRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/builder': {
+      id: '/builder'
+      path: '/builder'
+      fullPath: '/builder'
+      preLoaderRoute: typeof BuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/$tenant': {
       id: '/$tenant'
       path: '/$tenant'
@@ -359,6 +379,7 @@ const TenantRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   TenantRoute: TenantRouteWithChildren,
+  BuilderRoute: BuilderRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

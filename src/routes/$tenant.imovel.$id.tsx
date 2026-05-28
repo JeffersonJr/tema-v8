@@ -38,7 +38,7 @@ export const Route = createFileRoute('/$tenant/imovel/$id')({
   component: ImovelPage,
 })
 
-function Gallery({ images, title }: { images: string[]; title: string }) {
+function Gallery({ images, title, style = 'slider' }: { images: string[]; title: string; style?: 'mosaic' | 'slider' | 'grid' }) {
   const [active, setActive] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
@@ -57,6 +57,123 @@ function Gallery({ images, title }: { images: string[]; title: string }) {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [lightboxOpen, images.length])
 
+  // Gallery Modal Component
+  const renderLightbox = () => (
+    lightboxOpen && (
+      <div
+        className="fixed inset-0 bg-charcoal/95 backdrop-blur-md z-[100] flex flex-col items-center justify-center p-4 select-none animate-fade-in-up duration-200"
+        onClick={() => setLightboxOpen(false)}
+      >
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            setLightboxOpen(false)
+          }}
+          className="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-lg z-[110]"
+          title="Fechar (Esc)"
+        >
+          <X size={20} />
+        </button>
+
+        {images.length > 1 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              prev()
+            }}
+            className="absolute left-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-lg z-[110]"
+            title="Anterior"
+          >
+            <ChevronLeft size={24} />
+          </button>
+        )}
+
+        <div
+          className="relative max-w-5xl max-h-[82vh] flex items-center justify-center p-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <img
+            src={images[active]}
+            alt={`${title} — ampliada ${active + 1}`}
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.png'
+            }}
+            className="max-w-full max-h-[82vh] object-contain rounded-xl shadow-2xl transition-all duration-300"
+          />
+        </div>
+
+        {images.length > 1 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              next()
+            }}
+            className="absolute right-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-lg z-[110]"
+            title="Próxima"
+          >
+            <ChevronRight size={24} />
+          </button>
+        )}
+
+        <div className="absolute bottom-6 bg-white/10 text-white border border-white/20 text-xs px-4 py-2 rounded-full shadow-md backdrop-blur-sm z-[110]">
+          {active + 1} / {images.length}
+        </div>
+      </div>
+    )
+  )
+
+  // Layout Mosaic
+  if (style === 'mosaic' && images.length >= 3) {
+    return (
+      <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 h-[420px] rounded-2xl overflow-hidden shadow-md">
+          <div 
+            onClick={() => { setActive(0); setLightboxOpen(true) }} 
+            className="md:col-span-2 h-full overflow-hidden relative cursor-zoom-in group"
+          >
+            <img src={images[0]} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102" />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+          </div>
+          <div className="md:col-span-2 grid grid-cols-2 gap-3 h-full">
+            {images.slice(1, 5).map((img, i) => (
+              <div 
+                key={i} 
+                onClick={() => { setActive(i + 1); setLightboxOpen(true) }} 
+                className="h-full overflow-hidden relative cursor-zoom-in group"
+              >
+                <img src={img} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102" />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+              </div>
+            ))}
+          </div>
+        </div>
+        {renderLightbox()}
+      </div>
+    )
+  }
+
+  // Layout Grid
+  if (style === 'grid') {
+    return (
+      <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-2xl overflow-hidden shadow-md">
+          {images.slice(0, 6).map((img, i) => (
+            <div 
+              key={i} 
+              onClick={() => { setActive(i); setLightboxOpen(true) }} 
+              className="h-48 overflow-hidden relative cursor-zoom-in group"
+            >
+              <img src={img} alt={`${title} - ${i+1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+            </div>
+          ))}
+        </div>
+        {renderLightbox()}
+      </div>
+    )
+  }
+
+  // Default layout: Slider / Carousel
   return (
     <div className="flex flex-col gap-3">
       <div 
@@ -72,7 +189,6 @@ function Gallery({ images, title }: { images: string[]; title: string }) {
           className="w-full h-full object-cover transition-all duration-700 group-hover:scale-102"
         />
         
-        {/* Subtle magnifying glass button overlay */}
         <div className="absolute top-4 left-4 bg-charcoal/40 backdrop-blur-md text-white border border-white/20 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <Maximize2 size={13} />
           Ampliar Imagem
@@ -128,73 +244,7 @@ function Gallery({ images, title }: { images: string[]; title: string }) {
         </div>
       )}
 
-      {/* Fullscreen premium Lightbox Modal */}
-      {lightboxOpen && (
-        <div
-          className="fixed inset-0 bg-charcoal/95 backdrop-blur-md z-[100] flex flex-col items-center justify-center p-4 select-none animate-fade-in-up duration-200"
-          onClick={() => setLightboxOpen(false)}
-        >
-          {/* Close button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              setLightboxOpen(false)
-            }}
-            className="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-lg z-[110]"
-            title="Fechar (Esc)"
-          >
-            <X size={20} />
-          </button>
-
-          {/* Left Arrow */}
-          {images.length > 1 && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                prev()
-              }}
-              className="absolute left-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-lg z-[110]"
-              title="Anterior"
-            >
-              <ChevronLeft size={24} />
-            </button>
-          )}
-
-          {/* Expanded Image Container */}
-          <div
-            className="relative max-w-5xl max-h-[82vh] flex items-center justify-center p-2"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <img
-              src={images[active]}
-              alt={`${title} — ampliada ${active + 1}`}
-              onError={(e) => {
-                e.currentTarget.src = '/placeholder.png'
-              }}
-              className="max-w-full max-h-[82vh] object-contain rounded-xl shadow-2xl transition-all duration-300"
-            />
-          </div>
-
-          {/* Right Arrow */}
-          {images.length > 1 && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                next()
-              }}
-              className="absolute right-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-lg z-[110]"
-              title="Próxima"
-            >
-              <ChevronRight size={24} />
-            </button>
-          )}
-
-          {/* Image counter */}
-          <div className="absolute bottom-6 bg-white/10 text-white border border-white/20 text-xs px-4 py-2 rounded-full shadow-md backdrop-blur-sm z-[110]">
-            {active + 1} / {images.length}
-          </div>
-        </div>
-      )}
+      {renderLightbox()}
     </div>
   )
 }
@@ -402,7 +452,7 @@ function ImovelPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column */}
           <div className="lg:col-span-2">
-            <Gallery images={property.images} title={property.title} />
+            <Gallery images={property.images} title={property.title} style={tenant.builderSettings?.detailGalleryStyle || 'slider'} />
 
             {/* Title + Actions */}
             <div className="mt-6 flex flex-col md:flex-row md:items-start justify-between gap-4">

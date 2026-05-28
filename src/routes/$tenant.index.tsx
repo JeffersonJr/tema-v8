@@ -566,10 +566,23 @@ function CitiesSection() {
 }
 
 function HomePage() {
-
   const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
   const tenant = getTenantBySlug(tenantSlug || '')
   if (!tenant) return null
+
+  const builderSettings = tenant.builderSettings || {}
+  const heroStyle = builderSettings.heroStyle || 'search-centered'
+  const heroTitle = builderSettings.heroTitle || tenant.name
+  const heroSubtitle = builderSettings.heroSubtitle || tenant.tagline
+  const heroImage = builderSettings.heroImage || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=85&fit=crop"
+  const modules = builderSettings.modules || {
+    featured: true,
+    categories: true,
+    cities: true,
+    testimonials: true,
+    launches: true,
+    blog: true,
+  }
 
   const parallaxRef = useRef<HTMLDivElement>(null)
 
@@ -591,8 +604,8 @@ function HomePage() {
         <div className="absolute inset-0 overflow-hidden">
           <div ref={parallaxRef} className="absolute inset-[-20%] will-change-transform">
             <img
-              src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=85&fit=crop"
-              alt="Luxury property"
+              src={heroImage}
+              alt={heroTitle}
               onError={(e) => {
                 e.currentTarget.src = '/placeholder.png'
               }}
@@ -602,35 +615,54 @@ function HomePage() {
           <div className="hero-gradient absolute inset-0" />
         </div>
 
-        <div className="relative z-10 text-center px-6 pt-20 pb-10 w-full max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white text-xs font-medium px-4 py-2 rounded-full mb-6 animate-fade-in-up">
-            <Building2 size={13} />
-            Imóveis de alto padrão · 23 anos de mercado
+        {heroStyle === 'search-left' ? (
+          <div className="relative z-10 px-6 pt-20 pb-10 w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-7 text-left">
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white text-xs font-medium px-4 py-2 rounded-full mb-6">
+                <Building2 size={13} />
+                {tenant.creci} · {tenant.tagline}
+              </div>
+              <h1 className="font-display text-4xl md:text-6xl font-bold text-white leading-tight mb-5">
+                {heroTitle}
+              </h1>
+              <p className="text-white/75 text-lg mb-6 max-w-xl">
+                {heroSubtitle}
+              </p>
+            </div>
+            <div className="lg:col-span-5 w-full">
+              <HeroSearch />
+            </div>
           </div>
-
-          <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-tight mb-5 animate-fade-in-up animate-delay-100">
-            Imóveis que conquistam<br />
-            <span className="text-gold">à primeiro vista.</span>
-          </h1>
-
-          <p className="text-white/75 text-lg mb-10 max-w-xl mx-auto animate-fade-in-up animate-delay-200">
-            Uma curadoria criteriosa para quem busca sofisticação, exclusividade e experiências únicas.
-          </p>
-
-          <div className="animate-fade-in-up animate-delay-300">
-            <HeroSearch />
+        ) : heroStyle === 'minimalist' ? (
+          <div className="relative z-10 text-center px-6 pt-20 pb-10 w-full max-w-4xl mx-auto">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white text-xs font-medium px-4 py-2 rounded-full mb-6">
+              <Building2 size={13} />
+              {tenant.creci} · Curadoria Premium
+            </div>
+            <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-tight mb-5">
+              {heroTitle}
+            </h1>
+            <p className="text-white/75 text-lg max-w-xl mx-auto">
+              {heroSubtitle}
+            </p>
           </div>
-
-          <div className="mt-6 flex items-center justify-center gap-6 animate-fade-in-up animate-delay-400">
-            <Link to="/$tenant/lancamentos" params={{ tenant: tenantSlug }} className="text-white/70 hover:text-white text-sm flex items-center gap-1 transition-colors">
-              <Sparkles size={14} /> Ver lançamentos
-            </Link>
-            <span className="text-white/30">·</span>
-            <Link to="/$tenant/buscar" params={{ tenant: tenantSlug }} className="text-white/70 hover:text-white text-sm flex items-center gap-1 transition-colors">
-              <Search size={14} /> Busca avançada
-            </Link>
+        ) : (
+          <div className="relative z-10 text-center px-6 pt-20 pb-10 w-full max-w-4xl mx-auto">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white text-xs font-medium px-4 py-2 rounded-full mb-6">
+              <Building2 size={13} />
+              {tenant.creci} · Destaques Exclusivos
+            </div>
+            <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-tight mb-5">
+              {heroTitle}
+            </h1>
+            <p className="text-white/75 text-lg mb-10 max-w-xl mx-auto">
+              {heroSubtitle}
+            </p>
+            <div>
+              <HeroSearch />
+            </div>
           </div>
-        </div>
+        )}
 
         <a
           href="#destaques"
@@ -642,11 +674,11 @@ function HomePage() {
 
       <div id="destaques">
         <StatsBar />
-        <FeaturedSection />
-        <CategorySection />
-        <LaunchesTeaser />
-        <CitiesSection />
-        <TestimonialsSection />
+        {modules.featured && <FeaturedSection />}
+        {modules.categories && <CategorySection />}
+        {modules.launches && <LaunchesTeaser />}
+        {modules.cities && <CitiesSection />}
+        {modules.testimonials && <TestimonialsSection />}
         <TagsCloudSection />
         <CTASection />
       </div>

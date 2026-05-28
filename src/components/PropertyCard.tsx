@@ -1,16 +1,29 @@
 import { Link, useParams } from '@tanstack/react-router'
-import { BedDouble, Bath, Car, Maximize2, MapPin, Heart } from 'lucide-react'
+import { BedDouble, Bath, Car, Maximize2, MapPin, Heart, ShieldAlert, PawPrint } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import type { Property } from '@/data/properties'
 import { formatPrice } from '@/data/properties'
+import { getTenantBySlug } from '@/data/tenants'
 
 interface PropertyCardProps {
   property: Property
   variant?: 'default' | 'compact' | 'horizontal'
 }
 
-export function PropertyCard({ property, variant = 'default' }: PropertyCardProps) {
+export function PropertyCard({ property, variant }: PropertyCardProps) {
   const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant?: string }
+  const tenant = getTenantBySlug(tenantSlug || '')
+  
+  // Dynamic variants
+  const cardVariant = variant || tenant?.builderSettings?.cardVariant || 'default'
+  
+  // Custom display specifications from Builder
+  const showBedrooms = tenant?.builderSettings?.showCardBedrooms !== false
+  const showBathrooms = tenant?.builderSettings?.showCardBathrooms !== false
+  const showArea = tenant?.builderSettings?.showCardArea !== false
+  const showCondo = !!tenant?.builderSettings?.showCardCondo
+  const showPetFriendly = !!tenant?.builderSettings?.showCardPetFriendly
+
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
@@ -49,7 +62,7 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
   const displayPrice =
     property.purpose === 'aluguel' ? property.rentPrice! : property.price
 
-  if (variant === 'horizontal') {
+  if (cardVariant === 'horizontal') {
     return (
       <Link
         to="/$tenant/imovel/$id"
@@ -77,13 +90,18 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
         </div>
         <div className="flex flex-col justify-between p-5 flex-1">
           <div>
-            <div className="flex gap-2 mb-2">
+            <div className="flex flex-wrap gap-2 mb-2">
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider tag-${property.purpose}`}>
                 {property.purpose === 'venda' ? 'Venda' : property.purpose === 'aluguel' ? 'Aluguel' : 'Lançamento'}
               </span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider bg-cream text-charcoal-light capitalize">
                 {property.type}
               </span>
+              {showPetFriendly && property.petFriendly && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-50 text-emerald-600 flex items-center gap-0.5">
+                  <PawPrint size={10} /> Pet
+                </span>
+              )}
             </div>
             <h3 className="font-display text-base font-semibold text-charcoal leading-snug mb-1">
               {property.title}
@@ -94,10 +112,11 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
             </div>
           </div>
           <div>
-            <div className="flex items-center gap-3 text-warm-gray text-xs mb-3">
-              <span className="flex items-center gap-1"><BedDouble size={12} /> {property.bedrooms}</span>
-              <span className="flex items-center gap-1"><Bath size={12} /> {property.bathrooms}</span>
-              <span className="flex items-center gap-1"><Maximize2 size={12} /> {property.area}m²</span>
+            <div className="flex flex-wrap items-center gap-3 text-warm-gray text-xs mb-3">
+              {showBedrooms && <span className="flex items-center gap-1"><BedDouble size={12} /> {property.bedrooms} qts</span>}
+              {showBathrooms && <span className="flex items-center gap-1"><Bath size={12} /> {property.bathrooms} banhs</span>}
+              {showArea && <span className="flex items-center gap-1"><Maximize2 size={12} /> {property.area}m²</span>}
+              {showCondo && property.condoPrice && <span className="flex items-center gap-1">Cond: {formatPrice(property.condoPrice)}</span>}
             </div>
             <div className="text-lg font-bold text-charcoal font-display">
               {formatPrice(displayPrice)}
@@ -109,7 +128,7 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
     )
   }
 
-  if (variant === 'compact') {
+  if (cardVariant === 'compact') {
     return (
       <Link
         to="/$tenant/imovel/$id"
@@ -125,7 +144,7 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
             }}
             className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
           />
-          <div className="absolute top-3 left-3 z-10 max-w-[calc(100%-80px)]">
+          <div className="absolute top-3 left-3 z-10 max-w-[calc(100%-80px)] flex flex-wrap gap-1">
             <span className={`px-2 py-0.5 rounded-md text-[9px] font-semibold uppercase tracking-wider shadow-sm tag-${property.purpose}`}>
               {property.purpose === 'venda' ? 'Venda' : property.purpose === 'aluguel' ? 'Aluguel' : 'Lançamento'}
             </span>
@@ -147,16 +166,21 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
           <h3 className="font-display text-sm font-semibold text-charcoal mb-2 leading-snug line-clamp-2">
             {property.title}
           </h3>
-          <div className="flex items-center gap-2 text-warm-gray text-xs mb-3">
-            <span className="flex items-center gap-0.5"><BedDouble size={11} /> {property.bedrooms}</span>
-            <span className="text-cream-border">·</span>
-            <span className="flex items-center gap-0.5"><Bath size={11} /> {property.bathrooms}</span>
-            <span className="text-cream-border">·</span>
-            <span className="flex items-center gap-0.5"><Maximize2 size={11} /> {property.area}m²</span>
+          <div className="flex flex-wrap items-center gap-1.5 text-warm-gray text-xs mb-3">
+            {showBedrooms && <span className="flex items-center gap-0.5"><BedDouble size={11} /> {property.bedrooms}</span>}
+            {showBedrooms && (showBathrooms || showArea) && <span className="text-cream-border">·</span>}
+            {showBathrooms && <span className="flex items-center gap-0.5"><Bath size={11} /> {property.bathrooms}</span>}
+            {showBathrooms && showArea && <span className="text-cream-border">·</span>}
+            {showArea && <span className="flex items-center gap-0.5"><Maximize2 size={11} /> {property.area}m²</span>}
           </div>
-          <div className="text-base font-bold text-charcoal font-display">
-            {formatPrice(displayPrice)}
-            {property.purpose === 'aluguel' && <span className="text-xs font-normal text-warm-gray ml-1">/mês</span>}
+          <div className="flex items-center justify-between">
+            <div className="text-base font-bold text-charcoal font-display">
+              {formatPrice(displayPrice)}
+              {property.purpose === 'aluguel' && <span className="text-xs font-normal text-warm-gray ml-1">/mês</span>}
+            </div>
+            {showCondo && property.condoPrice && (
+              <div className="text-[10px] text-warm-gray">Cond: {formatPrice(property.condoPrice)}</div>
+            )}
           </div>
         </div>
       </Link>
@@ -212,24 +236,37 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
         <h3 className="font-display text-lg font-semibold text-charcoal mb-3 leading-snug">
           {property.title}
         </h3>
-        <div className="flex items-center gap-4 text-warm-gray text-sm mb-5">
-          <span className="flex items-center gap-1.5">
-            <BedDouble size={14} />
-            {property.bedrooms}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Bath size={14} />
-            {property.bathrooms}
-          </span>
+        
+        <div className="flex flex-wrap items-center gap-4 text-warm-gray text-sm mb-5">
+          {showBedrooms && (
+            <span className="flex items-center gap-1.5">
+              <BedDouble size={14} />
+              {property.bedrooms}
+            </span>
+          )}
+          {showBathrooms && (
+            <span className="flex items-center gap-1.5">
+              <Bath size={14} />
+              {property.bathrooms}
+            </span>
+          )}
           <span className="flex items-center gap-1.5">
             <Car size={14} />
             {property.parkingSpaces}
           </span>
-          <span className="flex items-center gap-1.5">
-            <Maximize2 size={14} />
-            {property.area}m²
-          </span>
+          {showArea && (
+            <span className="flex items-center gap-1.5">
+              <Maximize2 size={14} />
+              {property.area}m²
+            </span>
+          )}
+          {showPetFriendly && property.petFriendly && (
+            <span className="flex items-center gap-1.5 text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded text-xs font-semibold">
+              <PawPrint size={13} /> Pet
+            </span>
+          )}
         </div>
+        
         <div className="flex items-end justify-between border-t border-cream-border pt-4">
           <div>
             <div className="font-display text-2xl font-bold text-charcoal">
@@ -237,6 +274,9 @@ export function PropertyCard({ property, variant = 'default' }: PropertyCardProp
             </div>
             {property.purpose === 'aluguel' && (
               <div className="text-xs text-warm-gray">por mês</div>
+            )}
+            {showCondo && property.condoPrice && (
+              <div className="text-[10px] text-warm-gray mt-1">Condomínio: {formatPrice(property.condoPrice)}</div>
             )}
           </div>
           <div className="text-xs text-warm-gray">

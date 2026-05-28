@@ -46,6 +46,48 @@ export interface Tenant {
     sans: string
     display: string
   }
+  builderSettings: {
+    headerStyle: 'transparent' | 'minimal' | 'classic'
+    footerStyle: 'simple' | 'detailed' | 'minimal'
+    heroStyle: 'search-centered' | 'search-left' | 'minimalist'
+    heroTitle: string
+    heroSubtitle: string
+    heroImage: string
+    cardVariant: 'default' | 'compact' | 'horizontal'
+    showCardBedrooms: boolean
+    showCardBathrooms: boolean
+    showCardArea: boolean
+    showCardCondo: boolean
+    showCardPetFriendly: boolean
+    modules: {
+      featured: boolean
+      categories: boolean
+      cities: boolean
+      testimonials: boolean
+      blog: boolean
+      launches: boolean
+    }
+    pages: {
+      blog: boolean
+      launches: boolean
+      contact: boolean
+      sobre: boolean
+      anunciar: boolean
+      avaliar: boolean
+    }
+    homeFilters: string[]
+    searchFiltersLayout: 'sidebar' | 'topbar'
+    detailGalleryStyle: 'mosaic' | 'slider' | 'grid'
+    openingHours: string
+    team: {
+      name: string
+      role: string
+      phone: string
+      email: string
+      photo: string
+      instagram: string
+    }[]
+  }
 }
 
 export const tenants: Tenant[] = [
@@ -96,25 +138,77 @@ export const tenants: Tenant[] = [
       sans: 'DM Sans',
       display: 'Playfair Display',
     },
+    builderSettings: {
+      headerStyle: 'classic',
+      footerStyle: 'detailed',
+      heroStyle: 'search-centered',
+      heroTitle: 'Encontre o imóvel dos seus sonhos',
+      heroSubtitle: 'Casas, coberturas e apartamentos de alto padrão nas melhores localizações.',
+      heroImage: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=85&fit=crop',
+      cardVariant: 'default',
+      showCardBedrooms: true,
+      showCardBathrooms: true,
+      showCardArea: true,
+      showCardCondo: true,
+      showCardPetFriendly: true,
+      modules: {
+        featured: true,
+        categories: true,
+        cities: true,
+        testimonials: true,
+        blog: true,
+        launches: true,
+      },
+      pages: {
+        blog: true,
+        launches: true,
+        contact: true,
+        sobre: true,
+        anunciar: true,
+        avaliar: true,
+      },
+      homeFilters: ['finalidade', 'tipo', 'neighborhood', 'bedrooms'],
+      searchFiltersLayout: 'sidebar',
+      detailGalleryStyle: 'mosaic',
+      openingHours: 'Segunda a Sexta das 9h às 18h · Sábados das 9h às 13h',
+      team: [
+        {
+          name: 'Rafaela Monteiro',
+          role: 'Diretora Comercial',
+          phone: '(11) 99847-3821',
+          email: 'rafaela@robles.com.br',
+          photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&q=80',
+          instagram: 'https://instagram.com/rafaela',
+        },
+        {
+          name: 'Thiago Cavalcante',
+          role: 'Especialista em Coberturas',
+          phone: '(21) 98834-5577',
+          email: 'thiago@robles.com.br',
+          photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80',
+          instagram: 'https://instagram.com/thiago',
+        }
+      ]
+    }
   },
   {
     id: 'lumina',
     slug: 'Lumina',
     name: 'Lumina Curadoria',
     tagline: 'Lançamentos imobiliários e design autoral em Curitiba.',
-    logo: '/logo.png', // Lumina uses a minimalist dynamic logo mark
+    logo: '/logo.png',
     favicon: '/favicon.ico',
     creci: 'CRECI-PR 45.892-F',
     description: 'Boutique imobiliária com foco exclusivo nos melhores lançamentos residenciais de Curitiba. Conectamos arquitetura de vanguarda, sustentabilidade e vivências urbanas exclusivas.',
     colors: {
-      cream: '#FAFAFA',      // Minimalist pure off-white
-      creamDark: '#F4F4F5',  // Zinc 100
-      creamBorder: '#E4E4E7', // Zinc 200
-      charcoal: '#09090B',   // Zinc 950
-      charcoalLight: '#27272A', // Zinc 800
-      warmGray: '#717178',   // Zinc 500
-      gold: '#18181B',       // Deep Zinc 900 (ultra-minimal black instead of gold!)
-      goldLight: '#3F3F46',  // Zinc 700
+      cream: '#FAFAFA',
+      creamDark: '#F4F4F5',
+      creamBorder: '#E4E4E7',
+      charcoal: '#09090B',
+      charcoalLight: '#27272A',
+      warmGray: '#717178',
+      gold: '#18181B',
+      goldLight: '#3F3F46',
     },
     contacts: {
       phone: '(41) 3012-9876',
@@ -144,13 +238,137 @@ export const tenants: Tenant[] = [
       sans: 'Inter',
       display: 'Outfit',
     },
+    builderSettings: {
+      headerStyle: 'minimal',
+      footerStyle: 'simple',
+      heroStyle: 'minimalist',
+      heroTitle: 'Coleção Lançamentos Curitiba',
+      heroSubtitle: 'Curadoria especializada de apartamentos, coberturas e residências suspensas com design assinado.',
+      heroImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85&fit=crop',
+      cardVariant: 'compact',
+      showCardBedrooms: true,
+      showCardBathrooms: false,
+      showCardArea: true,
+      showCardCondo: false,
+      showCardPetFriendly: false,
+      modules: {
+        featured: true,
+        categories: true,
+        cities: true,
+        testimonials: false,
+        blog: true,
+        launches: true,
+      },
+      pages: {
+        blog: true,
+        launches: true,
+        contact: true,
+        sobre: true,
+        anunciar: true,
+        avaliar: false,
+      },
+      homeFilters: ['tipo', 'neighborhood'],
+      searchFiltersLayout: 'topbar',
+      detailGalleryStyle: 'slider',
+      openingHours: 'Segunda a Sexta das 10h às 19h · Sábados das 10h às 16h',
+      team: [
+        {
+          name: 'Mathias Ribas',
+          role: 'Fundador & Curador Chefe',
+          phone: '(41) 98877-6655',
+          email: 'mathias@lumina.com.br',
+          photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80',
+          instagram: 'https://instagram.com/mathias',
+        },
+        {
+          name: 'Carolina Ferraz',
+          role: 'Curadora Comercial',
+          phone: '(41) 99102-6634',
+          email: 'carolina@lumina.com.br',
+          photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80',
+          instagram: 'https://instagram.com/carolina',
+        }
+      ]
+    }
   },
 ]
 
 export function getTenantBySlug(slug: string): Tenant | undefined {
-  return tenants.find((t) => t.slug.toLowerCase() === slug.toLowerCase())
+  const tenant = tenants.find((t) => t.slug.toLowerCase() === slug.toLowerCase())
+  if (!tenant) return undefined
+
+  if (typeof window !== 'undefined' && tenant.id === 'lumina') {
+    const custom = window.localStorage.getItem('lumina_builder_settings')
+    if (custom) {
+      try {
+        const settings = JSON.parse(custom)
+        return {
+          ...tenant,
+          ...settings,
+          colors: { ...tenant.colors, ...(settings.colors || {}) },
+          fonts: { ...tenant.fonts, ...(settings.fonts || {}) },
+          contacts: {
+            ...tenant.contacts,
+            ...(settings.contacts || {}),
+            address: { ...tenant.contacts.address, ...(settings.contacts?.address || {}) }
+          },
+          builderSettings: {
+            ...tenant.builderSettings,
+            ...settings,
+            modules: { ...tenant.builderSettings.modules, ...(settings.modules || {}) },
+            pages: { ...tenant.builderSettings.pages, ...(settings.pages || {}) },
+            team: settings.team || tenant.builderSettings.team
+          },
+          aboutSignature: settings.team?.[0] ? {
+            name: settings.team[0].name,
+            role: settings.team[0].role,
+            image: settings.team[0].photo || '/assinatura.png'
+          } : tenant.aboutSignature
+        }
+      } catch (e) {
+        console.error('Error parsing custom Lumina settings', e)
+      }
+    }
+  }
+  return tenant
 }
 
 export function getTenantById(id: string): Tenant | undefined {
-  return tenants.find((t) => t.id === id)
+  const tenant = tenants.find((t) => t.id === id)
+  if (!tenant) return undefined
+
+  if (typeof window !== 'undefined' && tenant.id === 'lumina') {
+    const custom = window.localStorage.getItem('lumina_builder_settings')
+    if (custom) {
+      try {
+        const settings = JSON.parse(custom)
+        return {
+          ...tenant,
+          ...settings,
+          colors: { ...tenant.colors, ...(settings.colors || {}) },
+          fonts: { ...tenant.fonts, ...(settings.fonts || {}) },
+          contacts: {
+            ...tenant.contacts,
+            ...(settings.contacts || {}),
+            address: { ...tenant.contacts.address, ...(settings.contacts?.address || {}) }
+          },
+          builderSettings: {
+            ...tenant.builderSettings,
+            ...settings,
+            modules: { ...tenant.builderSettings.modules, ...(settings.modules || {}) },
+            pages: { ...tenant.builderSettings.pages, ...(settings.pages || {}) },
+            team: settings.team || tenant.builderSettings.team
+          },
+          aboutSignature: settings.team?.[0] ? {
+            name: settings.team[0].name,
+            role: settings.team[0].role,
+            image: settings.team[0].photo || '/assinatura.png'
+          } : tenant.aboutSignature
+        }
+      } catch (e) {
+        console.error('Error parsing custom Lumina settings', e)
+      }
+    }
+  }
+  return tenant
 }

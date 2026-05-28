@@ -69,14 +69,15 @@ function Navbar({ tenant }: { tenant: any }) {
 
   // Transparent navbar overlay only on home page of the tenant subsite
   const isHome = location.pathname === `/${tenantSlug}` || location.pathname === `/${tenantSlug}/`
+  const headerStyle = tenant.builderSettings?.headerStyle || 'classic'
 
-  const navBg = isHome
+  const navBg = headerStyle === 'transparent' && isHome
     ? scrolled
       ? 'bg-cream/95 backdrop-blur-md shadow-sm border-b border-cream-border'
       : 'bg-transparent'
     : 'bg-cream/95 backdrop-blur-md border-b border-cream-border'
 
-  const textColor = isHome && !scrolled ? 'text-white' : 'text-charcoal'
+  const textColor = headerStyle === 'transparent' && isHome && !scrolled ? 'text-white' : 'text-charcoal'
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navBg}`}>
@@ -112,11 +113,11 @@ function Navbar({ tenant }: { tenant: any }) {
         <div className={`hidden lg:flex items-center gap-8 text-sm font-medium ${textColor} transition-colors`}>
           <Link to="/$tenant/buscar" params={{ tenant: tenantSlug }} search={{ finalidade: 'venda' }} className="nav-link">Comprar</Link>
           <Link to="/$tenant/buscar" params={{ tenant: tenantSlug }} search={{ finalidade: 'aluguel' }} className="nav-link">Alugar</Link>
-          <Link to="/$tenant/lancamentos" params={{ tenant: tenantSlug }} className="nav-link">Lançamentos</Link>
-          <Link to="/$tenant/anunciar" params={{ tenant: tenantSlug }} className="nav-link">Anunciar</Link>
-          <Link to="/$tenant/avaliar" params={{ tenant: tenantSlug }} className="nav-link">Avaliar</Link>
-          <Link to="/$tenant/blog" params={{ tenant: tenantSlug }} className="nav-link">Blog</Link>
-          <Link to="/$tenant/sobre" params={{ tenant: tenantSlug }} className="nav-link">Sobre</Link>
+          {pages.launches && <Link to="/$tenant/lancamentos" params={{ tenant: tenantSlug }} className="nav-link">Lançamentos</Link>}
+          {pages.anunciar && <Link to="/$tenant/anunciar" params={{ tenant: tenantSlug }} className="nav-link">Anunciar</Link>}
+          {pages.avaliar && <Link to="/$tenant/avaliar" params={{ tenant: tenantSlug }} className="nav-link">Avaliar</Link>}
+          {pages.blog && <Link to="/$tenant/blog" params={{ tenant: tenantSlug }} className="nav-link">Blog</Link>}
+          {pages.sobre && <Link to="/$tenant/sobre" params={{ tenant: tenantSlug }} className="nav-link">Sobre</Link>}
           <Link to="/$tenant/contato" params={{ tenant: tenantSlug }} className="nav-link">Contato</Link>
         </div>
 
@@ -144,11 +145,11 @@ function Navbar({ tenant }: { tenant: any }) {
           <div className="px-6 py-6 flex flex-col gap-4">
             <Link to="/$tenant/buscar" params={{ tenant: tenantSlug }} search={{ finalidade: 'venda' }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Comprar</Link>
             <Link to="/$tenant/buscar" params={{ tenant: tenantSlug }} search={{ finalidade: 'aluguel' }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Alugar</Link>
-            <Link to="/$tenant/lancamentos" params={{ tenant: tenantSlug }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Lançamentos</Link>
-            <Link to="/$tenant/anunciar" params={{ tenant: tenantSlug }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Anuncie seu Imóvel</Link>
-            <Link to="/$tenant/avaliar" params={{ tenant: tenantSlug }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Avalie seu Imóvel</Link>
-            <Link to="/$tenant/blog" params={{ tenant: tenantSlug }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Blog</Link>
-            <Link to="/$tenant/sobre" params={{ tenant: tenantSlug }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Sobre</Link>
+            {pages.launches && <Link to="/$tenant/lancamentos" params={{ tenant: tenantSlug }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Lançamentos</Link>}
+            {pages.anunciar && <Link to="/$tenant/anunciar" params={{ tenant: tenantSlug }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Anuncie seu Imóvel</Link>}
+            {pages.avaliar && <Link to="/$tenant/avaliar" params={{ tenant: tenantSlug }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Avalie seu Imóvel</Link>}
+            {pages.blog && <Link to="/$tenant/blog" params={{ tenant: tenantSlug }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Blog</Link>}
+            {pages.sobre && <Link to="/$tenant/sobre" params={{ tenant: tenantSlug }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Sobre</Link>}
             <Link to="/$tenant/ligamos-para-voce" params={{ tenant: tenantSlug }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Ligamos para você</Link>
             <Link to="/$tenant/favoritos" params={{ tenant: tenantSlug }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2 border-b border-cream-border">Favoritos</Link>
             <Link to="/$tenant/contato" params={{ tenant: tenantSlug }} onClick={() => setOpen(false)} className="text-charcoal font-medium py-2">Contato</Link>
@@ -226,10 +227,21 @@ function PhoneDropdown({ tenant, textColor }: { tenant: any; textColor: string }
 function Footer({ tenant }: { tenant: any }) {
   const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
 
+  const footerStyle = tenant.builderSettings?.footerStyle || 'simple'
+  const pages = tenant.builderSettings?.pages || {
+    blog: true,
+    launches: true,
+    contact: true,
+    sobre: true,
+    anunciar: true,
+    avaliar: true,
+  }
+
   return (
     <footer className="bg-charcoal text-cream/70 border-t border-cream-border">
       <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+        {footerStyle !== 'minimal' && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div className="md:col-span-1">
             <div className="mb-4 flex items-center gap-2">
               {tenant.logo.endsWith('.svg') ? (
@@ -278,7 +290,7 @@ function Footer({ tenant }: { tenant: any }) {
             <ul className="space-y-3 text-sm">
               <li><Link to="/$tenant/buscar" params={{ tenant: tenantSlug }} search={{ finalidade: 'venda' }} className="hover:text-gold transition-colors">Comprar</Link></li>
               <li><Link to="/$tenant/buscar" params={{ tenant: tenantSlug }} search={{ finalidade: 'aluguel' }} className="hover:text-gold transition-colors">Alugar</Link></li>
-              <li><Link to="/$tenant/lancamentos" params={{ tenant: tenantSlug }} className="hover:text-gold transition-colors">Lançamentos</Link></li>
+              {pages.launches && <li><Link to="/$tenant/lancamentos" params={{ tenant: tenantSlug }} className="hover:text-gold transition-colors">Lançamentos</Link></li>}
               <li><Link to="/$tenant/buscar" params={{ tenant: tenantSlug }} search={{ tipo: 'cobertura' }} className="hover:text-gold transition-colors">Coberturas</Link></li>
               <li><Link to="/$tenant/buscar" params={{ tenant: tenantSlug }} search={{ tipo: 'casa' }} className="hover:text-gold transition-colors">Casas</Link></li>
               <li><Link to="/$tenant/buscar" params={{ tenant: tenantSlug }} search={{ tipo: 'apartamento' }} className="hover:text-gold transition-colors">Apartamentos</Link></li>
@@ -288,11 +300,11 @@ function Footer({ tenant }: { tenant: any }) {
           <div>
             <h4 className="text-cream text-sm font-semibold uppercase tracking-widest mb-5">Empresa</h4>
             <ul className="space-y-3 text-sm">
-              <li><Link to="/$tenant/sobre" params={{ tenant: tenantSlug }} className="hover:text-gold transition-colors">Sobre nós</Link></li>
+              {pages.sobre && <li><Link to="/$tenant/sobre" params={{ tenant: tenantSlug }} className="hover:text-gold transition-colors">Sobre nós</Link></li>}
               <li><Link to="/$tenant/contato" params={{ tenant: tenantSlug }} className="hover:text-gold transition-colors">Contato</Link></li>
-              <li><Link to="/$tenant/anunciar" params={{ tenant: tenantSlug }} className="hover:text-gold transition-colors">Anuncie seu imóvel</Link></li>
-              <li><Link to="/$tenant/avaliar" params={{ tenant: tenantSlug }} className="hover:text-gold transition-colors">Avalie seu imóvel</Link></li>
-              <li><Link to="/$tenant/blog" params={{ tenant: tenantSlug }} className="hover:text-gold transition-colors">Blog</Link></li>
+              {pages.anunciar && <li><Link to="/$tenant/anunciar" params={{ tenant: tenantSlug }} className="hover:text-gold transition-colors">Anuncie seu imóvel</Link></li>}
+              {pages.avaliar && <li><Link to="/$tenant/avaliar" params={{ tenant: tenantSlug }} className="hover:text-gold transition-colors">Avalie seu imóvel</Link></li>}
+              {pages.blog && <li><Link to="/$tenant/blog" params={{ tenant: tenantSlug }} className="hover:text-gold transition-colors">Blog</Link></li>}
               <li><Link to="/$tenant/ligamos-para-voce" params={{ tenant: tenantSlug }} className="hover:text-gold transition-colors">Ligamos para você</Link></li>
               <li><Link to="/$tenant/favoritos" params={{ tenant: tenantSlug }} className="hover:text-gold transition-colors">Favoritos</Link></li>
             </ul>
@@ -329,6 +341,7 @@ function Footer({ tenant }: { tenant: any }) {
             </div>
           </div>
         </div>
+        )}
 
         <div className="border-t border-cream/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
           <p>© 2026 {tenant.name}. Todos os direitos reservados. | Powered by <a href="https://microsistec.com.br" target="_blank" rel="noopener noreferrer" className="hover:text-gold transition-colors font-medium">Microsistec</a> | <a href="https://microsistec.com.br/site-sistema-para-imobiliaria/" target="_blank" rel="noopener noreferrer" className="hover:text-gold transition-colors font-medium">Modelo V8</a></p>
