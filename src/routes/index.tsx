@@ -25,7 +25,7 @@ const slugify = (text: string) => {
 function PortalIndexPage() {
   const [allTenants, setAllTenants] = useState<Tenant[]>([])
 
-  useEffect(() => {
+  const loadTenants = () => {
     if (typeof window !== 'undefined') {
       const custom = getCustomTenants()
       const all = [...tenants, ...custom].map(t => {
@@ -51,7 +51,81 @@ function PortalIndexPage() {
     } else {
       setAllTenants(tenants.map(t => ({ ...t, status: t.status || 'online' })))
     }
+  }
+
+  useEffect(() => {
+    loadTenants()
   }, [])
+
+  const handleDeleteTenant = (tenantId: string, name: string) => {
+    if (typeof window === 'undefined') return
+    const confirmed = window.confirm(`Deseja realmente deletar o portal "${name}"? Esta ação excluirá todo o progresso do site e é definitiva.`)
+    if (!confirmed) return
+    
+    const customList = getCustomTenants()
+    const updated = customList.filter(t => t.id !== tenantId)
+    localStorage.setItem('v8_custom_tenants', JSON.stringify(updated))
+    localStorage.removeItem(`${tenantId}_builder_settings`)
+    loadTenants()
+  }
+
+  const handleEditTenantName = (tenantId: string, currentName: string) => {
+    if (typeof window === 'undefined') return
+    const newName = window.prompt('Qual o novo nome da imobiliária?', currentName)
+    if (!newName || !newName.trim()) return
+    const trimmed = newName.trim()
+    const newSlug = slugify(trimmed)
+
+    const customList = getCustomTenants()
+    const customIndex = customList.findIndex(t => t.id === tenantId)
+    if (customIndex !== -1) {
+      customList[customIndex].name = trimmed
+      customList[customIndex].slug = newSlug
+      localStorage.setItem('v8_custom_tenants', JSON.stringify(customList))
+    }
+
+    const stored = localStorage.getItem(`${tenantId}_builder_settings`)
+    let settingsObj: any = {}
+    if (stored) {
+      try {
+        settingsObj = JSON.parse(stored)
+      } catch (e) {}
+    }
+    settingsObj = {
+      ...settingsObj,
+      name: trimmed,
+      slug: newSlug,
+      heroTitle: trimmed,
+    }
+    localStorage.setItem(`${tenantId}_builder_settings`, JSON.stringify(settingsObj))
+    loadTenants()
+  }
+
+  const handleToggleStatus = (tenantId: string, currentStatus: string) => {
+    if (typeof window === 'undefined') return
+    const nextStatus = currentStatus === 'offline' ? 'online' : 'offline'
+
+    const customList = getCustomTenants()
+    const customIndex = customList.findIndex(t => t.id === tenantId)
+    if (customIndex !== -1) {
+      customList[customIndex].status = nextStatus
+      localStorage.setItem('v8_custom_tenants', JSON.stringify(customList))
+    }
+
+    const stored = localStorage.getItem(`${tenantId}_builder_settings`)
+    let settingsObj: any = {}
+    if (stored) {
+      try {
+        settingsObj = JSON.parse(stored)
+      } catch (e) {}
+    }
+    settingsObj = {
+      ...settingsObj,
+      status: nextStatus,
+    }
+    localStorage.setItem(`${tenantId}_builder_settings`, JSON.stringify(settingsObj))
+    loadTenants()
+  }
 
   const handleCreateNewTenant = () => {
     if (typeof window === 'undefined') return
@@ -252,17 +326,10 @@ function PortalIndexPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl mb-16 animate-fade-in-up animate-delay-200 animate-duration-500">
           {allTenants.map((tenant) => {
             const propsCount = getProperties(tenant.id).length
-            const isRobles = tenant.id === 'robles'
             const isCustom = tenant.id.startsWith('custom_')
-            const borderHover = isCustom 
-              ? 'hover:border-amber-400/80 hover:shadow-sm' 
-              : (isRobles ? 'hover:border-slate-400 hover:shadow-sm' : 'hover:border-slate-400 hover:shadow-sm')
-            const badgeColor = isCustom
-              ? 'bg-amber-50 text-amber-800 border-amber-200'
-              : (isRobles ? 'bg-slate-100 text-slate-800 border-slate-200' : 'bg-slate-100 text-slate-800 border-slate-200')
-            const btnColor = isCustom
-              ? 'bg-amber-500 hover:bg-amber-600 text-slate-950'
-              : (isRobles ? 'bg-slate-900 hover:bg-slate-800 text-white' : 'bg-slate-900 hover:bg-slate-800 text-white')
+            const borderHover = 'hover:border-amber-400 hover:shadow-md'
+            const badgeColor = 'bg-amber-50 text-amber-800 border-amber-200'
+            const btnColor = 'bg-amber-500 hover:bg-amber-600 text-slate-955 shadow-sm shadow-amber-500/10'
 
             const hasFavicon = tenant.favicon && tenant.favicon !== '/favicon.ico' && tenant.favicon !== 'favicon.ico'
 
@@ -305,29 +372,65 @@ function PortalIndexPage() {
                       </span>
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] text-slate-400 font-mono">{tenant.creci}</span>
-                        {tenant.status === 'offline' ? (
-                          <span className="flex items-center gap-1 bg-rose-50 text-rose-600 border border-rose-200 text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 select-none">
-                            <span className="w-1 h-1 rounded-full bg-rose-500" />
-                            Offline
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-1 bg-emerald-50 text-emerald-600 border border-emerald-200 text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 select-none">
-                            <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-                            No Ar
-                          </span>
-                        )}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleToggleStatus(tenant.id, tenant.status || 'online');
+                          }}
+                          className={`flex items-center gap-1 text-[8px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0 select-none transition-all duration-300 border cursor-pointer ${
+                            tenant.status === 'offline'
+                              ? 'bg-rose-50 hover:bg-rose-100 text-rose-600 border-rose-200 hover:border-rose-300'
+                              : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border-emerald-200 hover:border-emerald-300'
+                          }`}
+                          title={tenant.status === 'offline' ? 'Colocar no ar' : 'Tirar do ar'}
+                        >
+                          <span className={`w-1.5 h-1.5 rounded-full ${tenant.status === 'offline' ? 'bg-rose-500' : 'bg-emerald-500 animate-pulse'}`} />
+                          {tenant.status === 'offline' ? 'Offline' : 'No Ar'}
+                        </button>
                       </div>
                     </div>
                   </div>
 
-                  <h3 className="font-display text-2xl font-bold text-slate-900 mb-2 tracking-tight group-hover:text-slate-950 transition-colors">
-                    {tenant.name}
-                  </h3>
-                  <div className={`text-xs font-semibold uppercase tracking-wider mb-4 ${isCustom ? 'text-amber-600' : 'text-slate-500'}`}>
-                    {tenant.tagline}
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <h3 className="font-display text-2xl font-bold text-slate-900 tracking-tight group-hover:text-slate-950 transition-colors">
+                      {tenant.name}
+                    </h3>
+                    <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 shrink-0">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleEditTenantName(tenant.id, tenant.name);
+                        }}
+                        className="p-1.5 rounded-lg border border-slate-200 hover:border-amber-400 bg-white hover:bg-amber-50 text-slate-400 hover:text-amber-600 transition-all cursor-pointer flex items-center justify-center"
+                        title="Editar nome da imobiliária"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </button>
+
+                      {isCustom && (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleDeleteTenant(tenant.id, tenant.name);
+                          }}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:border-rose-455 bg-white hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-all cursor-pointer flex items-center justify-center"
+                          title="Excluir imobiliária"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="text-xs font-semibold uppercase tracking-wider mb-4 text-amber-600">
+                    {tenant.tagline || 'Exclusividade & Alto Padrão'}
                   </div>
                   <p className="text-slate-500 text-sm leading-relaxed mb-8">
-                    {tenant.description}
+                    {tenant.description || 'Nenhuma descrição configurada ainda. Acesse o LEGO Builder para customizar os textos deste portal.'}
                   </p>
                 </div>
 
@@ -342,7 +445,7 @@ function PortalIndexPage() {
                   </Link>
                   <a
                     href={`/builder?tenantId=${tenant.id}`}
-                    className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-800"
+                    className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-slate-200 hover:border-amber-400 hover:bg-amber-50/10 text-slate-600 hover:text-slate-800"
                   >
                     <Layers size={12} />
                     Editar no LEGO Builder
@@ -355,9 +458,9 @@ function PortalIndexPage() {
           {/* Create New V8 Card */}
           <div
             onClick={handleCreateNewTenant}
-            className="group bg-white border-2 border-dashed border-slate-200 hover:border-slate-400 hover:bg-slate-50/50 rounded-3xl p-8 flex flex-col justify-center items-center text-center transition-all duration-400 hover:-translate-y-1.5 shadow-sm relative overflow-hidden cursor-pointer min-h-[300px]"
+            className="group bg-white border-2 border-dashed border-slate-200 hover:border-amber-400 hover:bg-amber-50/10 rounded-3xl p-8 flex flex-col justify-center items-center text-center transition-all duration-400 hover:-translate-y-1.5 shadow-sm relative overflow-hidden cursor-pointer min-h-[300px]"
           >
-            <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 group-hover:bg-slate-900 group-hover:text-white group-hover:border-slate-900 transition-all mb-4">
+            <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 group-hover:bg-amber-500 group-hover:text-slate-950 group-hover:border-amber-500 transition-all mb-4">
               <Plus size={20} />
             </div>
             <h3 className="font-display text-xl font-bold text-slate-900 mb-2 group-hover:text-slate-950 transition-colors">
