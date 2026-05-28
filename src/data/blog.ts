@@ -434,6 +434,270 @@ export const blogPosts: BlogPost[] = [
         type: 'tip',
         content: 'Dica Robles: O momento de comprar é sempre o presente. Quem esperou o "momento certo" nas últimas duas décadas perdeu as melhores oportunidades. O mercado imobiliário de alto padrão não para — e quem entra cedo colhe mais.'
       }
+        ]
+  },
+  {
+    slug: 'tendencias-arquitetura-alto-padrao-2025',
+    title: 'As Novas Tendências de Arquitetura que estão Valorizando Imóveis',
+    subtitle: 'Biofilia, integração e sustentabilidade redefinem o luxo residencial',
+    category: 'Mercado',
+    author: 'Claudia Robles',
+    authorRole: 'Fundadora & Diretora Geral',
+    authorPhoto: '/claudia.png',
+    date: '18 de abril de 2025',
+    readTime: '6 min de leitura',
+    coverImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80',
+    excerpt: 'Descubra como elementos inovadores de arquitetura, como jardins verticais integrados e materiais naturais de alta qualidade, estão agregando valor de mercado real aos imóveis premium.',
+    tags: ['Arquitetura', 'Tendências', 'Luxo', 'Biofilia'],
+    content: [
+      {
+        type: 'paragraph',
+        content: 'O conceito de luxo mudou radicalmente nos últimos anos. Hoje, o comprador de alto padrão valoriza muito mais a conexão com a natureza, a luminosidade natural e a eficiência energética do que a ostentação clássica. Elementos de design biofílico são cruciais nessa transição.'
+      },
+      {
+        type: 'heading',
+        content: 'Integração de Ambientes e Biofilia'
+      },
+      {
+        type: 'paragraph',
+        content: 'Casas modernas aboliram as divisões rígidas. A transição fluida entre áreas internas e externas cria uma sensação contínua de espaço e liberdade. Jardins de inverno, claraboias e ventilação cruzada inteligente reduzem a necessidade de climatização artificial e promovem bem-estar.'
+      }
+    ]
+  },
+  {
+    slug: 'bairros-mais-promissores-sp-2025',
+    title: 'Bairros Emergentes de Alto Padrão em São Paulo para Ficar de Olho',
+    subtitle: 'Onde as maiores oportunidades de valorização estão concentradas',
+    category: 'Mercado',
+    author: 'Bruno Nakamura',
+    authorRole: 'Gerente de Lançamentos',
+    authorPhoto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&q=80&fit=crop&crop=face',
+    date: '10 de abril de 2025',
+    readTime: '5 min de leitura',
+    coverImage: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&q=80',
+    excerpt: 'Mapeamos as regiões de São Paulo que estão recebendo investimentos robustos em infraestrutura e novos empreendimentos boutique com alto potencial de valorização.',
+    tags: ['São Paulo', 'Valorização', 'Bairros', 'Estratégia'],
+    content: [
+      {
+        type: 'paragraph',
+        content: 'Embora Jardins e Itaim mantenham sua majestade, o espaço limitado para novos projetos empurra as principais construtoras para regiões vizinhas muito promissoras, como Pinheiros e certas áreas da Zona Oeste.'
+      },
+      {
+        type: 'heading',
+        content: 'A Ascensão de Pinheiros e Alto da Lapa'
+      },
+      {
+        type: 'paragraph',
+        content: 'Pinheiros se transformou no polo cultural e gastronômico da cidade, atraindo um público jovem e muito qualificado. Já o Alto da Lapa atrai famílias que buscam ruas arborizadas, segurança e condomínios com infraestrutura de lazer de clube.'
+      }
+    ]
+  },
+  {
+    slug: 'tecnologia-automacao-casas-luxo',
+    title: 'A Revolução da Automação Residencial no Mercado Premium',
+    subtitle: 'Mais do que conveniência: segurança, controle e personalização',
+    category: 'Mercado',
+    author: 'Rafaela Monteiro',
+    authorRole: 'Diretora Comercial — São Paulo',
+    authorPhoto: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&h=80&q=80&fit=crop&crop=face',
+    date: '2 de abril de 2025',
+    readTime: '6 min de leitura',
+    coverImage: 'https://images.unsplash.com/photo-1558002038-1055907df827?w=800&q=80',
+    excerpt: 'Imóveis inteligentes não são mais coisa do futuro. Veja quais sistemas de automação são indispensáveis em um projeto residencial de alto padrão atual.',
+    tags: ['Tecnologia', 'Automação', 'Casa Inteligente', 'Luxo'],
+    content: [
+      {
+        type: 'paragraph',
+        content: 'Controlar toda a iluminação, climatização, cortinas e sistema de som através de comandos de voz ou inteligência artificial preditiva é o novo básico. A tecnologia agora foca em segurança biométrica robusta e gestão hídrica e elétrica inteligente.'
+      }
+    ]
+  },
+  {
+    slug: 'checklist-compra-imovel-usado',
+    title: 'Checklist Definitivo para Comprar um Imóvel Usado sem Dores de Cabeça',
+    subtitle: 'Evite surpresas desagradáveis avaliando a estrutura e a documentação',
+    category: 'Guia do Comprador',
+    author: 'Rafaela Monteiro',
+    authorRole: 'Diretora Comercial — São Paulo',
+    authorPhoto: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&h=80&q=80&fit=crop&crop=face',
+    date: '28 de março de 2025',
+    readTime: '7 min de leitura',
+    coverImage: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80',
+    excerpt: 'Imóveis usados oferecem excelente metragem e localizações consolidadas, mas exigem um olhar técnico apurado antes da compra. Siga nosso roteiro profissional de vistoria.',
+    tags: ['Guia', 'Vistoria', 'Imóvel Usado', 'Comprar'],
+    content: [
+      {
+        type: 'paragraph',
+        content: 'Comprar um imóvel seminovo ou antigo em áreas consolidadas como Higienópolis é um ótimo negócio, mas reformas inesperadas de elétrica e hidráulica podem inflar o custo em até 30%. Saiba o que vistoriar.'
+      },
+      {
+        type: 'heading',
+        content: 'Estrutura, Infiltrações e Prumada'
+      },
+      {
+        type: 'paragraph',
+        content: 'Fique atento a rachaduras diagonais nas paredes, estufamentos de pintura próximos ao chão (sinal clássico de umidade por capilaridade) e verifique a pressão da água em todas as torneiras e chuveiros simultaneamente.'
+      }
+    ]
+  },
+  {
+    slug: 'due-diligence-imobiliaria-passos',
+    title: 'Due Diligence Imobiliária: O Que Analisar nas Certidões do Imóvel',
+    subtitle: 'Segurança jurídica total na aquisição do seu patrimônio',
+    category: 'Guia do Comprador',
+    author: 'Thiago Cavalcante',
+    authorRole: 'Diretor Comercial — Rio de Janeiro',
+    authorPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&q=80&fit=crop&crop=face',
+    date: '20 de março de 2025',
+    readTime: '8 min de leitura',
+    coverImage: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?w=800&q=80',
+    excerpt: 'Entenda os passos jurídicos fundamentais para garantir que o imóvel pretendido esteja livre de gravames, processos judiciais ou dívidas fiscais ocultas.',
+    tags: ['Jurídico', 'Certidões', 'Due Diligence', 'Segurança'],
+    content: [
+      {
+        type: 'paragraph',
+        content: 'A due diligence imobiliária consiste em uma auditoria minuciosa da situação jurídica tanto do imóvel quanto dos atuais vendedores, garantindo que a transação seja 100% segura contra fraudes ou contestações futuras.'
+      }
+    ]
+  },
+  {
+    slug: 'como-escolher-bairro-ideal',
+    title: 'Como Escolher o Bairro Ideal para Sua Família: Fatores Além do Preço',
+    subtitle: 'Estilo de vida, trânsito, conveniência e o futuro da região',
+    category: 'Guia do Comprador',
+    author: 'Claudia Robles',
+    authorRole: 'Fundadora & Diretora Geral',
+    authorPhoto: '/claudia.png',
+    date: '12 de março de 2025',
+    readTime: '6 min de leitura',
+    coverImage: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&q=80',
+    excerpt: 'A escolha do bairro impacta diretamente na rotina diária e na felicidade familiar. Descubra os critérios de mobilidade e segurança indispensáveis na tomada de decisão.',
+    tags: ['Bairro', 'Estilo de vida', 'Família', 'Escolha'],
+    content: [
+      {
+        type: 'paragraph',
+        content: 'O metro quadrado mais caro nem sempre reflete a melhor vizinhança para as necessidades específicas da sua família. Analise a proximidade com escolas parceiras, a oferta de parques e a presença de vias rápidas de acesso.'
+      }
+    ]
+  },
+  {
+    slug: 'galpao-logistico-vs-laje-corporativa',
+    title: 'Galpões Logísticos vs. Lajes Corporativas: Qual o Melhor para Sua Carteira?',
+    subtitle: 'Comparações de yield, contratos e potencial de vacância',
+    category: 'Investimento',
+    author: 'Bruno Nakamura',
+    authorRole: 'Gerente de Lançamentos',
+    authorPhoto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&q=80&fit=crop&crop=face',
+    date: '5 de março de 2025',
+    readTime: '7 min de leitura',
+    coverImage: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&q=80',
+    excerpt: 'Analise as forças e fraquezas dos investimentos em galpões logísticos impulsionados pelo e-commerce versus as tradicionais lajes de escritórios corporativos AAA.',
+    tags: ['Investimento', 'Logística', 'Lajes Corporativas', 'Patrimônio'],
+    content: [
+      {
+        type: 'paragraph',
+        content: 'Os galpões logísticos ganharam muita relevância com a expansão das vendas online. Suas taxas de ocupação são longas e consistentes, mas exigem aportes elevados ou foco via fundos. As lajes corporativas AAA em eixos consolidados mantêm sua robustez histórica.'
+      }
+    ]
+  },
+  {
+    slug: 'investir-imoveis-leilao-riscos',
+    title: 'Investir em Imóveis de Leilão: Oportunidades de Alto Retorno e Seus Riscos',
+    subtitle: 'O caminho para comprar patrimônio com até 50% de desconto',
+    category: 'Investimento',
+    author: 'Thiago Cavalcante',
+    authorRole: 'Diretor Comercial — Rio de Janeiro',
+    authorPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&q=80&fit=crop&crop=face',
+    date: '25 de fevereiro de 2025',
+    readTime: '9 min de leitura',
+    coverImage: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&q=80',
+    excerpt: 'O leilão de imóveis (judiciais e extrajudiciais) é excelente para arrematar com grande deságio, mas exige acompanhamento jurídico estrito sobre desocupação e custas extras.',
+    tags: ['Leilão', 'Oportunidade', 'Desconto', 'Investir'],
+    content: [
+      {
+        type: 'paragraph',
+        content: 'Arrematar propriedades com metade do valor avaliado de mercado atrai muitos investidores. No entanto, é vital calcular a taxa de desocupação judicial, taxas de condomínio atrasadas e impostos pendentes no edital antes do lance.'
+      }
+    ]
+  },
+  {
+    slug: 'tokenizacao-imobiliaria-como-funciona',
+    title: 'Tokenização de Ativos Imobiliários: O Futuro do Investimento em Tijolo',
+    subtitle: 'Tecnologia blockchain trazendo liquidez para o mercado físico',
+    category: 'Investimento',
+    author: 'Thiago Cavalcante',
+    authorRole: 'Diretor Comercial — Rio de Janeiro',
+    authorPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&q=80&fit=crop&crop=face',
+    date: '18 de fevereiro de 2025',
+    readTime: '6 min de leitura',
+    coverImage: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&q=80',
+    excerpt: 'Descubra como a divisão fracionada de imóveis físicos através de tokens digitais está mudando as regras do jogo e atraindo novos perfis de investidores globais.',
+    tags: ['Blockchain', 'Tokenização', 'Inovação', 'Futuro'],
+    content: [
+      {
+        type: 'paragraph',
+        content: 'Dividir um grande galpão comercial ou um prédio residencial premium em frações digitais registradas em blockchain viabiliza aportes menores e confere liquidez instantânea a uma classe de ativos tradicionalmente ilíquida.'
+      }
+    ]
+  },
+  {
+    slug: 'amortizacao-financiamento-sac-price',
+    title: 'SAC ou Price? Qual a Melhor Estratégia de Amortização para Seu Bolso',
+    subtitle: 'Comparações matemáticas exatas entre os sistemas de financiamento',
+    category: 'Financiamento',
+    author: 'Thiago Cavalcante',
+    authorRole: 'Diretor Comercial — Rio de Janeiro',
+    authorPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&q=80&fit=crop&crop=face',
+    date: '10 de fevereiro de 2025',
+    readTime: '8 min de leitura',
+    coverImage: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80',
+    excerpt: 'Entenda em detalhes como o amortecimento acelerado do saldo devedor na tabela SAC se compara com a constância de parcelas menores no início da tabela Price.',
+    tags: ['Amortização', 'SAC', 'Price', 'Finanças'],
+    content: [
+      {
+        type: 'paragraph',
+        content: 'A escolha da tabela de amortização define toda a dinâmica de juros do seu financiamento imobiliário. Enquanto o SAC diminui o peso mensal gradativamente, a Price otimiza a liquidez imediata no início da operação.'
+      }
+    ]
+  },
+  {
+    slug: 'como-funciona-credito-com-garantia',
+    title: 'Home Equity: Como Usar Seu Imóvel Quitado para Conseguir Crédito Barato',
+    subtitle: 'Tudo sobre o crédito com garantia de imóvel comercial ou residencial',
+    category: 'Financiamento',
+    author: 'Rafaela Monteiro',
+    authorRole: 'Diretora Comercial — São Paulo',
+    authorPhoto: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&h=80&q=80&fit=crop&crop=face',
+    date: '1 de fevereiro de 2025',
+    readTime: '7 min de leitura',
+    coverImage: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80',
+    excerpt: 'Precisa de recursos para investir nos negócios ou consolidar dívidas? Conheça a modalidade de crédito com as menores taxas do mercado imobiliário brasileiro.',
+    tags: ['Home Equity', 'Garantia', 'Crédito', 'Investimento'],
+    content: [
+      {
+        type: 'paragraph',
+        content: 'O crédito com garantia de imóvel (CGI), ou Home Equity, permite utilizar o patrimônio já consolidado e quitado para captar volumes significativos de crédito com taxas que se assemelham ao crédito consignado.'
+      }
+    ]
+  },
+  {
+    slug: 'financiamento-imoveis-na-planta',
+    title: 'Regras e Dicas para Financiar Imóveis na Planta com Segurança',
+    subtitle: 'A transição segura do crédito associativo até o repasse bancário',
+    category: 'Financiamento',
+    author: 'Bruno Nakamura',
+    authorRole: 'Gerente de Lançamentos',
+    authorPhoto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&q=80&fit=crop&crop=face',
+    date: '22 de janeiro de 2025',
+    readTime: '6 min de leitura',
+    coverImage: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80',
+    excerpt: 'Evite sustos na entrega das chaves entendendo como o saldo devedor é corrigido pelo INCC e as melhores práticas para planejar seu repasse aos bancos.',
+    tags: ['Planta', 'INCC', 'Repasse', 'Planejamento'],
+    content: [
+      {
+        type: 'paragraph',
+        content: 'Adquirir imóveis em obras traz a vantagem de pagar o fluxo diretamente à construtora, mas o saldo remanescente é reajustado pelo INCC. Planejar a qualificação bancária no momento do repasse final evita dores de cabeça.'
+      }
     ]
   }
 ]
