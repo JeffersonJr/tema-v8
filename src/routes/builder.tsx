@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { 
   Save, 
@@ -7,28 +7,16 @@ import {
   Palette, 
   Type, 
   Layout, 
-  Layers, 
   Grid, 
   Users, 
-  Clock, 
-  Sparkles,
-  Phone,
-  Mail,
-  Instagram,
-  Plus,
+  Plus, 
   Trash2,
-  Check,
-  Building,
   BedDouble,
-  Bath,
-  Maximize2,
-  Car,
-  MapPin,
-  Heart,
-  MessageCircle,
-  Menu
+  Maximize2
 } from 'lucide-react'
 import { getTenantById } from '@/data/tenants'
+import { formatPrice } from '@/data/properties'
+
 
 export const Route = createFileRoute('/builder')({
   component: BuilderPage,
