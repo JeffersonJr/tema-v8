@@ -35,6 +35,15 @@ function AnunciarPage() {
   const [cepLoading, setCepLoading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([])
+  const [toasts, setToasts] = useState<{ id: string; message: string; type: 'success' | 'info' | 'error' }[]>([])
+
+  const showToast = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
+    const id = Date.now().toString()
+    setToasts(prev => [...prev, { id, message, type }])
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id))
+    }, 4500)
+  }
 
   // Form State
   const [formData, setFormData] = useState({
@@ -92,13 +101,13 @@ function AnunciarPage() {
       setStep(2)
     } else if (step === 2) {
       if (!formData.cep || !formData.street || !formData.number || !formData.neighborhood) {
-        alert('Por favor, preencha o CEP, Endereço, Número e Bairro para continuar.')
+        showToast('Por favor, preencha o CEP, Endereço, Número e Bairro para continuar.', 'error')
         return
       }
       setStep(3)
     } else if (step === 3) {
       if (!formData.area || !formData.price) {
-        alert('Por favor, informe a Área e o Valor pretendido do imóvel.')
+        showToast('Por favor, informe a Área e o Valor pretendido do imóvel.', 'error')
         return
       }
       setStep(4)
@@ -106,7 +115,7 @@ function AnunciarPage() {
       setStep(5)
     } else if (step === 5) {
       if (!formData.ownerName || !formData.ownerEmail || !formData.ownerPhone) {
-        alert('Por favor, preencha o Nome, E-mail e Telefone de contato.')
+        showToast('Por favor, preencha o Nome, E-mail e Telefone de contato.', 'error')
         return
       }
       submitAnnouncement()
@@ -139,6 +148,7 @@ function AnunciarPage() {
     setLoading(true)
     setTimeout(() => {
       setLoading(false)
+      showToast('Anúncio enviado com sucesso!', 'success')
       setStep(6)
     }, 2000)
   }
@@ -735,6 +745,31 @@ function AnunciarPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Toast Container */}
+      <div className="fixed bottom-5 right-5 z-[9999] flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+        {toasts.map(t => (
+          <div
+            key={t.id}
+            className={`pointer-events-auto p-4 rounded-xl border shadow-xl flex items-center justify-between gap-3 animate-fade-in-up duration-300 font-sans text-xs ${
+              t.type === 'success'
+                ? 'bg-emerald-50 border-emerald-100 text-emerald-800'
+                : t.type === 'error'
+                ? 'bg-rose-50 border-rose-100 text-rose-800'
+                : 'bg-blue-50 border-blue-100 text-blue-800'
+            }`}
+          >
+            <span className="font-semibold">{t.message}</span>
+            <button
+              type="button"
+              onClick={() => setToasts(prev => prev.filter(x => x.id !== t.id))}
+              className="text-slate-400 hover:text-slate-600 font-sans font-bold cursor-pointer text-xs border-0 bg-transparent p-0 flex items-center justify-center w-5 h-5 rounded hover:bg-slate-100 transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   )

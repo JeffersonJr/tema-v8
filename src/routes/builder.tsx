@@ -287,9 +287,21 @@ function BuilderPage() {
     setPreviewNavOpen(false)
   }, [activePreviewTab])
 
+  // Premium Toasts State & Helper
+  const [toasts, setToasts] = useState<{ id: string; message: string; type: 'success' | 'info' | 'error' }[]>([])
+  const showToast = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
+    const id = Date.now().toString()
+    setToasts(prev => [...prev, { id, message, type }])
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id))
+    }, 3000)
+  }
+
   // Custom domain fields
   const [customDomain, setCustomDomain] = useState('')
+  const [customDomains, setCustomDomains] = useState<string[]>([])
   const [domainStatus, setDomainStatus] = useState<'connected' | 'pending'>('pending')
+  const [newDomainInput, setNewDomainInput] = useState('')
 
   // Settings
   const [settings, setSettings] = useState({
@@ -397,6 +409,8 @@ function BuilderPage() {
           if (p.colors) setColors(p.colors)
           if (p.fonts) setFonts(p.fonts)
           if (p.contacts) setContacts(p.contacts)
+          if (p.customDomains) setCustomDomains(p.customDomains)
+          else if (p.customDomain) setCustomDomains([p.customDomain])
           if (p.customDomain) setCustomDomain(p.customDomain)
           setSettings(prev => ({
             ...prev,
@@ -443,7 +457,8 @@ function BuilderPage() {
         fonts, 
         contacts, 
         creci: contacts.creci,
-        customDomain
+        customDomain: customDomains[0] || '',
+        customDomains,
       }
       localStorage.setItem(`${activeTenantId}_builder_settings`, JSON.stringify(payload))
       
@@ -460,6 +475,8 @@ function BuilderPage() {
             creci: contacts.creci || customTenants[idx].creci,
             logo: settings.logo || customTenants[idx].logo,
             status: settings.status,
+            customDomain: customDomains[0] || '',
+            customDomains,
           }
           localStorage.setItem('v8_custom_tenants', JSON.stringify(customTenants))
         }
@@ -467,7 +484,7 @@ function BuilderPage() {
       
       window.dispatchEvent(new Event('lumina_builder_updated'))
       if (redirectToSite) { window.open(`/${settings.slug || defaultTenant?.slug || 'lumina'}`, '_blank') }
-      else { alert('Identidade visual LEGO e componentes salvos com sucesso!') }
+      else { showToast('Identidade visual LEGO e componentes salvos com sucesso!', 'success') }
     }
   }
 
@@ -2145,7 +2162,7 @@ function BuilderPage() {
 
           {/* 11 · APONTAMENTO DNS E DOMÍNIO */}
           <SectionAccordion icon={<Globe size={16} />} title="🌐 Domínio & DNS" defaultOpen={false}>
-            <p className="text-[10px] text-slate-500 -mt-1 leading-normal">Configure seu domínio personalizado para publicar seu site na internet.</p>
+            <p className="text-[10px] text-slate-500 -mt-1 leading-normal">Configure seus domínios personalizados e faça o apontamento DNS para colocar seu portal no ar.</p>
             
             <div className="space-y-4 pt-2">
               {/* Provisório */}
@@ -2156,87 +2173,149 @@ function BuilderPage() {
                 </a>
               </div>
 
-              {/* Personalizado Input */}
-              <div className="space-y-2">
-                <InputField 
-                  label="Domínio Personalizado" 
-                  value={customDomain} 
-                  onChange={v => {
-                    setCustomDomain(v)
-                    setDomainStatus('pending')
-                  }} 
-                  placeholder="ex: www.suaimobiliaria.com.br" 
-                />
-                {customDomain && (
-                  <div className="flex items-center gap-2 mt-1">
+              {/* Lista de Domínios Conectados */}
+              <div>
+                <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">Domínios Conectados</label>
+                {customDomains.length > 0 ? (
+                  <div className="space-y-2">
+                    {customDomains.map((dom, idx) => (
+                      <div key={dom} className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 bg-white group hover:border-amber-300 transition-colors">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold text-slate-700">{dom}</span>
+                          {idx === 0 && (
+                            <span className="bg-amber-100 text-amber-800 text-[7px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">Principal</span>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCustomDomains(prev => {
+                              const next = prev.filter(d => d !== dom)
+                              if (customDomain === dom) {
+                                setCustomDomain(next[0] || '')
+                              }
+                              return next
+                            })
+                            showToast(`Domínio ${dom} desconectado!`, 'info')
+                          }}
+                          className="text-[9px] font-bold text-red-500 hover:text-red-700 border-0 bg-transparent cursor-pointer py-1 px-2 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          Desconectar
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4 text-[10px] text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                    Nenhum domínio personalizado conectado. Adicione um abaixo.
+                  </div>
+                )}
+              </div>
+
+              {/* Adicionar Novo Domínio */}
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-400">Adicionar Domínio Personalizado</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newDomainInput}
+                    onChange={e => setNewDomainInput(e.target.value)}
+                    placeholder="ex: www.suaimobiliaria.com.br"
+                    className="flex-1 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-amber-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!newDomainInput || !newDomainInput.trim()) return
+                      const dom = newDomainInput.trim().toLowerCase()
+                      if (customDomains.includes(dom)) {
+                        showToast('Este domínio já está cadastrado!', 'error')
+                        return
+                      }
+                      setCustomDomains(prev => [...prev, dom])
+                      if (!customDomain) {
+                        setCustomDomain(dom)
+                      }
+                      setNewDomainInput('')
+                      showToast(`Domínio ${dom} adicionado!`, 'success')
+                    }}
+                    className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-lg cursor-pointer transition-colors border-0 shrink-0"
+                  >
+                    Adicionar
+                  </button>
+                </div>
+              </div>
+
+              {/* Status & Pointing for Main Custom Domain */}
+              {customDomains.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
                     <span className={`w-2 h-2 rounded-full ${domainStatus === 'connected' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`} />
                     <span className="text-[10px] font-medium text-slate-600">
-                      Status: {domainStatus === 'connected' ? 'Conectado' : 'Aguardando Apontamento DNS'}
+                      Status ({customDomains[0]}): {domainStatus === 'connected' ? 'Conectado' : 'Aguardando Apontamento DNS'}
                     </span>
                     {domainStatus === 'pending' && (
                       <button 
                         type="button" 
                         onClick={() => {
-                          alert('Verificando registros DNS... Por favor, aguarde.')
+                          showToast('Verificando registros DNS... Por favor, aguarde.', 'info')
                           setTimeout(() => {
                             setDomainStatus('connected')
-                            alert('Parabéns! Domínio configurado e apontado com sucesso!')
+                            showToast('Parabéns! Domínio configurado e apontado com sucesso!', 'success')
                           }, 1200)
                         }} 
-                        className="ml-auto px-2 py-0.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-[9px] font-bold rounded cursor-pointer transition-colors border-0"
+                        className="ml-auto px-2 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 text-[9px] font-bold rounded cursor-pointer transition-colors border-0"
                       >
                         Verificar DNS
                       </button>
                     )}
                   </div>
-                )}
-              </div>
 
-              {/* Tabela DNS */}
-              {customDomain && (
-                <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
-                  <div className="bg-slate-50 px-3 py-2 border-b border-slate-200 flex justify-between items-center">
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Apontamento DNS</span>
-                    <span className="bg-slate-200 text-slate-655 text-[7px] font-mono px-1.5 py-0.5 rounded uppercase">Vercel</span>
-                  </div>
-                  <div className="divide-y divide-slate-100 text-[10px]">
-                    {/* Registro A */}
-                    <div className="p-3 space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="font-semibold text-slate-700">Registro Raiz</span>
-                        <span className="bg-amber-100 text-amber-800 text-[8px] font-bold px-1.5 py-0.5 rounded">Tipo A</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-2 bg-slate-50 p-2 rounded-lg border border-slate-100 font-mono text-[9px]">
-                        <div>
-                          <div className="text-[7px] text-slate-400 uppercase font-sans">Nome/Host</div>
-                          <div className="text-slate-800">@</div>
+                  {/* Tabela DNS */}
+                  <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm animate-fade-in">
+                    <div className="bg-slate-50 px-3 py-2 border-b border-slate-200 flex justify-between items-center">
+                      <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Apontamento DNS ({customDomains[0]})</span>
+                      <span className="bg-slate-200 text-slate-655 text-[7px] font-mono px-1.5 py-0.5 rounded uppercase">Vercel</span>
+                    </div>
+                    <div className="divide-y divide-slate-100 text-[10px]">
+                      {/* Registro A */}
+                      <div className="p-3 space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="font-semibold text-slate-700">Registro Raiz</span>
+                          <span className="bg-amber-100 text-amber-800 text-[8px] font-bold px-1.5 py-0.5 rounded">Tipo A</span>
                         </div>
-                        <div className="col-span-2">
-                          <div className="text-[7px] text-slate-400 uppercase font-sans">Valor/Destino</div>
-                          <div className="flex justify-between items-center text-slate-800">
-                            <span>76.76.21.21</span>
-                            <button type="button" onClick={() => { navigator.clipboard.writeText('76.76.21.21'); alert('IP copiado!') }} className="text-amber-600 hover:text-amber-700 font-sans font-bold cursor-pointer text-[8px] border-0 bg-transparent p-0">Copiar</button>
+                        <div className="grid grid-cols-3 gap-2 bg-slate-50 p-2 rounded-lg border border-slate-100 font-mono text-[9px]">
+                          <div>
+                            <div className="text-[7px] text-slate-400 uppercase font-sans">Nome/Host</div>
+                            <div className="text-slate-800">@</div>
+                          </div>
+                          <div className="col-span-2">
+                            <div className="text-[7px] text-slate-400 uppercase font-sans">Valor/Destino</div>
+                            <div className="flex justify-between items-center text-slate-800">
+                              <span>76.76.21.21</span>
+                              <button type="button" onClick={() => { navigator.clipboard.writeText('76.76.21.21'); showToast('IP copiado!', 'success') }} className="text-amber-600 hover:text-amber-700 font-sans font-bold cursor-pointer text-[8px] border-0 bg-transparent p-0">Copiar</button>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Registro CNAME */}
-                    <div className="p-3 space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="font-semibold text-slate-700">Registro Subdomínio</span>
-                        <span className="bg-blue-100 text-blue-800 text-[8px] font-bold px-1.5 py-0.5 rounded">CNAME</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-2 bg-slate-50 p-2 rounded-lg border border-slate-100 font-mono text-[9px]">
-                        <div>
-                          <div className="text-[7px] text-slate-400 uppercase font-sans">Nome/Host</div>
-                          <div className="text-slate-800">www</div>
+                      {/* Registro CNAME */}
+                      <div className="p-3 space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="font-semibold text-slate-700">Registro Subdomínio</span>
+                          <span className="bg-blue-100 text-blue-800 text-[8px] font-bold px-1.5 py-0.5 rounded">CNAME</span>
                         </div>
-                        <div className="col-span-2">
-                          <div className="text-[7px] text-slate-400 uppercase font-sans">Valor/Destino</div>
-                          <div className="flex justify-between items-center text-slate-800">
-                            <span>cname.vercel-dns.com</span>
-                            <button type="button" onClick={() => { navigator.clipboard.writeText('cname.vercel-dns.com'); alert('CNAME copiado!') }} className="text-amber-600 hover:text-amber-700 font-sans font-bold cursor-pointer text-[8px] border-0 bg-transparent p-0">Copiar</button>
+                        <div className="grid grid-cols-3 gap-2 bg-slate-50 p-2 rounded-lg border border-slate-100 font-mono text-[9px]">
+                          <div>
+                            <div className="text-[7px] text-slate-400 uppercase font-sans">Nome/Host</div>
+                            <div className="text-slate-800">www</div>
+                          </div>
+                          <div className="col-span-2">
+                            <div className="text-[7px] text-slate-400 uppercase font-sans">Valor/Destino</div>
+                            <div className="flex justify-between items-center text-slate-800">
+                              <span>cname.vercel-dns.com</span>
+                              <button type="button" onClick={() => { navigator.clipboard.writeText('cname.vercel-dns.com'); showToast('CNAME copiado!', 'success') }} className="text-amber-600 hover:text-amber-700 font-sans font-bold cursor-pointer text-[8px] border-0 bg-transparent p-0">Copiar</button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -2377,6 +2456,35 @@ function BuilderPage() {
         </section>
 
       </div>
+
+      {/* Premium Toast Container */}
+      <div className="fixed bottom-5 right-5 z-[9999] flex flex-col gap-2 max-w-sm pointer-events-none">
+        {toasts.map(t => (
+          <div
+            key={t.id}
+            className={`pointer-events-auto px-4 py-3 rounded-2xl shadow-xl border flex items-center gap-2.5 text-xs font-semibold animate-fade-in-up transition-all ${
+              t.type === 'success'
+                ? 'bg-slate-900 border-emerald-500/30 text-emerald-400'
+                : t.type === 'error'
+                  ? 'bg-slate-900 border-rose-500/30 text-rose-400'
+                  : 'bg-slate-900 border-amber-500/30 text-amber-400'
+            }`}
+          >
+            <span className="text-sm">
+              {t.type === 'success' ? '✨' : t.type === 'error' ? '💥' : 'ℹ️'}
+            </span>
+            <span>{t.message}</span>
+            <button
+              type="button"
+              onClick={() => setToasts(prev => prev.filter(x => x.id !== t.id))}
+              className="ml-auto text-slate-500 hover:text-white bg-transparent border-0 cursor-pointer text-[10px]"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
+
     </div>
   )
 }

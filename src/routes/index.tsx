@@ -38,6 +38,7 @@ function PortalIndexPage() {
               name: p.name || t.name,
               slug: p.slug || t.slug,
               status: p.status || t.status || 'online',
+              favicon: p.favicon || t.favicon,
             }
           } catch (e) {}
         }
@@ -191,37 +192,37 @@ function PortalIndexPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0F110E] text-white flex flex-col justify-between selection:bg-[#EDBF71] selection:text-black">
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col justify-between selection:bg-amber-100 selection:text-amber-900">
       <title>Sites V8 - Microsistec</title>
       <link rel="icon" type="image/png" href="/v8-fav.png" />
       
       {/* Decorative background grid and ambient lights */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f293710_1px,transparent_1px),linear-gradient(to_bottom,#1f293710_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#EDBF71]/5 rounded-full filter blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-[#3A8266]/5 rounded-full filter blur-[100px] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/5 rounded-full filter blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-slate-500/5 rounded-full filter blur-[100px] pointer-events-none" />
 
       {/* Header */}
-      <header className="border-b border-white/5 relative z-10">
+      <header className="bg-white/80 border-b border-slate-200 backdrop-blur-md relative z-10">
         <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#EDBF71] to-[#3A8266] flex items-center justify-center font-display font-bold text-black text-lg shadow-lg">
+            <div className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center font-display font-bold text-white text-lg shadow-sm">
               V
             </div>
             <div>
-              <span className="font-display font-bold text-lg tracking-tight block">V8 Portal Engine</span>
-              <span className="text-[10px] text-white/40 font-mono tracking-widest block uppercase">Multi-Tenant Platform</span>
+              <span className="font-display font-bold text-lg text-slate-900 tracking-tight block">V8 Portal Engine</span>
+              <span className="text-[10px] text-slate-400 font-mono tracking-widest block uppercase">Multi-Tenant Platform</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Link
               to="/builder"
-              className="text-xs bg-gradient-to-r from-[#EDBF71] to-[#3A8266] hover:from-[#EDBF71] hover:to-[#EDBF71] text-black font-bold px-4 py-2 rounded-full transition-all duration-300 shadow-md shadow-amber-500/10 flex items-center gap-1.5 cursor-pointer"
+              className="text-xs bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-full transition-all duration-300 shadow-sm flex items-center gap-1.5 cursor-pointer"
             >
               <Layers size={13} />
               LEGO Builder
             </Link>
-            <div className="hidden sm:flex items-center gap-3 text-xs bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full text-white/70">
-              <Cpu size={12} className="text-[#EDBF71]" />
+            <div className="hidden sm:flex items-center gap-3 text-xs bg-slate-100 border border-slate-200 px-3.5 py-1.5 rounded-full text-slate-600">
+              <Cpu size={12} className="text-amber-600" />
               <span>Versão V8 Ativa</span>
             </div>
           </div>
@@ -233,14 +234,14 @@ function PortalIndexPage() {
         
         {/* Title Block */}
         <div className="text-center max-w-2xl mb-16 animate-fade-in-up">
-          <div className="inline-flex items-center gap-2 bg-[#EDBF71]/10 border border-[#EDBF71]/20 text-[#EDBF71] text-xs font-semibold px-4 py-1.5 rounded-full mb-6 uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 bg-slate-100 border border-slate-200 text-slate-600 text-xs font-semibold px-4 py-1.5 rounded-full mb-6 uppercase tracking-wider">
             <Layers size={13} />
             Hub Multicliente Imobiliário
           </div>
-          <h1 className="font-display text-4xl md:text-6xl font-bold leading-tight mb-5 bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">
+          <h1 className="font-display text-4xl md:text-5xl font-extrabold leading-tight mb-5 text-slate-900 tracking-tight">
             Selecione a Imobiliária
           </h1>
-          <p className="text-white/60 text-base md:text-lg">
+          <p className="text-slate-500 text-base md:text-lg leading-relaxed">
             Um único motor robusto (v8) gerenciando múltiplos portais imobiliários independentes. Escolha um dos nossos parceiros para acessar a listagem de imóveis de luxo.
           </p>
         </div>
@@ -251,48 +252,64 @@ function PortalIndexPage() {
             const propsCount = getProperties(tenant.id).length
             const isRobles = tenant.id === 'robles'
             const isCustom = tenant.id.startsWith('custom_')
-            const accentColor = isCustom 
-              ? 'hover:border-amber-400/60 hover:shadow-amber-400/5' 
-              : (isRobles ? 'group-hover:border-[#EDBF71] hover:shadow-[#EDBF71]/5' : 'group-hover:border-[#3A8266] hover:shadow-[#3A8266]/5')
+            const borderHover = isCustom 
+              ? 'hover:border-amber-400/80 hover:shadow-sm' 
+              : (isRobles ? 'hover:border-slate-400 hover:shadow-sm' : 'hover:border-slate-400 hover:shadow-sm')
             const badgeColor = isCustom
-              ? 'bg-amber-400/10 text-amber-400 border-amber-400/20'
-              : (isRobles ? 'bg-[#EDBF71]/10 text-[#EDBF71] border-[#EDBF71]/20' : 'bg-[#3A8266]/10 text-[#3A8266] border-[#3A8266]/20')
+              ? 'bg-amber-50 text-amber-800 border-amber-200'
+              : (isRobles ? 'bg-slate-100 text-slate-800 border-slate-200' : 'bg-slate-100 text-slate-800 border-slate-200')
             const btnColor = isCustom
               ? 'bg-amber-500 hover:bg-amber-600 text-slate-950'
-              : (isRobles ? 'bg-[#EDBF71] hover:bg-[#D4A84E] text-black' : 'bg-[#3A8266] hover:bg-[#2C624D] text-white')
+              : (isRobles ? 'bg-slate-900 hover:bg-slate-800 text-white' : 'bg-slate-900 hover:bg-slate-800 text-white')
+
+            const hasFavicon = tenant.favicon && tenant.favicon !== '/favicon.ico' && tenant.favicon !== 'favicon.ico'
 
             return (
               <div
                 key={tenant.id}
-                className={`group bg-[#161915] border border-white/5 rounded-3xl p-8 flex flex-col justify-between transition-all duration-400 hover:-translate-y-1.5 shadow-2xl relative overflow-hidden ${accentColor}`}
+                className={`group bg-white border border-slate-200/80 rounded-3xl p-8 flex flex-col justify-between transition-all duration-400 hover:-translate-y-1.5 shadow-sm relative overflow-hidden ${borderHover}`}
               >
                 {/* Visual Ambient Light inside card */}
-                <div className={`absolute top-0 right-0 w-32 h-32 rounded-full filter blur-[40px] pointer-events-none opacity-0 group-hover:opacity-40 transition-opacity duration-500 ${
-                  isCustom ? 'bg-amber-400/10' : (isRobles ? 'bg-[#EDBF71]/20' : 'bg-[#3A8266]/20')
-                }`} />
+                <div className="absolute top-0 right-0 w-32 h-32 rounded-full filter blur-[40px] pointer-events-none opacity-0 group-hover:opacity-20 transition-opacity duration-500 bg-slate-400/10" />
 
                 <div>
                   <div className="flex items-center justify-between mb-8">
-                    {/* Branded Dynamic Emblem */}
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-display font-bold shadow-md transition-transform duration-300 group-hover:scale-105 ${
-                      isCustom ? 'bg-amber-500 text-slate-950' : (isRobles ? 'bg-[#EDBF71] text-black' : 'bg-[#3A8266] text-white')
-                    }`}>
-                      {tenant.name.charAt(0)}
-                    </div>
+                    {/* Branded Dynamic Emblem - Logo or Favicon if available, else first letter */}
+                    {hasFavicon ? (
+                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm bg-slate-50 border border-slate-100 overflow-hidden shrink-0 group-hover:scale-105 transition-transform duration-300">
+                        <img 
+                          src={tenant.favicon} 
+                          alt={`${tenant.name} favicon`} 
+                          className="w-8 h-8 object-contain"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none'
+                            const parent = e.currentTarget.parentElement
+                            if (parent) {
+                              parent.innerHTML = `<span class="text-slate-850 text-2xl font-display font-bold">${tenant.name.charAt(0)}</span>`
+                              parent.className = "w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-display font-bold shadow-sm bg-slate-100 text-slate-800 shrink-0 group-hover:scale-105 transition-transform duration-300"
+                            }
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-display font-bold shadow-sm bg-slate-900 text-white shrink-0 group-hover:scale-105 transition-transform duration-300">
+                        {tenant.name.charAt(0)}
+                      </div>
+                    )}
 
                     <div className="flex flex-col items-end gap-1.5">
                       <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${badgeColor}`}>
                         {propsCount} Imóveis
                       </span>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-white/40 font-mono">{tenant.creci}</span>
+                        <span className="text-[10px] text-slate-400 font-mono">{tenant.creci}</span>
                         {tenant.status === 'offline' ? (
-                          <span className="flex items-center gap-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 select-none">
+                          <span className="flex items-center gap-1 bg-rose-50 text-rose-600 border border-rose-200 text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 select-none">
                             <span className="w-1 h-1 rounded-full bg-rose-500" />
                             Offline
                           </span>
                         ) : (
-                          <span className="flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 select-none">
+                          <span className="flex items-center gap-1 bg-emerald-50 text-emerald-600 border border-emerald-200 text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 select-none">
                             <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
                             No Ar
                           </span>
@@ -301,13 +318,13 @@ function PortalIndexPage() {
                     </div>
                   </div>
 
-                  <h3 className="font-display text-2xl font-bold text-white mb-2 tracking-tight group-hover:text-white transition-colors">
+                  <h3 className="font-display text-2xl font-bold text-slate-900 mb-2 tracking-tight group-hover:text-slate-950 transition-colors">
                     {tenant.name}
                   </h3>
-                  <div className={`text-xs font-semibold uppercase tracking-wider mb-4 ${isCustom ? 'text-amber-400' : (isRobles ? 'text-[#EDBF71]' : 'text-[#3A8266]')}`}>
+                  <div className={`text-xs font-semibold uppercase tracking-wider mb-4 ${isCustom ? 'text-amber-600' : 'text-slate-500'}`}>
                     {tenant.tagline}
                   </div>
-                  <p className="text-white/50 text-sm leading-relaxed mb-8">
+                  <p className="text-slate-500 text-sm leading-relaxed mb-8">
                     {tenant.description}
                   </p>
                 </div>
@@ -323,7 +340,7 @@ function PortalIndexPage() {
                   </Link>
                   <a
                     href={`/builder?tenantId=${tenant.id}`}
-                    className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-white/10 hover:bg-white/5 text-white/70 hover:text-white"
+                    className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-800"
                   >
                     <Layers size={12} />
                     Editar no LEGO Builder
@@ -336,22 +353,22 @@ function PortalIndexPage() {
           {/* Create New V8 Card */}
           <div
             onClick={handleCreateNewTenant}
-            className="group bg-[#161915]/50 border-2 border-dashed border-white/10 hover:border-amber-400/40 rounded-3xl p-8 flex flex-col justify-center items-center text-center transition-all duration-400 hover:-translate-y-1.5 shadow-2xl relative overflow-hidden cursor-pointer min-h-[300px]"
+            className="group bg-white border-2 border-dashed border-slate-200 hover:border-slate-400 hover:bg-slate-50/50 rounded-3xl p-8 flex flex-col justify-center items-center text-center transition-all duration-400 hover:-translate-y-1.5 shadow-sm relative overflow-hidden cursor-pointer min-h-[300px]"
           >
-            <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-xl font-bold mb-4 group-hover:bg-amber-500 group-hover:text-slate-950 transition-all">
+            <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 group-hover:bg-slate-900 group-hover:text-white group-hover:border-slate-900 transition-all mb-4">
               <Plus size={20} />
             </div>
-            <h3 className="font-display text-xl font-bold text-white mb-2 group-hover:text-amber-400 transition-colors">
+            <h3 className="font-display text-xl font-bold text-slate-900 mb-2 group-hover:text-slate-950 transition-colors">
               Criar Novo Portal V8
             </h3>
-            <p className="text-white/40 text-xs leading-relaxed max-w-xs">
+            <p className="text-slate-500 text-xs leading-relaxed max-w-xs">
               Crie um novo site imobiliário exclusivo do zero com identidade visual, domínios e blocos LEGO personalizados.
             </p>
           </div>
         </div>
 
         {/* Tech Stack Specs */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full max-w-4xl border-t border-white/5 pt-12 text-center animate-fade-in-up animate-delay-400">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full max-w-4xl border-t border-slate-200/80 pt-12 text-center animate-fade-in-up animate-delay-400">
           {[
             { icon: Code2, title: 'TanStack Start', desc: 'SSR & Router v1' },
             { icon: Cpu, title: 'Tailwind v4', desc: 'CSS Variables Theme' },
@@ -359,9 +376,9 @@ function PortalIndexPage() {
             { icon: Users, title: 'Autogerador', desc: 'Configuração via JSON' },
           ].map((item) => (
             <div key={item.title} className="flex flex-col items-center">
-              <item.icon size={18} className="text-white/40 mb-2" />
-              <div className="text-xs font-semibold text-white/80">{item.title}</div>
-              <div className="text-[10px] text-white/40 mt-0.5">{item.desc}</div>
+              <item.icon size={18} className="text-slate-400 mb-2" />
+              <div className="text-xs font-semibold text-slate-700">{item.title}</div>
+              <div className="text-[10px] text-slate-400 mt-0.5">{item.desc}</div>
             </div>
           ))}
         </div>
@@ -369,10 +386,10 @@ function PortalIndexPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-white/5 relative z-10 py-8 bg-[#0B0D0A]">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/40">
-          <p>© 2026 V8 Engine. Todos os direitos reservados. | Powered by <a href="https://microsistec.com.br" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors font-medium">Microsistec CRM</a> | Desenvolvido por <a href="https://evolves.site" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors font-medium">Evolves Tecnologia</a></p>
-          <div className="text-[10px] font-mono uppercase tracking-widest text-[#EDBF71]/60">
+      <footer className="border-t border-slate-200 relative z-10 py-8 bg-white">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+          <p>© 2026 V8 Engine. Todos os direitos reservados. | Powered by <a href="https://microsistec.com.br" target="_blank" rel="noopener noreferrer" className="hover:text-slate-800 transition-colors font-semibold">Microsistec</a> e <a href="https://evolves.site" target="_blank" rel="noopener noreferrer" className="hover:text-slate-800 transition-colors font-semibold">Evolves Tecnologia</a></p>
+          <div className="text-[10px] font-mono uppercase tracking-widest text-slate-400">
             Assinatura: Jefferson Campos Beira Junior
           </div>
         </div>
