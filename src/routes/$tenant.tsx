@@ -82,7 +82,7 @@ function Navbar({ tenant }: { tenant: any }) {
         <Link to="/$tenant" params={{ tenant: tenantSlug }} className="transition-opacity hover:opacity-80 flex items-center gap-2">
           {tenant.logo.endsWith('.svg') ? (
             <svg 
-              className={`h-9 w-auto ${textColor}`}
+              className={`h-[58px] w-auto ${textColor}`}
               viewBox="0 0 595 407" 
               fill="none" 
               xmlns="http://www.w3.org/2000/svg"
@@ -232,7 +232,7 @@ function Footer({ tenant }: { tenant: any }) {
             <div className="mb-4 flex items-center gap-2">
               {tenant.logo.endsWith('.svg') ? (
                 <svg 
-                  className="h-8 w-auto text-cream"
+                  className="h-[51px] w-auto text-cream"
                   viewBox="0 0 595 407" 
                   fill="none" 
                   xmlns="http://www.w3.org/2000/svg"
