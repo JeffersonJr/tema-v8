@@ -54,6 +54,13 @@ export interface Tenant {
     heroSubtitle: string
     heroImage: string
     cardVariant: 'default' | 'compact' | 'horizontal'
+    cardHorizontalStyle?: string
+    cardVerticalStyle?: string
+    sobreTitle?: string
+    sobreText?: string
+    sobreTextFontSize?: string
+    sobreImage?: string
+    sobreStats?: string
     showCardBedrooms: boolean
     showCardBathrooms: boolean
     showCardArea: boolean

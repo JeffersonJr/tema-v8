@@ -25,10 +25,14 @@ import {
   Layers,
   FileText,
   X,
+  Menu,
   Move,
   Globe,
   Search,
   ArrowRight,
+  Smartphone,
+  Tablet,
+  Monitor,
 } from 'lucide-react'
 import { getTenantById } from '@/data/tenants'
 import { formatPrice } from '@/data/properties'
@@ -257,6 +261,13 @@ function BuilderPage() {
   const [activePreviewTab, setActivePreviewTab] = useState('home')
   const [activeFontTab, setActiveFontTab] = useState<'sans' | 'display'>('sans')
   const previewTabsRef = useRef<HTMLDivElement>(null)
+  
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop')
+  const [previewNavOpen, setPreviewNavOpen] = useState(false)
+
+  useEffect(() => {
+    setPreviewNavOpen(false)
+  }, [activePreviewTab])
 
   // Settings
   const [settings, setSettings] = useState({
@@ -271,7 +282,7 @@ function BuilderPage() {
     marcaDagua: '',
     favicon: '/favicon.ico',
     cardVerticalStyle: 'classic' as 'classic' | 'minimalist' | 'glassmorphism' | 'editorial' | 'bold-border' | 'dark-elegance',
-    cardHorizontalStyle: 'cozy' as 'cozy' | 'strip' | 'overlay' | 'offset' | 'asymmetric' | 'dashboard',
+    cardHorizontalStyle: 'classic' as 'classic' | 'minimalist' | 'glassmorphism' | 'editorial' | 'bold-border' | 'dark-elegance',
     cardTag: 'destaque' as string,
     showCardBedrooms: true,
     showCardBathrooms: false,
@@ -490,52 +501,60 @@ function BuilderPage() {
   }
 
   const renderHorizontalCard = (property: any, styleName: string, tag?: typeof CARD_TAGS[0]) => {
-    let cardClass = 'rounded-xl overflow-hidden shadow-sm transition-all border flex '
-    if (styleName === 'cozy') cardClass += 'bg-white border-slate-200 hover:shadow-md h-24'
-    else if (styleName === 'strip') cardClass += 'bg-white border-slate-200 shadow-none border-b-2 hover:border-b-slate-400 h-24'
-    else if (styleName === 'overlay') cardClass += 'bg-white/50 backdrop-blur-sm border-slate-100 h-24'
-    else if (styleName === 'offset') cardClass += 'bg-white border-2 border-slate-900 shadow-[4px_4px_0px_0px_#EDBF71] h-24'
-    else if (styleName === 'asymmetric') cardClass += 'bg-white border-slate-200 hover:shadow-md h-24'
-    else if (styleName === 'dashboard') cardClass += 'bg-white border-slate-200 shadow-sm h-28'
+    let cardClass = 'rounded-xl overflow-hidden shadow-sm transition-all border flex h-24 '
+    const isDark = styleName === 'dark-elegance' || styleName === 'dashboard'
+
+    if (styleName === 'classic' || styleName === 'cozy') cardClass += 'bg-white border-slate-200 hover:shadow-md'
+    else if (styleName === 'minimalist' || styleName === 'strip') cardClass += 'bg-white border-slate-200 shadow-none border-b-2 hover:border-b-slate-400 rounded-none border-t-0 border-l-0 border-r-0'
+    else if (styleName === 'glassmorphism' || styleName === 'overlay') cardClass += 'bg-white/40 backdrop-blur-md border-white/20 shadow-lg'
+    else if (styleName === 'bold-border' || styleName === 'offset') cardClass += 'bg-white border-2 border-slate-900 shadow-[4px_4px_0px_0px_#EDBF71]'
+    else if (styleName === 'editorial' || styleName === 'asymmetric') cardClass += 'bg-white border-slate-200 hover:shadow-md rounded-tr-2xl rounded-bl-2xl'
+    else if (styleName === 'dark-elegance' || styleName === 'dashboard') cardClass += 'bg-slate-900 border-slate-800 hover:border-slate-700 shadow-xl text-slate-100'
+
     const tagInfo = tag && tag.id !== 'none' ? tag : null
 
     return (
       <div className={`${cardClass} text-left w-full`}>
-        <div className={`shrink-0 overflow-hidden bg-slate-100 relative ${styleName === 'asymmetric' ? 'w-24 rounded-tr-3xl rounded-bl-3xl' : 'w-24'}`}>
+        <div className={`shrink-0 overflow-hidden bg-slate-100 relative ${styleName === 'editorial' || styleName === 'asymmetric' ? 'w-24 rounded-tr-2xl rounded-bl-2xl' : 'w-24'}`}>
           <img src={property.image} className="w-full h-full object-cover" />
-          {tagInfo && <span className={`absolute top-1.5 left-1.5 ${tagInfo.color} text-[6px] font-bold px-1 py-0.5 rounded-full uppercase`}>{tagInfo.emoji}</span>}
+          {tagInfo && (
+            <span className={`absolute top-1.5 left-1.5 ${tagInfo.color} text-[6px] font-bold px-1 py-0.5 rounded-full uppercase`}>
+              {tagInfo.emoji}
+            </span>
+          )}
         </div>
         <div className="p-2.5 flex flex-col justify-between flex-1 min-w-0">
           <div className="min-w-0 space-y-0.5">
-            <div className="text-[7px] text-slate-500 uppercase tracking-widest font-semibold">{property.neighborhood}</div>
-            <div className={`text-[9px] font-bold text-slate-900 truncate`} style={{ fontFamily: styleName === 'asymmetric' ? fonts.display : fonts.sans }}>{property.title}</div>
+            <div className={`text-[7px] uppercase tracking-widest font-semibold ${isDark ? 'text-amber-400/90' : 'text-slate-500'}`}>{property.neighborhood}</div>
+            <div className={`text-[9px] font-bold truncate ${isDark ? 'text-white' : 'text-slate-900'}`} style={{ fontFamily: styleName === 'editorial' || styleName === 'asymmetric' ? fonts.display : fonts.sans }}>{property.title}</div>
           </div>
           <div>
-            <div className="flex flex-wrap gap-1.5 text-[8px] text-slate-500 mb-1 border-t border-slate-100 pt-1">
+            <div className={`flex flex-wrap gap-1.5 text-[8px] mb-1 border-t pt-1 ${isDark ? 'text-slate-400 border-slate-800' : 'text-slate-500 border-slate-100'}`}>
               {settings.showCardBedrooms && <span>{property.bedrooms}Q</span>}
               {settings.showCardBathrooms && <span>{property.bathrooms}B</span>}
               {settings.showCardArea && <span>{property.area}m²</span>}
               {settings.showCardCondo && <span className="text-[7px]">Cond: {formatPrice(property.condoPrice)}</span>}
               {settings.showCardPetFriendly && <span className="text-emerald-500 font-bold">Pet</span>}
             </div>
-            <div className="text-[10px] font-bold text-slate-900" style={{ fontFamily: fonts.display }}>{formatPrice(property.price)}</div>
+            <div className={`text-[10px] font-bold ${isDark ? 'text-amber-400' : 'text-slate-900'}`} style={{ fontFamily: fonts.display }}>{formatPrice(property.price)}</div>
           </div>
         </div>
       </div>
     )
   }
 
-  // ─── PREVIEW HERO RENDERER ─────────────────────────────────────────────────
-  const renderPreviewHero = () => {
-    const heroImg = settings.heroImage || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85&fit=crop'
+  // ─── HIGH-FIDELITY PREVIEW NAVBAR ──────────────────────────────────────────
+  const renderNavbar = () => {
+    const isTransparentHome = settings.headerStyle === 'transparent' && activePreviewTab === 'home' && settings.heroStyle !== 'minimalist'
+    
     const logoEl = settings.logo ? (
       <img src={settings.logo} className="h-5 w-auto object-contain" alt="Logo" />
     ) : (
-      <div className="flex items-center gap-1.5">
-        <div className="w-6 h-6 rounded-full flex items-center justify-center overflow-hidden text-[10px] font-bold" style={{ backgroundColor: colors.gold, color: colors.cream }}>
+      <div className="flex items-center gap-1">
+        <div className="w-5 h-5 rounded-full flex items-center justify-center overflow-hidden text-[9px] font-bold" style={{ backgroundColor: colors.gold, color: colors.cream }}>
           {settings.marcaDagua ? <img src={settings.marcaDagua} className="w-full h-full object-cover" /> : (defaultTenant?.name?.charAt(0) || 'L')}
         </div>
-        <span className="text-[11px] font-bold tracking-tight" style={{ fontFamily: fonts.display, color: activePreviewTab === 'home' && settings.heroStyle !== 'minimalist' ? '#fff' : colors.charcoal }}>{defaultTenant?.name || 'Lumina'}</span>
+        <span className="text-[10px] font-bold tracking-tight" style={{ fontFamily: fonts.display, color: isTransparentHome ? '#fff' : colors.charcoal }}>{defaultTenant?.name || 'Lumina'}</span>
       </div>
     )
 
@@ -544,62 +563,105 @@ function BuilderPage() {
       ...SUBPAGES.filter(p => settings.enabledPages[p.id as keyof typeof settings.enabledPages]).map(p => ({ id: p.id, label: p.label })),
     ]
 
-    // Navbar
-    const navbar = (
-      <header className={`px-4 py-3 flex items-center justify-between ${settings.headerStyle === 'transparent' ? 'absolute top-0 left-0 right-0 z-20 bg-transparent' : settings.headerStyle === 'classic' ? 'border-b' : 'border-b'}`}
-        style={{ borderColor: settings.headerStyle === 'transparent' ? 'rgba(255,255,255,0.1)' : colors.creamBorder, backgroundColor: settings.headerStyle === 'transparent' ? 'transparent' : colors.creamDark }}>
-        {logoEl}
-        <nav className="flex items-center gap-2.5 flex-wrap">
-          {navItems.slice(0, 5).map(n => (
-            <button key={n.id} type="button" onClick={() => setActivePreviewTab(n.id)} className={`text-[8px] font-semibold transition-colors cursor-pointer ${activePreviewTab === n.id ? 'underline' : 'opacity-70 hover:opacity-100'}`}
-              style={{ color: settings.headerStyle === 'transparent' && activePreviewTab === 'home' ? '#fff' : colors.charcoal }}>
-              {n.label}
+    const isMobileMode = previewDevice === 'mobile' || previewDevice === 'tablet'
+
+    return (
+      <header className={`z-30 transition-all ${isTransparentHome ? 'absolute top-0 left-0 right-0 bg-transparent' : ''}`}
+        style={isTransparentHome ? {} : { backgroundColor: settings.headerStyle === 'transparent' ? colors.creamDark : settings.headerStyle === 'classic' ? colors.cream : '#fff', borderBottom: settings.headerStyle === 'classic' ? `4px double ${colors.gold}60` : `1px solid ${settings.headerStyle === 'transparent' ? colors.creamBorder : '#e2e8f0'}` }}>
+        <div className="px-3.5 py-2.5 flex items-center justify-between">
+          {/* Left: Logo */}
+          <button type="button" onClick={() => { setActivePreviewTab('home'); setPreviewNavOpen(false); }} className="hover:opacity-85 flex items-center gap-1.5 text-left cursor-pointer bg-transparent border-0 p-0">
+            {logoEl}
+          </button>
+
+          {/* Center/Right for Desktop */}
+          {!isMobileMode ? (
+            <>
+              {/* Menu Links */}
+              <nav className="flex items-center gap-3.5">
+                {navItems.map(n => (
+                  <button key={n.id} type="button" onClick={() => setActivePreviewTab(n.id)} className={`text-[8px] font-semibold transition-all relative py-0.5 cursor-pointer bg-transparent border-0 p-0 hover:opacity-100 ${activePreviewTab === n.id ? 'opacity-100 font-bold border-b border-current' : 'opacity-70'}`}
+                    style={{ color: isTransparentHome ? '#fff' : colors.charcoal }}>
+                    {n.label}
+                  </button>
+                ))}
+              </nav>
+
+              {/* Contact Button */}
+              <div className="flex items-center gap-2">
+                <span className="text-[7px] font-medium opacity-70" style={{ color: isTransparentHome ? '#fff' : colors.charcoal }}>{contacts.phone || '(41) 3000-0000'}</span>
+                <button type="button" onClick={() => setActivePreviewTab('contato')} className="px-3 py-1 rounded-full text-[7px] font-bold transition-all hover:scale-[1.02] cursor-pointer border-0"
+                  style={{ backgroundColor: colors.gold, color: '#fff' }}>
+                  Fale Conosco
+                </button>
+              </div>
+            </>
+          ) : (
+            /* Menu hamburger button for Mobile */
+            <button type="button" onClick={() => setPreviewNavOpen(!previewNavOpen)} className="p-1 cursor-pointer hover:opacity-80 bg-transparent border-0" style={{ color: isTransparentHome ? '#fff' : colors.charcoal }}>
+              {previewNavOpen ? <X size={13} /> : <Menu size={13} />}
             </button>
-          ))}
-        </nav>
+          )}
+        </div>
+
+        {/* Mobile Dropdown Drawer */}
+        {isMobileMode && previewNavOpen && (
+          <div className="absolute top-full left-0 right-0 bg-white border-b border-slate-200 shadow-lg px-4 py-3 flex flex-col gap-2 z-40 max-h-[70vh] overflow-y-auto">
+            {navItems.map(n => (
+              <button
+                key={n.id}
+                type="button"
+                onClick={() => {
+                  setActivePreviewTab(n.id);
+                  setPreviewNavOpen(false);
+                }}
+                className={`text-[8px] font-semibold text-left py-1 border-b border-slate-100 cursor-pointer bg-transparent border-0 w-full ${
+                  activePreviewTab === n.id ? 'text-amber-500 font-bold' : 'text-slate-600'
+                }`}
+              >
+                {n.label}
+              </button>
+            ))}
+            <div className="flex flex-col gap-1.5 pt-1.5">
+              <span className="text-[7px] text-slate-500 font-bold">Contato: {contacts.whatsapp || contacts.phone}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setActivePreviewTab('contato');
+                  setPreviewNavOpen(false);
+                }}
+                className="w-full py-1.5 rounded-lg text-[7.5px] font-bold text-center border-0 cursor-pointer"
+                style={{ backgroundColor: colors.gold, color: '#fff' }}
+              >
+                Fale Conosco
+              </button>
+            </div>
+          </div>
+        )}
       </header>
     )
+  }
+
+  // ─── PREVIEW HERO RENDERER ─────────────────────────────────────────────────
+  const renderPreviewHero = () => {
+    const heroImg = settings.heroImage || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85&fit=crop'
 
     if (settings.heroStyle === 'split-screen') {
       return (
-        <div className="relative">
-          {/* Split screen: left dark, right image */}
-          <div className="flex min-h-[260px]">
-            <div className="flex-1 flex flex-col justify-center p-6 pr-4 relative z-10" style={{ backgroundColor: colors.charcoal }}>
-              {settings.headerStyle === 'transparent' && (
-                <div className="flex items-center gap-1.5 mb-4">
-                  {settings.logo ? <img src={settings.logo} className="h-5 w-auto object-contain" /> : (
-                    <div className="flex items-center gap-1">
-                      <div className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold" style={{ backgroundColor: colors.gold, color: colors.cream }}>{defaultTenant?.name?.charAt(0) || 'L'}</div>
-                      <span className="text-[10px] font-bold" style={{ color: colors.cream, fontFamily: fonts.display }}>{defaultTenant?.name || 'Lumina'}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-              <div className="text-[8px] uppercase tracking-widest mb-2 font-medium" style={{ color: colors.gold }}>Alto Padrão · Curitiba</div>
-              <h2 className="text-sm font-bold leading-tight mb-2" style={{ color: colors.cream, fontFamily: fonts.display }}>{settings.heroTitle}</h2>
-              <p className="text-[8px] leading-relaxed mb-4 opacity-70" style={{ color: colors.cream }}>{settings.heroSubtitle}</p>
-              <div className="flex gap-1.5 bg-white/10 p-1 rounded-lg border border-white/10">
-                <input disabled placeholder="Buscar imóvel..." className="w-full text-[7px] bg-transparent p-1 px-2" style={{ color: colors.cream }} />
-                <span className="text-[7px] font-bold px-2.5 py-1 rounded flex items-center" style={{ backgroundColor: colors.gold, color: colors.cream }}>Buscar</span>
-              </div>
-            </div>
-            <div className="flex-1 relative overflow-hidden">
-              <img src={heroImg} className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.2), transparent)' }} />
+        <div className="flex min-h-[260px]">
+          <div className="flex-1 flex flex-col justify-center p-6 pr-4 relative z-10" style={{ backgroundColor: colors.charcoal }}>
+            <div className="text-[8px] uppercase tracking-widest mb-2 font-medium" style={{ color: colors.gold }}>Alto Padrão · Curitiba</div>
+            <h2 className="text-sm font-bold leading-tight mb-2" style={{ color: colors.cream, fontFamily: fonts.display }}>{settings.heroTitle}</h2>
+            <p className="text-[8px] leading-relaxed mb-4 opacity-70" style={{ color: colors.cream }}>{settings.heroSubtitle}</p>
+            <div className="flex gap-1.5 bg-white/10 p-1 rounded-lg border border-white/10">
+              <input disabled placeholder="Buscar imóvel..." className="w-full text-[7px] bg-transparent p-1 px-2" style={{ color: colors.cream }} />
+              <span className="text-[7px] font-bold px-2.5 py-1 rounded flex items-center" style={{ backgroundColor: colors.gold, color: colors.cream }}>Buscar</span>
             </div>
           </div>
-          {settings.headerStyle !== 'transparent' && (
-            <div className="absolute top-0 left-0 right-0 px-4 py-3 flex items-center justify-between z-20"
-              style={{ backgroundColor: colors.creamDark, borderBottom: `1px solid ${colors.creamBorder}` }}>
-              {logoEl}
-              <nav className="flex gap-2 flex-wrap">
-                {navItems.slice(0, 5).map(n => (
-                  <button key={n.id} type="button" onClick={() => setActivePreviewTab(n.id)} className={`text-[7px] font-semibold cursor-pointer ${activePreviewTab === n.id ? 'underline' : 'opacity-60 hover:opacity-100'}`} style={{ color: colors.charcoal }}>{n.label}</button>
-                ))}
-              </nav>
-            </div>
-          )}
+          <div className="flex-1 relative overflow-hidden">
+            <img src={heroImg} className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.2), transparent)' }} />
+          </div>
         </div>
       )
     }
@@ -612,13 +674,7 @@ function BuilderPage() {
           {/* Animated glow orbs */}
           <div className="absolute top-4 right-8 w-32 h-32 rounded-full opacity-20 blur-3xl" style={{ backgroundColor: colors.gold }} />
           <div className="absolute bottom-4 left-8 w-24 h-24 rounded-full opacity-15 blur-2xl" style={{ backgroundColor: colors.gold }} />
-          {settings.headerStyle !== 'transparent' && navbar}
-          {settings.headerStyle === 'transparent' && (
-            <div className="absolute top-0 left-0 right-0 px-4 py-3 flex items-center justify-between z-20">
-              {logoEl}
-              <nav className="flex gap-2">{navItems.slice(0, 4).map(n => (<button key={n.id} type="button" onClick={() => setActivePreviewTab(n.id)} className="text-[7px] font-semibold text-white/80 hover:text-white cursor-pointer">{n.label}</button>))}</nav>
-            </div>
-          )}
+          
           <div className="relative z-10 text-center px-6 py-16">
             <div className="inline-flex items-center gap-1.5 mb-3 px-3 py-1 rounded-full text-[7px] font-bold uppercase tracking-widest" style={{ backgroundColor: `${colors.gold}30`, color: colors.gold, border: `1px solid ${colors.gold}40` }}>
               <Sparkles size={8} /> Curadoria Premium · Exclusivo
@@ -635,8 +691,7 @@ function BuilderPage() {
         <div className="relative min-h-[260px] overflow-hidden">
           <img src={heroImg} className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0" style={{ background: `linear-gradient(105deg, ${colors.charcoal}dd 0%, ${colors.charcoal}99 55%, ${colors.charcoal}22 100%)` }} />
-          {navbar}
-          <div className="relative z-10 px-5 pt-14 pb-6 grid grid-cols-2 gap-4 items-center">
+          <div className="relative z-10 px-5 pt-16 pb-6 grid grid-cols-2 gap-4 items-center">
             <div>
               <div className="text-[7px] uppercase tracking-widest mb-2 font-medium" style={{ color: colors.gold }}>Curadoria Premium</div>
               <h2 className="font-bold text-base leading-tight mb-2" style={{ color: '#fff', fontFamily: fonts.display }}>{settings.heroTitle}</h2>
@@ -646,7 +701,7 @@ function BuilderPage() {
               <div className="text-[7px] font-bold mb-1.5" style={{ color: colors.charcoal }}>Buscar imóvel</div>
               <div className="flex gap-1 bg-white border rounded-lg p-1 border-slate-200">
                 <input disabled placeholder="Localização ou tipo..." className="w-full text-[7px] bg-transparent p-0.5 px-1" style={{ color: colors.charcoal }} />
-                <span className="text-[7px] font-bold px-2 py-1 rounded flex items-center" style={{ backgroundColor: colors.gold, color: '#fff' }}>Ir</span>
+                <span className="text-[7px] font-bold px-2 py-1 rounded flex items-center shadow-md cursor-pointer hover:bg-gold-light" style={{ backgroundColor: colors.gold, color: '#fff' }}>Ir</span>
               </div>
             </div>
           </div>
@@ -656,25 +711,11 @@ function BuilderPage() {
 
     if (settings.heroStyle === 'minimalist') {
       return (
-        <div className="relative">
-          {settings.headerStyle !== 'transparent' && (
-            <header className="px-4 py-3 flex items-center justify-between border-b" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
-              {logoEl}
-              <nav className="flex gap-2">{navItems.slice(0, 4).map(n => (<button key={n.id} type="button" onClick={() => setActivePreviewTab(n.id)} className="text-[7px] font-semibold opacity-60 hover:opacity-100 cursor-pointer" style={{ color: colors.charcoal }}>{n.label}</button>))}</nav>
-            </header>
-          )}
-          <div className="relative overflow-hidden min-h-[220px] flex items-center justify-center">
-            <img src={heroImg} className="absolute inset-0 w-full h-full object-cover opacity-20" />
-            {settings.headerStyle === 'transparent' && (
-              <div className="absolute top-0 left-0 right-0 px-4 py-3 flex items-center justify-between z-10">
-                {logoEl}
-                <nav className="flex gap-2">{navItems.slice(0, 4).map(n => (<button key={n.id} type="button" onClick={() => setActivePreviewTab(n.id)} className="text-[7px] font-semibold cursor-pointer opacity-60 hover:opacity-100" style={{ color: colors.charcoal }}>{n.label}</button>))}</nav>
-              </div>
-            )}
-            <div className="relative z-10 text-center px-6 py-10">
-              <h2 className="font-bold text-xl leading-tight mb-2" style={{ color: colors.charcoal, fontFamily: fonts.display }}>{settings.heroTitle}</h2>
-              <p className="text-[9px] leading-relaxed max-w-xs mx-auto" style={{ color: colors.warmGray }}>{settings.heroSubtitle}</p>
-            </div>
+        <div className="relative overflow-hidden min-h-[220px] flex items-center justify-center">
+          <img src={heroImg} className="absolute inset-0 w-full h-full object-cover opacity-20" />
+          <div className="relative z-10 text-center px-6 py-10">
+            <h2 className="font-bold text-xl leading-tight mb-2" style={{ color: colors.charcoal, fontFamily: fonts.display }}>{settings.heroTitle}</h2>
+            <p className="text-[9px] leading-relaxed max-w-xs mx-auto" style={{ color: colors.warmGray }}>{settings.heroSubtitle}</p>
           </div>
         </div>
       )
@@ -682,17 +723,16 @@ function BuilderPage() {
 
     // search-centered (default)
     return (
-      <div className="relative min-h-[260px] overflow-hidden flex flex-col">
+      <div className="relative min-h-[260px] overflow-hidden flex flex-col justify-center">
         <img src={heroImg} className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, ${colors.charcoal}cc 0%, ${colors.charcoal}99 60%, ${colors.charcoal}bb 100%)` }} />
-        {navbar}
-        <div className="relative z-10 flex-1 flex items-center justify-center px-6 py-12">
+        <div className="relative z-10 px-6 py-16 flex items-center justify-center">
           <div className="text-center max-w-sm mx-auto">
             <h2 className="font-bold text-lg leading-tight mb-2" style={{ color: '#fff', fontFamily: fonts.display }}>{settings.heroTitle}</h2>
             <p className="text-[8px] leading-relaxed mb-4 opacity-75" style={{ color: '#fff' }}>{settings.heroSubtitle}</p>
             <div className="flex gap-1.5 bg-white/95 p-1 rounded-lg border border-white/20 max-w-[220px] mx-auto">
               <input disabled placeholder="Cidade ou tipo..." className="w-full text-[7px] bg-transparent p-1 px-2" style={{ color: colors.charcoal }} />
-              <span className="text-[7px] font-bold px-2.5 py-1 rounded flex items-center" style={{ backgroundColor: colors.gold, color: '#fff' }}>Buscar</span>
+              <span className="text-[7px] font-bold px-2.5 py-1 rounded flex items-center cursor-pointer hover:bg-gold-light" style={{ backgroundColor: colors.gold, color: '#fff' }}>Buscar</span>
             </div>
           </div>
         </div>
@@ -706,7 +746,8 @@ function BuilderPage() {
 
     if (activePreviewTab === 'home') {
       return (
-        <>
+        <div className="relative">
+          {renderNavbar()}
           {renderPreviewHero()}
           <div className="p-4 space-y-5" style={{ backgroundColor: colors.cream }}>
             {settings.homeBlocks.map((blockId: string) => {
@@ -779,7 +820,7 @@ function BuilderPage() {
                 <div key="cta" className="p-3 rounded-xl" style={{ backgroundColor: colors.creamDark, border: `1px solid ${colors.creamBorder}` }}>
                   <div className="text-[9px] font-bold mb-1" style={{ color: colors.charcoal, fontFamily: fonts.display }}>Quer vender seu imóvel?</div>
                   <p className="text-[7px] mb-2" style={{ color: colors.warmGray }}>Nossa equipe avalia gratuitamente.</p>
-                  <button className="text-[7px] font-bold px-3 py-1 rounded-full" style={{ backgroundColor: colors.gold, color: '#fff' }}>Anunciar meu imóvel</button>
+                  <button className="text-[7px] font-bold px-3 py-1 rounded-full border-0 cursor-pointer animate-pulse" style={{ backgroundColor: colors.gold, color: '#fff' }}>Anunciar meu imóvel</button>
                 </div>
               )
 
@@ -801,7 +842,7 @@ function BuilderPage() {
             <div className="text-[8px] font-bold mb-0.5" style={{ color: colors.cream, fontFamily: fonts.display }}>{defaultTenant?.name}</div>
             <div className="text-[6px]" style={{ color: `${colors.cream}60` }}>{contacts.creci}</div>
           </footer>
-        </>
+        </div>
       )
     }
 
@@ -809,15 +850,12 @@ function BuilderPage() {
       const label = activePreviewTab === 'comprar' ? 'Comprar' : 'Alugar'
       return (
         <>
-          <header className="px-4 py-3 flex items-center justify-between border-b" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
-            {settings.logo ? <img src={settings.logo} className="h-5 w-auto object-contain" /> : <div className="text-[10px] font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>{defaultTenant?.name}</div>}
-            <nav className="flex gap-2">{activePreviewPages.slice(0, 4).map(n => (<button key={n.id} type="button" onClick={() => setActivePreviewTab(n.id)} className="text-[7px] font-semibold cursor-pointer opacity-60 hover:opacity-100" style={{ color: colors.charcoal }}>{n.label}</button>))}</nav>
-          </header>
+          {renderNavbar()}
           <div className="px-4 py-3" style={{ backgroundColor: colors.cream }}>
             <div className="flex items-center gap-1.5 mb-3 p-2 rounded-xl border" style={{ backgroundColor: colors.creamDark, borderColor: colors.creamBorder }}>
               <Search size={10} style={{ color: colors.warmGray }} />
               <span className="text-[7px]" style={{ color: colors.warmGray }}>Filtrar por tipo, bairro, preço...</span>
-              <span className="ml-auto text-[7px] font-bold px-2 py-0.5 rounded" style={{ backgroundColor: colors.gold, color: '#fff' }}>Buscar</span>
+              <span className="ml-auto text-[7px] font-bold px-2 py-0.5 rounded border-0 cursor-pointer" style={{ backgroundColor: colors.gold, color: '#fff' }}>Buscar</span>
             </div>
             <div className="text-[7px] mb-2 font-medium" style={{ color: colors.warmGray }}>23 imóveis para <strong style={{ color: colors.charcoal }}>{label.toLowerCase()}</strong></div>
             <div className="grid grid-cols-2 gap-2">
@@ -831,10 +869,7 @@ function BuilderPage() {
     if (activePreviewTab === 'lancamentos') {
       return (
         <>
-          <header className="px-4 py-3 flex items-center justify-between border-b" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
-            {settings.logo ? <img src={settings.logo} className="h-5 w-auto" /> : <div className="text-[10px] font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>{defaultTenant?.name}</div>}
-            <nav className="flex gap-2">{activePreviewPages.slice(0, 4).map(n => (<button key={n.id} type="button" onClick={() => setActivePreviewTab(n.id)} className="text-[7px] font-semibold cursor-pointer opacity-60 hover:opacity-100" style={{ color: colors.charcoal }}>{n.label}</button>))}</nav>
-          </header>
+          {renderNavbar()}
           <div className="px-4 py-3" style={{ backgroundColor: colors.cream }}>
             <div className="text-[7px] uppercase tracking-widest mb-0.5 font-bold" style={{ color: colors.gold }}>Exclusivos</div>
             <h3 className="text-sm font-bold mb-3" style={{ fontFamily: fonts.display, color: colors.charcoal }}>Novos Lançamentos</h3>
@@ -862,10 +897,7 @@ function BuilderPage() {
       const struct = settings.pageStructures.anunciar
       return (
         <>
-          <header className="px-4 py-3 flex items-center justify-between border-b" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
-            {settings.logo ? <img src={settings.logo} className="h-5 w-auto" /> : <div className="text-[10px] font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>{defaultTenant?.name}</div>}
-            <nav className="flex gap-2">{activePreviewPages.slice(0, 4).map(n => (<button key={n.id} type="button" onClick={() => setActivePreviewTab(n.id)} className="text-[7px] font-semibold cursor-pointer opacity-60 hover:opacity-100" style={{ color: colors.charcoal }}>{n.label}</button>))}</nav>
-          </header>
+          {renderNavbar()}
           {struct === 'magazine' ? (
             <div>
               <div className="relative h-24 overflow-hidden">
@@ -878,7 +910,7 @@ function BuilderPage() {
                 <p className="text-[8px]" style={{ color: colors.warmGray }}>{settings.anunciarSubtitle}</p>
                 <div className="p-3 rounded-xl border space-y-2" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
                   {['Nome', 'Telefone', 'Endereço do imóvel'].map(f => <div key={f} className="bg-white rounded-lg px-2 py-1.5 text-[7px] border" style={{ borderColor: colors.creamBorder, color: colors.warmGray }}>{f}</div>)}
-                  <button className="w-full text-[7px] font-bold py-1.5 rounded-lg" style={{ backgroundColor: colors.gold, color: '#fff' }}>Anunciar agora</button>
+                  <button className="w-full text-[7px] font-bold py-1.5 rounded-lg border-0 cursor-pointer" style={{ backgroundColor: colors.gold, color: '#fff' }}>Anunciar agora</button>
                 </div>
               </div>
             </div>
@@ -888,7 +920,7 @@ function BuilderPage() {
               <p className="text-[8px]" style={{ color: colors.warmGray }}>{settings.anunciarSubtitle}</p>
               <div className="max-w-xs mx-auto p-3 rounded-xl border space-y-1.5" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
                 {['Nome', 'Telefone', 'Endereço'].map(f => <div key={f} className="bg-white rounded-lg px-2 py-1.5 text-[7px] border" style={{ borderColor: colors.creamBorder, color: colors.warmGray }}>{f}</div>)}
-                <button className="w-full text-[7px] font-bold py-1.5 rounded-lg" style={{ backgroundColor: colors.gold, color: '#fff' }}>Anunciar</button>
+                <button className="w-full text-[7px] font-bold py-1.5 rounded-lg border-0 cursor-pointer" style={{ backgroundColor: colors.gold, color: '#fff' }}>Anunciar</button>
               </div>
             </div>
           ) : (
@@ -901,7 +933,7 @@ function BuilderPage() {
               </div>
               <div className="p-3 border-l space-y-1.5" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
                 {['Nome', 'Telefone', 'Endereço'].map(f => <div key={f} className="bg-white rounded-lg px-2 py-1.5 text-[7px] border" style={{ borderColor: colors.creamBorder, color: colors.warmGray }}>{f}</div>)}
-                <button className="w-full text-[7px] font-bold py-1.5 rounded-lg" style={{ backgroundColor: colors.gold, color: '#fff' }}>Enviar</button>
+                <button className="w-full text-[7px] font-bold py-1.5 rounded-lg border-0 cursor-pointer" style={{ backgroundColor: colors.gold, color: '#fff' }}>Enviar</button>
               </div>
             </div>
           )}
@@ -912,9 +944,7 @@ function BuilderPage() {
     if (activePreviewTab === 'blog') {
       return (
         <>
-          <header className="px-4 py-3 flex items-center justify-between border-b" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
-            {settings.logo ? <img src={settings.logo} className="h-5 w-auto" /> : <div className="text-[10px] font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>{defaultTenant?.name}</div>}
-          </header>
+          {renderNavbar()}
           <div className="p-4 space-y-2" style={{ backgroundColor: colors.cream }}>
             <h3 className="text-xs font-bold mb-3" style={{ fontFamily: fonts.display, color: colors.charcoal }}>Blog & Conteúdo</h3>
             {['Como avaliar o preço justo de um imóvel', 'Melhores bairros para morar em Curitiba 2026', 'Lançamentos: o que analisar antes de comprar'].map((title, i) => (
@@ -937,10 +967,7 @@ function BuilderPage() {
     if (activePreviewTab === 'sobre') {
       return (
         <>
-          <header className="px-4 py-3 flex items-center justify-between border-b" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
-            {settings.logo ? <img src={settings.logo} className="h-5 w-auto" /> : <div className="text-[10px] font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>{defaultTenant?.name}</div>}
-            <nav className="flex gap-2">{activePreviewPages.slice(0, 4).map(n => (<button key={n.id} type="button" onClick={() => setActivePreviewTab(n.id)} className="text-[7px] font-semibold cursor-pointer opacity-60 hover:opacity-100" style={{ color: colors.charcoal }}>{n.label}</button>))}</nav>
-          </header>
+          {renderNavbar()}
           <div className="p-4 space-y-4" style={{ backgroundColor: colors.cream }}>
             {settings.pageStructures.sobre === 'centered' ? (
               <div className="text-center space-y-3">
@@ -996,10 +1023,7 @@ function BuilderPage() {
     if (activePreviewTab === 'contato') {
       return (
         <>
-          <header className="px-4 py-3 flex items-center justify-between border-b" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
-            {settings.logo ? <img src={settings.logo} className="h-5 w-auto" /> : <div className="text-[10px] font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>{defaultTenant?.name}</div>}
-            <nav className="flex gap-2">{activePreviewPages.slice(0, 4).map(n => (<button key={n.id} type="button" onClick={() => setActivePreviewTab(n.id)} className="text-[7px] font-semibold cursor-pointer opacity-60 hover:opacity-100" style={{ color: colors.charcoal }}>{n.label}</button>))}</nav>
-          </header>
+          {renderNavbar()}
           <div className="p-4 space-y-3" style={{ backgroundColor: colors.cream }}>
             <div className="text-center">
               <h3 className="text-sm font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>{settings.contatoTitle}</h3>
@@ -1018,7 +1042,7 @@ function BuilderPage() {
                 {['Seu Nome', 'Seu WhatsApp', 'Mensagem...'].map(f => (
                   <div key={f} className="bg-white rounded-lg px-2 py-1.5 text-[7px] border" style={{ borderColor: colors.creamBorder, color: colors.warmGray }}>{f}</div>
                 ))}
-                <button className="w-full text-[7px] font-bold py-1.5 rounded-lg" style={{ backgroundColor: colors.gold, color: '#fff' }}>Enviar Mensagem</button>
+                <button className="w-full text-[7px] font-bold py-1.5 rounded-lg border-0 cursor-pointer" style={{ backgroundColor: colors.gold, color: '#fff' }}>Enviar Mensagem</button>
               </div>
             </div>
           </div>
@@ -1546,11 +1570,38 @@ function BuilderPage() {
         <section className="lg:col-span-6 bg-slate-100 flex flex-col lg:sticky lg:top-[6.5rem] lg:h-[calc(100vh-6.5rem)] z-20 overflow-hidden">
 
           {/* Preview bar */}
-          <div className="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between shrink-0 shadow-sm">
+          <div className="bg-white border-b border-slate-200 px-4 py-2 flex items-center justify-between shrink-0 shadow-sm gap-2">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-[9px] font-bold uppercase tracking-wider text-slate-800">Preview em Tempo Real</span>
             </div>
+
+            {/* Device Switcher */}
+            <div className="flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200 shrink-0">
+              {(['desktop', 'tablet', 'mobile'] as const).map(device => {
+                const Icon = device === 'desktop' ? Monitor : device === 'tablet' ? Tablet : Smartphone
+                const isActive = previewDevice === device
+                return (
+                  <button
+                    key={device}
+                    type="button"
+                    onClick={() => {
+                      setPreviewDevice(device)
+                      setPreviewNavOpen(false)
+                    }}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[9px] font-bold uppercase transition-all cursor-pointer border-0 ${
+                      isActive
+                        ? 'bg-white text-slate-800 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-800 bg-transparent'
+                    }`}
+                  >
+                    <Icon size={10} />
+                    <span className="hidden sm:inline">{device === 'desktop' ? 'Desktop' : device === 'tablet' ? 'Tablet' : 'Mobile'}</span>
+                  </button>
+                )
+              })}
+            </div>
+
             <div className="flex items-center gap-1.5">
               <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-full text-[8px] text-slate-500 font-mono">
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors.gold }} />
@@ -1574,14 +1625,71 @@ function BuilderPage() {
 
           {/* Preview content */}
           <div className="flex-1 overflow-y-auto p-4 bg-slate-100 flex justify-center items-start">
-            <div
-              style={previewStyles}
-              className="w-full max-w-lg bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-200 transition-all duration-300"
-            >
-              <div style={{ fontFamily: fonts.sans }}>
-                {renderPreviewPage()}
+            {previewDevice === 'mobile' ? (
+              <div className="w-[325px] h-[640px] rounded-[36px] bg-slate-950 border-[10px] border-slate-950 shadow-2xl relative flex flex-col transition-all duration-300 ring-4 ring-slate-800/40 select-none overflow-hidden my-2 shrink-0">
+                {/* Speaker & Camera Notch */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-[16px] bg-slate-950 rounded-b-xl z-50 flex items-center justify-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-slate-800/80" />
+                  <div className="w-7 h-[3px] bg-slate-800/60 rounded-full" />
+                </div>
+
+                {/* Status Bar */}
+                <div className="h-6 bg-white text-slate-800 text-[8px] font-semibold flex items-center justify-between px-5 pt-1.5 select-none shrink-0 border-b border-slate-100">
+                  <span>09:41</span>
+                  <div className="flex items-center gap-1">
+                    <span>📶</span>
+                    <span>5G</span>
+                    <span>🔋</span>
+                  </div>
+                </div>
+
+                {/* Phone screen content */}
+                <div className="flex-1 overflow-y-auto bg-white relative animate-fade-in" style={previewStyles}>
+                  <div style={{ fontFamily: fonts.sans }} className="pb-10 min-h-full">
+                    {renderPreviewPage()}
+                  </div>
+                </div>
+
+                {/* Home Indicator */}
+                <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-24 h-1 bg-slate-800/40 rounded-full z-50 pointer-events-none" />
               </div>
-            </div>
+            ) : previewDevice === 'tablet' ? (
+              <div className="w-[540px] h-[740px] rounded-[28px] bg-slate-950 border-[12px] border-slate-950 shadow-2xl relative flex flex-col transition-all duration-300 ring-4 ring-slate-800/40 select-none overflow-hidden my-2 shrink-0">
+                {/* Camera notch */}
+                <div className="absolute top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rounded-full z-50" />
+
+                {/* Status Bar */}
+                <div className="h-6 bg-white text-slate-800 text-[8px] font-semibold flex items-center justify-between px-6 pt-1 select-none shrink-0 border-b border-slate-100">
+                  <span>Quarta-feira, 28 Mai</span>
+                  <span>09:41</span>
+                  <div className="flex items-center gap-1.5">
+                    <span>📶</span>
+                    <span>100%</span>
+                    <span>🔋</span>
+                  </div>
+                </div>
+
+                {/* Tablet screen content */}
+                <div className="flex-1 overflow-y-auto bg-white relative animate-fade-in" style={previewStyles}>
+                  <div style={{ fontFamily: fonts.sans }} className="pb-10 min-h-full">
+                    {renderPreviewPage()}
+                  </div>
+                </div>
+
+                {/* Home Indicator */}
+                <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-slate-800/40 rounded-full z-50 pointer-events-none" />
+              </div>
+            ) : (
+              /* Desktop (Default full layout) */
+              <div
+                style={previewStyles}
+                className="w-full bg-white rounded-xl overflow-hidden shadow-xl border border-slate-200 transition-all duration-300"
+              >
+                <div style={{ fontFamily: fonts.sans }}>
+                  {renderPreviewPage()}
+                </div>
+              </div>
+            )}
           </div>
         </section>
 

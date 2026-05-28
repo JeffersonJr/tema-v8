@@ -1,5 +1,5 @@
 import { Link, useParams } from '@tanstack/react-router'
-import { BedDouble, Bath, Car, Maximize2, MapPin, Heart, ShieldAlert, PawPrint } from 'lucide-react'
+import { BedDouble, Bath, Car, Maximize2, MapPin, Heart, PawPrint } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import type { Property } from '@/data/properties'
 import { formatPrice } from '@/data/properties'
@@ -64,22 +64,22 @@ export function PropertyCard({ property, variant }: PropertyCardProps) {
 
   // Render Horizontal Styles (6 versions)
   if (cardVariant === 'horizontal') {
-    const styleName = tenant?.builderSettings?.cardHorizontalStyle || 'cozy'
-    let cardClass = "property-card group flex flex-col sm:flex-row bg-white rounded-2xl overflow-hidden border border-cream-border relative transition-all duration-300 "
-    let isDark = false
+    const styleName = tenant?.builderSettings?.cardHorizontalStyle || 'classic'
+    let cardClass = "property-card group flex flex-col sm:flex-row overflow-hidden border relative transition-all duration-300 "
+    let isDark = styleName === 'dark-elegance' || styleName === 'dashboard'
 
-    if (styleName === 'cozy') {
-      cardClass += "hover:shadow-md"
-    } else if (styleName === 'strip') {
-      cardClass += "shadow-none border-b-2 hover:border-b-slate-400 rounded-none border-t-0 border-l-0 border-r-0"
-    } else if (styleName === 'overlay') {
-      cardClass += "bg-white/40 backdrop-blur-md border-white/20 shadow-lg"
-    } else if (styleName === 'offset') {
-      cardClass += "border-2 border-slate-900 shadow-[4px_4px_0px_0px_var(--theme-gold)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_var(--theme-gold)]"
-    } else if (styleName === 'asymmetric') {
-      cardClass += "hover:shadow-lg rounded-tr-3xl rounded-bl-3xl"
-    } else if (styleName === 'dashboard') {
-      cardClass += "border-slate-200 bg-slate-50/50 hover:bg-white shadow-sm"
+    if (styleName === 'classic' || styleName === 'cozy') {
+      cardClass += "bg-white border-cream-border hover:shadow-md rounded-2xl"
+    } else if (styleName === 'minimalist' || styleName === 'strip') {
+      cardClass += "bg-white shadow-none border-b-2 hover:border-b-slate-400 rounded-none border-t-0 border-l-0 border-r-0 border-slate-200"
+    } else if (styleName === 'glassmorphism' || styleName === 'overlay') {
+      cardClass += "bg-white/40 backdrop-blur-md border-white/20 shadow-lg rounded-2xl"
+    } else if (styleName === 'bold-border' || styleName === 'offset') {
+      cardClass += "bg-white border-2 border-slate-900 shadow-[4px_4px_0px_0px_var(--theme-gold)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_var(--theme-gold)] rounded-xl"
+    } else if (styleName === 'editorial' || styleName === 'asymmetric') {
+      cardClass += "bg-white border-cream-border hover:shadow-lg rounded-tr-3xl rounded-bl-3xl"
+    } else if (styleName === 'dark-elegance' || styleName === 'dashboard') {
+      cardClass += "bg-slate-900 border-slate-800 hover:border-slate-700 shadow-xl rounded-2xl text-slate-100"
     }
 
     return (
@@ -89,7 +89,7 @@ export function PropertyCard({ property, variant }: PropertyCardProps) {
         className={cardClass}
       >
         <div className={`w-full h-52 sm:w-56 sm:h-auto shrink-0 overflow-hidden relative ${
-          styleName === 'asymmetric' ? 'rounded-bl-3xl sm:rounded-tr-none sm:rounded-bl-3xl' : ''
+          styleName === 'editorial' || styleName === 'asymmetric' ? 'rounded-bl-3xl sm:rounded-tr-none sm:rounded-bl-3xl' : ''
         }`}>
           <img
             src={property.images[0]}
@@ -114,7 +114,9 @@ export function PropertyCard({ property, variant }: PropertyCardProps) {
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider tag-${property.purpose}`}>
                 {property.purpose === 'venda' ? 'Venda' : property.purpose === 'aluguel' ? 'Aluguel' : 'Lançamento'}
               </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider bg-cream text-charcoal-light capitalize border border-cream-border">
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider capitalize border ${
+                isDark ? 'bg-slate-850 text-slate-200 border-slate-700' : 'bg-cream text-charcoal-light border-cream-border'
+              }`}>
                 {property.type}
               </span>
               {showPetFriendly && property.petFriendly && (
@@ -124,31 +126,33 @@ export function PropertyCard({ property, variant }: PropertyCardProps) {
               )}
             </div>
             
-            <h3 className={`font-display text-base font-semibold text-charcoal leading-snug mb-1 truncate ${
-              styleName === 'asymmetric' ? 'font-display italic' : ''
-            }`}>
+            <h3 className={`font-display text-base font-semibold leading-snug mb-1 truncate ${
+              isDark ? 'text-white' : 'text-charcoal'
+            } ${styleName === 'editorial' || styleName === 'asymmetric' ? 'font-display italic' : ''}`}>
               {property.title}
             </h3>
             
-            <div className="flex items-center gap-1 text-warm-gray text-xs mb-3">
+            <div className={`flex items-center gap-1 text-xs mb-3 ${isDark ? 'text-amber-400/90' : 'text-warm-gray'}`}>
               <MapPin size={11} />
               {property.address.neighborhood}, {property.address.city}
             </div>
           </div>
 
           <div>
-            <div className="flex flex-wrap items-center gap-3 text-warm-gray text-xs mb-3 border-t border-cream-border/50 pt-3">
+            <div className={`flex flex-wrap items-center gap-3 text-xs mb-3 border-t pt-3 ${
+              isDark ? 'text-slate-400 border-slate-800' : 'text-warm-gray border-cream-border/50'
+            }`}>
               {showBedrooms && <span className="flex items-center gap-1"><BedDouble size={12} /> {property.bedrooms} qts</span>}
               {showBathrooms && <span className="flex items-center gap-1"><Bath size={12} /> {property.bathrooms} banhs</span>}
               {showArea && <span className="flex items-center gap-1"><Maximize2 size={12} /> {property.area}m²</span>}
-              {showCondo && property.condoPrice && <span className="flex items-center gap-1">Cond: {formatPrice(property.condoPrice)}</span>}
+              {showCondo && property.condo && <span className="flex items-center gap-1">Cond: {formatPrice(property.condo)}</span>}
             </div>
             <div className="flex items-end justify-between">
-              <div className="text-lg font-bold text-charcoal font-display">
+              <div className={`text-lg font-bold font-display ${isDark ? 'text-amber-400' : 'text-charcoal'}`}>
                 {formatPrice(displayPrice)}
-                {property.purpose === 'aluguel' && <span className="text-xs font-normal text-warm-gray">/mês</span>}
+                {property.purpose === 'aluguel' && <span className={`text-xs font-normal ${isDark ? 'text-slate-400' : 'text-warm-gray'}`}>/mês</span>}
               </div>
-              <div className="text-[10px] text-warm-gray/60 font-mono">Cód. {property.code}</div>
+              <div className={`text-[10px] font-mono ${isDark ? 'text-slate-500' : 'text-warm-gray/60'}`}>Cód. {property.code}</div>
             </div>
           </div>
         </div>
@@ -269,8 +273,8 @@ export function PropertyCard({ property, variant }: PropertyCardProps) {
             {property.purpose === 'aluguel' && (
               <div className="text-xs text-warm-gray">por mês</div>
             )}
-            {showCondo && property.condoPrice && (
-              <div className="text-[10px] text-warm-gray mt-1">Condomínio: {formatPrice(property.condoPrice)}</div>
+            {showCondo && property.condo && (
+              <div className="text-[10px] text-warm-gray mt-1">Condomínio: {formatPrice(property.condo)}</div>
             )}
           </div>
           <div className="text-xs text-warm-gray">
