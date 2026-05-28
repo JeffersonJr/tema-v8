@@ -328,6 +328,17 @@ function BuilderPage() {
     '--theme-gold-light': colors.goldLight,
     '--theme-font-sans': fonts.sans,
     '--theme-font-display': fonts.display,
+    // Direct Tailwind v4 variable overrides to guarantee real-time updates in preview
+    '--color-cream': colors.cream,
+    '--color-cream-dark': colors.creamDark,
+    '--color-cream-border': colors.creamBorder,
+    '--color-charcoal': colors.charcoal,
+    '--color-charcoal-light': colors.charcoalLight,
+    '--color-warm-gray': colors.warmGray,
+    '--color-gold': colors.gold,
+    '--color-gold-light': colors.goldLight,
+    '--font-sans': `${fonts.sans}, sans-serif`,
+    '--font-display': `${fonts.display}, serif`,
   } as React.CSSProperties
 
   return (
