@@ -1,4 +1,4 @@
-import { getTenantBySlug } from '@/data/tenants'
+import { useTenant } from '@/routes/$tenant'
 import { createFileRoute, Link, notFound , useParams } from '@tanstack/react-router'
 import { Clock, Tag, ArrowLeft, ArrowRight, Home, ChevronRight, Share2, BookOpen } from 'lucide-react'
 import { getBlogPost, blogPosts } from '@/data/blog'
@@ -89,8 +89,7 @@ function renderSection(section: BlogSection, index: number) {
 function BlogPostPage() {
 
   const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
-  const tenant = getTenantBySlug(tenantSlug || '')
-  if (!tenant) return null
+  const tenant = useTenant()
 
   const post = Route.useLoaderData()
 

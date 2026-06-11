@@ -1,4 +1,4 @@
-import { getTenantBySlug } from '@/data/tenants'
+import { useTenant } from '@/routes/$tenant'
 import { createFileRoute, Link , useParams } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { Heart, ArrowRight, Home, Trash2 } from 'lucide-react'
@@ -12,8 +12,7 @@ export const Route = createFileRoute('/$tenant/favoritos')({
 function FavoritosPage() {
 
   const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
-  const tenant = getTenantBySlug(tenantSlug || '')
-  if (!tenant) return null
+  const tenant = useTenant()
 
   const [favoriteIds, setFavoriteIds] = useState<string[]>([])
 

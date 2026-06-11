@@ -1,4 +1,4 @@
-import { getTenantBySlug } from '@/data/tenants'
+import { useTenant } from '@/routes/$tenant'
 import { createFileRoute , useParams } from '@tanstack/react-router'
 import { FileText, Shield, Eye, Database, Mail } from 'lucide-react'
 
@@ -9,8 +9,7 @@ export const Route = createFileRoute('/$tenant/politica-de-privacidade')({
 function PoliticaPrivacidadePage() {
 
   const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
-  const tenant = getTenantBySlug(tenantSlug || '')
-  if (!tenant) return null
+  const tenant = useTenant()
 
   const sections = [
     {
@@ -20,9 +19,9 @@ function PoliticaPrivacidadePage() {
         <div className="space-y-3">
           <p>
             Designa o site, todas as informações acessíveis através do endereço eletrônico{' '}
-            <strong className="text-charcoal font-semibold">https://roblesimobiliariasp.com.br</strong>
-            , de responsabilidade da empresa <strong className="text-charcoal font-semibold">Robles Imobiliária</strong>
-            , situada à <strong className="text-charcoal font-semibold">Avenida das Nações Unidas, nº 14171 - Marble Tower, Vila Gertrudes, São Paulo - SP</strong>.
+            <strong className="text-charcoal font-semibold">{`https://${tenant.slug.toLowerCase()}.com.br`}</strong>
+            , de responsabilidade da empresa <strong className="text-charcoal font-semibold">{tenant.name}</strong>
+            , situada à <strong className="text-charcoal font-semibold">{tenant.contacts?.address?.fullAddress || 'nº cadastrado'}</strong>.
           </p>
           <p>
             Para fins desta Política de Privacidade, aplicam-se as seguintes definições:
@@ -58,11 +57,11 @@ function PoliticaPrivacidadePage() {
       content: (
         <p>
           Todos os dados e informações coletadas dos Usuários serão incorporados ao banco de dados do site, sendo seu responsável a{' '}
-          <strong className="text-charcoal font-semibold">Robles Imobiliária</strong>. Os dados e informações coletados estarão armazenados em ambiente seguro, observado o estado da técnica disponível, e somente poderão ser acessados por pessoas qualificadas e autorizadas pela Robles Imobiliária.
+          <strong className="text-charcoal font-semibold">{tenant.name}</strong>. Os dados e informações coletados estarão armazenados em ambiente seguro, observado o estado da técnica disponível, e somente poderão ser acessados por pessoas qualificadas e autorizadas pela {tenant.name}.
           <br /><br />
-          A Robles Imobiliária afirma que não compartilhará, venderá ou apresentará os dados dos Usuários para terceiros que não sejam seus parceiros ou proprietários das informações. Considerando que nenhum sistema de segurança é absolutamente seguro, a Robles Imobiliária se exime de quaisquer responsabilidades por eventuais danos e/ou prejuízos decorrentes de falhas, vírus ou invasões do banco de dados do site, salvo nos casos de dolo ou culpa da mesma.
+          A {tenant.name} afirma que não compartilhará, venderá ou apresentará os dados dos Usuários para terceiros que não sejam seus parceiros ou proprietários das informações. Considerando que nenhum sistema de segurança é absolutamente seguro, a {tenant.name} se exime de quaisquer responsabilidades por eventuais danos e/ou prejuízos decorrentes de falhas, vírus ou invasões do banco de dados do site, salvo nos casos de dolo ou culpa da mesma.
           <br /><br />
-          O Usuário é o proprietário dos dados e está apto a solicitar a exclusão ou modificação de quaisquer informações que estiverem ligadas ao seu perfil de usuário na Robles Imobiliária. Por isso, o Usuário declara estar ciente e concorda com a coleta, armazenamento, tratamento, processamento e uso das Informações nos termos desta Política de Privacidade.
+          O Usuário é o proprietário dos dados e está apto a solicitar a exclusão ou modificação de quaisquer informações que estiverem ligadas ao seu perfil de usuário na {tenant.name}. Por isso, o Usuário declara estar ciente e concorda com a coleta, armazenamento, tratamento, processamento e uso das Informações nos termos desta Política de Privacidade.
         </p>
       )
     },
@@ -103,7 +102,7 @@ function PoliticaPrivacidadePage() {
       title: '5. Do Registro de Atividades',
       content: (
         <p>
-          As atividades realizadas pelo Usuário no site poderão ser registradas por meio de logs, incluindo informações como: endereço IP do Usuário, ações efetuadas, páginas acessadas, datas e horários de cada acesso e Session ID. Os registros mencionados poderão ser utilizados pela Robles Imobiliária em casos de investigação de fraudes ou de alterações indevidas em seus sistemas e cadastros.
+          As atividades realizadas pelo Usuário no site poderão ser registradas por meio de logs, incluindo informações como: endereço IP do Usuário, ações efetuadas, páginas acessadas, datas e horários de cada acesso e Session ID. Os registros mencionados poderão ser utilizados pela {tenant.name} em casos de investigação de fraudes ou de alterações indevidas em seus sistemas e cadastros.
         </p>
       )
     },

@@ -219,6 +219,7 @@ function PortalIndexPage() {
     const currentCustom = getCustomTenants()
     currentCustom.push(newTenant)
     localStorage.setItem('v8_custom_tenants', JSON.stringify(currentCustom))
+    localStorage.setItem('v8_builder_first_time', 'true')
     
     localStorage.setItem(`${newTenant.id}_builder_settings`, JSON.stringify({
       ...newTenant.builderSettings,
@@ -290,13 +291,13 @@ function PortalIndexPage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Link
-              to="/builder"
-              className="text-xs bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-full transition-all duration-300 shadow-sm flex items-center gap-1.5 cursor-pointer"
+            <button
+              onClick={handleCreateNewTenant}
+              className="text-xs bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-full transition-all duration-300 shadow-sm flex items-center gap-1.5 cursor-pointer border-0"
             >
               <Layers size={13} />
               LEGO Builder
-            </Link>
+            </button>
             <div className="hidden sm:flex items-center gap-3 text-xs bg-slate-100 border border-slate-200 px-3.5 py-1.5 rounded-full text-slate-600">
               <Cpu size={12} className="text-amber-600" />
               <span>Versão V8 Ativa</span>

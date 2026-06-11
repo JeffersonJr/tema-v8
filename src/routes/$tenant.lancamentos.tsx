@@ -1,4 +1,4 @@
-import { getTenantBySlug } from '@/data/tenants'
+import { useTenant } from '@/routes/$tenant'
 import { createFileRoute, Link , useParams } from '@tanstack/react-router'
 import { useState } from 'react'
 import { getLaunchProperties, formatPrice } from '@/data/properties'
@@ -35,11 +35,8 @@ const benefits = [
 ]
 
 function LancamentosPage() {
-
+  const tenant = useTenant()
   const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
-  const tenant = getTenantBySlug(tenantSlug || '')
-  if (!tenant) return null
-
   const launches = getLaunchProperties(tenant.id)
   const [selectedCity, setSelectedCity] = useState<string>('todos')
   const [selectedStatus, setSelectedStatus] = useState<string>('todos')

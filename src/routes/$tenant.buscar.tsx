@@ -1,4 +1,4 @@
-import { getTenantBySlug } from '@/data/tenants'
+import { useTenant } from '@/routes/$tenant'
 import { createFileRoute, useNavigate, Link , useParams } from '@tanstack/react-router'
 import { useState, useMemo } from 'react'
 import { SlidersHorizontal, Search, X, ChevronDown, Grid2X2, List, MapPin, Home, ChevronRight } from 'lucide-react'
@@ -162,10 +162,8 @@ function ActiveFilters({
 }
 
 function BuscarPage() {
-
-  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
-  const tenant = getTenantBySlug(tenantSlug || '')
-  if (!tenant) return null
+  const tenant = useTenant()
+  const { tenant: tenantSlug } = useParams({ from: '/$tenant/buscar' })
 
   const navigate = useNavigate({ from: '/$tenant/buscar' })
   const params = Route.useSearch()
@@ -378,14 +376,63 @@ function BuscarPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex gap-8">
-          {/* Desktop Sidebar */}
-          <aside className="hidden lg:block w-72 shrink-0">
-            <div className="bg-white rounded-2xl border border-cream-border p-6 sticky top-28">
-              <Sidebar />
+        {tenant.builderSettings?.searchFiltersLayout === 'topbar' && (
+          <div className="bg-white rounded-2xl border border-cream-border p-5 mb-8 text-left shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display text-base font-bold text-charcoal">Filtros de Busca</h3>
+              <button onClick={resetAll} className="text-xs text-gold hover:underline">Limpar todos os filtros</button>
             </div>
-          </aside>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
+              <FilterSelect
+                label="Finalidade"
+                value={params.finalidade || ''}
+                onChange={(v) => updateParam('finalidade', v)}
+                options={[
+                  { value: '', label: 'Todos' },
+                  { value: 'venda', label: 'Comprar' },
+                  { value: 'aluguel', label: 'Alugar' },
+                  { value: 'lancamento', label: 'Lançamento' },
+                ]}
+              />
 
+              <FilterSelect
+                label="Tipo"
+                value={params.tipo || ''}
+                onChange={(v) => updateParam('tipo', v)}
+                options={[
+                  { value: '', label: 'Todos os tipos' },
+                  ...TIPOS.map((t) => ({ value: t, label: t.charAt(0).toUpperCase() + t.slice(1) })),
+                ]}
+              />
+
+              <FilterSelect
+                label="Cidade"
+                value={params.cidade || ''}
+                onChange={(v) => updateParam('cidade', v)}
+                options={[
+                  { value: '', label: 'Todas as cidades' },
+                  ...CIDADES_LIST.map((c) => ({ value: c, label: c })),
+                ]}
+              />
+
+              <div>
+                <label className="block text-xs font-semibold text-charcoal uppercase tracking-wider mb-2">Bairro</label>
+                <div className="relative">
+                  <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray" />
+                  <input
+                    type="text"
+                    value={params.bairro || ''}
+                    onChange={(e) => updateParam('bairro', e.target.value)}
+                    placeholder="Ex: Ipanema, Moema..."
+                    className="w-full bg-cream border border-cream-border rounded-xl pl-9 pr-4 py-2.5 text-sm text-charcoal placeholder:text-warm-gray/60 outline-none focus:border-gold"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="flex gap-8">
           {/* Main Content */}
           <div className="flex-1 min-w-0">
             {/* Toolbar */}
@@ -455,6 +502,15 @@ function BuscarPage() {
               </div>
             )}
           </div>
+
+          {/* Desktop Sidebar (Right Side) */}
+          {(!tenant.builderSettings?.searchFiltersLayout || tenant.builderSettings?.searchFiltersLayout === 'sidebar') && (
+            <aside className="hidden lg:block w-72 shrink-0 text-left">
+              <div className="bg-white rounded-2xl border border-cream-border p-6 sticky top-28 shadow-sm">
+                <Sidebar />
+              </div>
+            </aside>
+          )}
         </div>
       </div>
 

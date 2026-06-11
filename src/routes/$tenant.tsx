@@ -1,13 +1,24 @@
 import { Link, Outlet, useParams, notFound, useLocation } from '@tanstack/react-router'
-import { useState, useEffect, useRef } from 'react'
-import { Menu, X, Phone, Mail, Instagram, Facebook, Youtube, MessageCircle, ChevronDown as ChevDown } from 'lucide-react'
-import { getTenantBySlug } from '@/data/tenants'
+import { useState, useEffect, useRef, createContext, useContext } from 'react'
+import { Menu, X, Phone, Mail, Instagram, Facebook, Youtube, MessageCircle, MapPin, ChevronDown as ChevDown } from 'lucide-react'
+import { getTenantBySlug, type Tenant } from '@/data/tenants'
 
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/$tenant')({
   component: RouteComponent,
 })
+
+// Create Context to hold tenant settings
+const TenantContext = createContext<Tenant | null>(null)
+
+export function useTenant() {
+  const context = useContext(TenantContext)
+  if (!context) {
+    throw new Error('useTenant must be used within a TenantProvider')
+  }
+  return context
+}
 
 export function RouteComponent() {
   const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
@@ -25,33 +36,292 @@ export function RouteComponent() {
 export default RouteComponent
 
 interface TenantLayoutProps {
-  tenant: ReturnType<typeof getTenantBySlug> & {}
+  tenant: Tenant
 }
 
 function TenantLayout({ tenant }: TenantLayoutProps) {
+  const [currentTenant, setCurrentTenant] = useState<Tenant>(tenant)
+
+  useEffect(() => {
+    // Perform client-side check to load custom configurations from localStorage
+    const updated = getTenantBySlug(tenant.slug)
+    const activeTenant = updated || tenant
+    if (updated) {
+      setCurrentTenant(updated)
+    }
+
+    // Inject theme variables directly to documentElement (html/body level) so parent and body scope inherits them!
+    const root = document.documentElement
+    root.style.setProperty('--theme-cream', activeTenant.colors.cream)
+    root.style.setProperty('--theme-cream-dark', activeTenant.colors.creamDark)
+    root.style.setProperty('--theme-cream-border', activeTenant.colors.creamBorder)
+    root.style.setProperty('--theme-charcoal', activeTenant.colors.charcoal)
+    root.style.setProperty('--theme-charcoal-light', activeTenant.colors.charcoalLight)
+    root.style.setProperty('--theme-warm-gray', activeTenant.colors.warmGray)
+    root.style.setProperty('--theme-gold', activeTenant.colors.gold)
+    root.style.setProperty('--theme-gold-light', activeTenant.colors.goldLight)
+    root.style.setProperty('--theme-font-sans', activeTenant.fonts?.sans || 'DM Sans')
+    root.style.setProperty('--theme-font-display', activeTenant.fonts?.display || 'Playfair Display')
+
+    // Clean up previously injected CSS and tracker tags
+    const oldStyles = document.querySelectorAll('style[data-custom-css="true"]')
+    oldStyles.forEach(el => el.remove())
+    const oldTrackers = document.querySelectorAll('[data-custom-tracker="true"]')
+    oldTrackers.forEach(el => el.remove())
+
+    // Inject Custom CSS
+    const bSettings = activeTenant.builderSettings
+    if (bSettings?.customCss) {
+      const styleEl = document.createElement('style')
+      styleEl.setAttribute('data-custom-css', 'true')
+      styleEl.innerHTML = bSettings.customCss
+      document.head.appendChild(styleEl)
+    }
+
+    // Inject Trackers and SEO meta tags
+    if (bSettings) {
+      const head = document.head
+      const body = document.body
+
+      const injectMeta = (name: string, content: string) => {
+        const meta = document.createElement('meta')
+        meta.setAttribute('name', name)
+        meta.setAttribute('content', content)
+        meta.setAttribute('data-custom-tracker', 'true')
+        head.appendChild(meta)
+      }
+
+      const injectScriptText = (code: string, isBody = false) => {
+        const script = document.createElement('script')
+        script.setAttribute('data-custom-tracker', 'true')
+        script.textContent = code
+        if (isBody) {
+          body.appendChild(script)
+        } else {
+          head.appendChild(script)
+        }
+      }
+
+      const injectScriptSrc = (src: string, onLoad?: () => void) => {
+        const script = document.createElement('script')
+        script.setAttribute('data-custom-tracker', 'true')
+        script.src = src
+        script.async = true
+        if (onLoad) script.onload = onLoad
+        head.appendChild(script)
+      }
+
+      // Keywords
+      if (bSettings.seoKeywords) {
+        injectMeta('keywords', bSettings.seoKeywords)
+      }
+
+      // Google Site Verification
+      if (bSettings.googleSiteVerificationId) {
+        injectMeta('google-site-verification', bSettings.googleSiteVerificationId)
+      }
+
+      // Google Analytics
+      if (bSettings.googleAnalyticsId) {
+        injectScriptSrc(`https://www.googletagmanager.com/gtag/js?id=${bSettings.googleAnalyticsId}`, () => {
+          injectScriptText(`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${bSettings.googleAnalyticsId}');
+          `)
+        })
+      }
+
+      // Google Tag Manager
+      if (bSettings.googleTagManagerId) {
+        injectScriptText(`
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','${bSettings.googleTagManagerId}');
+        `)
+      }
+
+      // Google Ads Conversion & Remarketing
+      if (bSettings.googleAdsConversionId) {
+        if (!(window as any).gtag) {
+          injectScriptText(`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag = gtag;
+            gtag('js', new Date());
+          `)
+        }
+        injectScriptText(`
+          window.gtag('config', '${bSettings.googleAdsConversionId}');
+        `)
+      }
+
+      // Facebook Pixel
+      if (bSettings.facebookPixelId) {
+        injectScriptText(`
+          !function(f,b,e,v,n,t,s)
+          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+          n.queue=[];t=b.createElement(e);t.async=!0;
+          t.src=v;s=b.getElementsByTagName(e)[0];
+          s.parentNode.insertBefore(t,s)}(window, document,'script',
+          'https://connect.facebook.net/en_US/fbevents.js');
+          fbq('init', '${bSettings.facebookPixelId}');
+          fbq('track', 'PageView');
+        `)
+      }
+
+      // Pinterest Tag
+      if (bSettings.pinterestTagId) {
+        injectScriptText(`
+          !function(e,n,t,r,a,s,p){if(!e[r]){e[r]=function(){e[r].queue.push(arguments)},e[r].queue=[],e[r].t=1*new Date;
+          s=n.createElement(t),s.async=!0,s.src=a,p=n.getElementsByTagName(t)[0],p.parentNode.insertBefore(s,p)
+          }}(window,document,"script","pintrk","https://s.pinterest.com/js/pinit.js");
+          pintrk('load', '${bSettings.pinterestTagId}');
+          pintrk('track', 'pageview');
+        `)
+      }
+
+      // RD Station Forms & Script
+      if (bSettings.rdStationToken) {
+        injectScriptSrc(`https://d335luupugsy2.cloudfront.net/js/rdstation-forms/stable/rdstation-forms.min.js`)
+      }
+      if (bSettings.rdStationScript) {
+        try {
+          const parser = new DOMParser()
+          const doc = parser.parseFromString(bSettings.rdStationScript, 'text/html')
+          doc.querySelectorAll('script').forEach(scr => {
+            if (scr.src) {
+              injectScriptSrc(scr.src)
+            } else {
+              injectScriptText(scr.textContent || '')
+            }
+          })
+        } catch (e) {
+          console.error('Error parsing RD Station script', e)
+        }
+      }
+
+      // LinkedIn Insight Tag
+      if (bSettings.linkedinInsightId) {
+        injectScriptText(`
+          _linkedin_partner_id = "${bSettings.linkedinInsightId}";
+          window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+          window._linkedin_data_partner_ids.push(_linkedin_partner_id);
+          (function(l) {
+          if (!l) {window.lintrk = function(a,b){window.lintrk.q.push([a,b])};
+          window.lintrk.q = []}
+          var s = document.getElementsByTagName("script")[0];
+          var b = document.createElement("script");
+          b.type = "text/javascript";b.async = true;
+          b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+          s.parentNode.insertBefore(b, s);
+          })(window.lintrk);
+        `)
+      }
+
+      // TikTok Pixel
+      if (bSettings.tiktokPixelId) {
+        injectScriptText(`
+          !function (w, d, t) {
+            w.TiktokSdkObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","trackWithQuery","click","lib"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=d.createElement("script");o.type="text/javascript",o.async=!0,o.src=i;var a=d.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+            ttq.load('${bSettings.tiktokPixelId}');
+            ttq.page();
+          }(window, document, 'ttq');
+        `)
+      }
+
+      // Raw Head Custom Scripts
+      if (bSettings.customScriptsHead) {
+        try {
+          const parser = new DOMParser()
+          const doc = parser.parseFromString(bSettings.customScriptsHead, 'text/html')
+          const nodes = [...Array.from(doc.head.childNodes), ...Array.from(doc.body.childNodes)]
+          nodes.forEach(node => {
+            if (node instanceof HTMLScriptElement) {
+              const sc = document.createElement('script')
+              sc.setAttribute('data-custom-tracker', 'true')
+              Array.from(node.attributes).forEach(attr => sc.setAttribute(attr.name, attr.value))
+              sc.textContent = node.textContent
+              head.appendChild(sc)
+            } else if (node instanceof HTMLStyleElement) {
+              const st = document.createElement('style')
+              st.setAttribute('data-custom-tracker', 'true')
+              st.textContent = node.textContent
+              head.appendChild(st)
+            } else if (node instanceof HTMLElement) {
+              const clone = node.cloneNode(true) as HTMLElement
+              clone.setAttribute('data-custom-tracker', 'true')
+              head.appendChild(clone)
+            }
+          })
+        } catch (e) {
+          console.error('Error injecting custom scripts head', e)
+        }
+      }
+
+      // Raw Body Custom Scripts
+      if (bSettings.customScriptsBody) {
+        try {
+          const parser = new DOMParser()
+          const doc = parser.parseFromString(bSettings.customScriptsBody, 'text/html')
+          const nodes = [...Array.from(doc.head.childNodes), ...Array.from(doc.body.childNodes)]
+          nodes.forEach(node => {
+            if (node instanceof HTMLScriptElement) {
+              const sc = document.createElement('script')
+              sc.setAttribute('data-custom-tracker', 'true')
+              Array.from(node.attributes).forEach(attr => sc.setAttribute(attr.name, attr.value))
+              sc.textContent = node.textContent
+              body.appendChild(sc)
+            } else if (node instanceof HTMLElement) {
+              const clone = node.cloneNode(true) as HTMLElement
+              clone.setAttribute('data-custom-tracker', 'true')
+              body.appendChild(clone)
+            }
+          })
+        } catch (e) {
+          console.error('Error injecting custom scripts body', e)
+        }
+      }
+    }
+
+    return () => {
+      const removeTrackers = document.querySelectorAll('[data-custom-tracker="true"]')
+      removeTrackers.forEach(el => el.remove())
+      const removeStyles = document.querySelectorAll('style[data-custom-css="true"]')
+      removeStyles.forEach(el => el.remove())
+    }
+  }, [tenant.slug, currentTenant])
+
   const themeStyles = {
-    '--theme-cream': tenant.colors.cream,
-    '--theme-cream-dark': tenant.colors.creamDark,
-    '--theme-cream-border': tenant.colors.creamBorder,
-    '--theme-charcoal': tenant.colors.charcoal,
-    '--theme-charcoal-light': tenant.colors.charcoalLight,
-    '--theme-warm-gray': tenant.colors.warmGray,
-    '--theme-gold': tenant.colors.gold,
-    '--theme-gold-light': tenant.colors.goldLight,
-    '--theme-font-sans': tenant.fonts?.sans || 'DM Sans',
-    '--theme-font-display': tenant.fonts?.display || 'Playfair Display',
+    '--theme-cream': currentTenant.colors.cream,
+    '--theme-cream-dark': currentTenant.colors.creamDark,
+    '--theme-cream-border': currentTenant.colors.creamBorder,
+    '--theme-charcoal': currentTenant.colors.charcoal,
+    '--theme-charcoal-light': currentTenant.colors.charcoalLight,
+    '--theme-warm-gray': currentTenant.colors.warmGray,
+    '--theme-gold': currentTenant.colors.gold,
+    '--theme-gold-light': currentTenant.colors.goldLight,
+    '--theme-font-sans': currentTenant.fonts?.sans || 'DM Sans',
+    '--theme-font-display': currentTenant.fonts?.display || 'Playfair Display',
   } as React.CSSProperties
 
   return (
-    <div style={themeStyles} className="min-h-screen bg-cream text-charcoal font-sans selection:bg-gold selection:text-white">
-      <title>{tenant.name} — {tenant.tagline}</title>
-      <link rel="icon" type="image/x-icon" href={tenant.favicon} />
-      <Navbar tenant={tenant} />
-      <main className="min-h-[70vh]">
-        <Outlet />
-      </main>
-      <Footer tenant={tenant} />
-    </div>
+    <TenantContext.Provider value={currentTenant}>
+      <div style={themeStyles} className="min-h-screen bg-cream text-charcoal font-sans selection:bg-gold selection:text-white">
+        <title>{currentTenant.name} — {currentTenant.tagline}</title>
+        <link rel="icon" type="image/x-icon" href={currentTenant.favicon} />
+        <Navbar tenant={currentTenant} />
+        <main className="min-h-[70vh]">
+          <Outlet />
+        </main>
+        <Footer tenant={currentTenant} />
+      </div>
+    </TenantContext.Provider>
   )
 }
 
@@ -116,6 +386,78 @@ function Navbar({ tenant }: { tenant: any }) {
 
   return (
     <nav className={`${navClasses} ${navStyleBg}`}>
+      {tenant.builderSettings?.showHeaderTopBar && (
+        <div className="bg-charcoal text-cream/70 text-[11px] py-2.5 px-6 border-b border-white/5 hidden md:block select-none">
+          <div className="max-w-7xl mx-auto flex justify-between items-center font-sans">
+            <div className="flex items-center gap-4">
+              {tenant.creci && (
+                <span className="flex items-center gap-1">
+                  CRECI: <strong className="text-white font-medium">{tenant.creci.replace('CRECI-SP ', '')}</strong>
+                </span>
+              )}
+              {tenant.contacts?.address?.fullAddress && (
+                <>
+                  <span className="opacity-40">|</span>
+                  <span className="flex items-center gap-1 opacity-90">
+                    <MapPin size={11} className="text-gold shrink-0" />
+                    {tenant.contacts.address.fullAddress.split(', ')[0]}
+                  </span>
+                </>
+              )}
+              {tenant.contacts?.email && (
+                <>
+                  <span className="opacity-40">|</span>
+                  <a href={`mailto:${tenant.contacts.email}`} className="flex items-center gap-1 opacity-90 hover:text-gold transition-colors">
+                    <Mail size={11} className="text-gold shrink-0" />
+                    {tenant.contacts.email}
+                  </a>
+                </>
+              )}
+            </div>
+            <div className="flex items-center gap-4">
+              {tenant.contacts?.phone && (
+                <a href={`tel:${tenant.contacts.phoneRaw}`} className="flex items-center gap-1 opacity-90 hover:text-gold transition-colors">
+                  <Phone size={11} className="text-gold shrink-0" />
+                  {tenant.contacts.phone}
+                </a>
+              )}
+              {tenant.contacts?.whatsapp && (
+                <>
+                  <span className="opacity-40">|</span>
+                  <a
+                    href={`https://wa.me/${tenant.contacts.whatsappRaw}?text=Ol%C3%A1%2C%2520vim%2520do%2520site%2520e%2520gostaria%2520de%2520falar%2520com%2520um%2520corretor.`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 opacity-90 hover:text-gold transition-colors"
+                  >
+                    <MessageCircle size={11} className="text-emerald-500 shrink-0" />
+                    {tenant.contacts.whatsapp}
+                  </a>
+                </>
+              )}
+              
+              {/* Socials */}
+              <div className="flex items-center gap-2.5 ml-2 border-l border-white/10 pl-3">
+                {tenant.socials?.facebook && (
+                  <a href={tenant.socials.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-gold transition-colors" title="Facebook">
+                    <Facebook size={12} />
+                  </a>
+                )}
+                {tenant.socials?.instagram && (
+                  <a href={tenant.socials.instagram} target="_blank" rel="noopener noreferrer" className="hover:text-gold transition-colors" title="Instagram">
+                    <Instagram size={12} />
+                  </a>
+                )}
+                {tenant.socials?.youtube && (
+                  <a href={tenant.socials.youtube} target="_blank" rel="noopener noreferrer" className="hover:text-gold transition-colors" title="YouTube">
+                    <Youtube size={12} />
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <div className={navInnerClasses}>
         <Link to="/$tenant" params={{ tenant: tenantSlug }} className="transition-opacity hover:opacity-80 flex items-center gap-2">
           {(() => {

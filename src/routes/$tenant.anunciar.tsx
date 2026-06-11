@@ -18,6 +18,8 @@ import {
   Maximize2,
 } from 'lucide-react'
 
+import { useTenant } from '@/routes/$tenant'
+
 export const Route = createFileRoute('/$tenant/anunciar')({
   component: AnunciarPage,
 })
@@ -25,10 +27,7 @@ export const Route = createFileRoute('/$tenant/anunciar')({
 type Step = 1 | 2 | 3 | 4 | 5 | 6
 
 function AnunciarPage() {
-
-  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
-  const tenant = getTenantBySlug(tenantSlug || '')
-  if (!tenant) return null
+  const tenant = useTenant()
 
   const [step, setStep] = useState<Step>(1)
   const [loading, setLoading] = useState(false)
@@ -178,48 +177,130 @@ function AnunciarPage() {
     setSelectedPhotos(prev => [...prev, `imovel_foto_${prev.length + 1}.jpg`])
   }
 
-  return (
-    <div className="min-h-screen bg-cream pt-28 pb-20">
-      <div className="max-w-3xl mx-auto px-6">
-        
-        {/* Page Header */}
-        <div className="text-center mb-10">
+  const settings = tenant.builderSettings || {}
+  const pageStructure = settings.pageStructures?.anunciar || 'editorial'
+  const blocks = settings.pageBlocks?.anunciar || ['hero', 'text', 'form']
+  const blocksLayout = settings.pageBlocksLayout?.anunciar || 'stack'
+  const title = settings.anunciarTitle || 'Anuncie Seu Imóvel'
+  const subtitle = settings.anunciarSubtitle || 'Anuncie de forma inteligente e rápida para milhares de clientes selecionados de alto padrão em todo o Brasil.'
+  const heroImage = settings.heroImage || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85&fit=crop"
+
+  const renderHero = () => {
+    if (pageStructure === 'magazine') {
+      return (
+        <div key="hero" className="relative h-64 md:h-80 flex items-center justify-center overflow-hidden mb-12 rounded-3xl border border-cream-border">
+          <img src={heroImage} alt="Cover" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-charcoal/70 backdrop-blur-[2px]" />
+          <div className="relative z-10 text-center px-6 animate-fade-in">
+            <h1 className="font-display text-3xl md:text-5xl font-bold text-cream mb-3">{title}</h1>
+            <p className="text-cream/80 text-sm md:text-base max-w-xl mx-auto">{subtitle}</p>
+          </div>
+        </div>
+      )
+    }
+
+    if (pageStructure === 'centered') {
+      return (
+        <div key="hero" className="text-center mb-10 animate-fade-in">
           <div className="inline-flex items-center gap-2 bg-gold/10 text-gold px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
             <Building2 size={12} />
             Anuncie Conosco
           </div>
           <h1 className="font-display text-4xl md:text-5xl font-bold text-charcoal mb-4">
-            Anuncie Seu Imóvel
+            {title}
           </h1>
           <p className="text-warm-gray text-base max-w-xl mx-auto">
-            Anuncie de forma inteligente e rápida para milhares de clientes selecionados de alto padrão em todo o Brasil.
+            {subtitle}
           </p>
         </div>
+      )
+    }
 
-        {/* Multi-step progress bar */}
-        {step < 6 && (
-          <div className="mb-10">
-            <div className="flex justify-between items-center text-[10px] md:text-xs text-warm-gray font-medium uppercase mb-3">
-              <span className={step >= 1 ? 'text-gold' : ''}>1. Tipo</span>
-              <span className={step >= 2 ? 'text-gold' : ''}>2. Local</span>
-              <span className={step >= 3 ? 'text-gold' : ''}>3. Detalhes</span>
-              <span className={step >= 4 ? 'text-gold' : ''}>4. Fotos</span>
-              <span className={step >= 5 ? 'text-gold' : ''}>5. Proprietário</span>
-            </div>
-            <div className="h-1.5 w-full bg-cream-border rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gold transition-all duration-500 ease-out"
-                style={{ width: `${((step - 1) / 4) * 100}%` }}
-              />
-            </div>
+    // Default: 'editorial'
+    return (
+      <div key="hero" className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-12 animate-fade-in">
+        <div className="text-left space-y-4">
+          <div className="inline-flex items-center gap-2 bg-gold/10 text-gold px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider">
+            <Building2 size={12} />
+            Parceria Premium
           </div>
-        )}
+          <h1 className="font-display text-4xl md:text-5xl font-bold text-charcoal leading-tight">
+            {title}
+          </h1>
+          <p className="text-warm-gray text-base leading-relaxed">
+            {subtitle}
+          </p>
+        </div>
+        <div className="h-64 rounded-3xl overflow-hidden shadow-md border border-cream-border">
+          <img src={heroImage} alt="Cover" className="w-full h-full object-cover" />
+        </div>
+      </div>
+    )
+  }
 
-        {/* Wizard Form Container */}
-        <div className="bg-white border border-cream-border rounded-3xl p-8 shadow-sm relative">
-          
-          {/* STEP 1: Purpose and Type */}
-          {step === 1 && (
+  const renderTextSection = () => (
+    <div key="text" className="bg-white rounded-3xl border border-cream-border p-8 shadow-sm text-left animate-fade-in mb-6">
+      <h3 className="font-display text-xl font-bold text-charcoal mb-4">Por que anunciar conosco?</h3>
+      <p className="text-warm-gray text-sm leading-relaxed mb-6">
+        Ao anunciar seu imóvel com a {tenant.name}, você tem acesso a uma curadoria especializada com alcance nacional e atendimento personalizado premium.
+      </p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-warm-gray">
+        <div className="space-y-1">
+          <div className="font-bold text-charcoal">⭐ Destaque Nacional</div>
+          <div>Imóvel exposto nos principais portais para clientes selecionados.</div>
+        </div>
+        <div className="space-y-1">
+          <div className="font-bold text-charcoal">📸 Fotos Profissionais</div>
+          <div>Produção visual de altíssimo padrão sem custo inicial.</div>
+        </div>
+        <div className="space-y-1">
+          <div className="font-bold text-charcoal">🛡️ Transação Segura</div>
+          <div>Assessoria jurídica completa em todas as etapas da negociação.</div>
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderFormWrapper = (children: React.ReactNode) => (
+    <div key="form" className="space-y-6">
+      {/* Multi-step progress bar */}
+      {step < 6 && (
+        <div className="mb-10">
+          <div className="flex justify-between items-center text-[10px] md:text-xs text-warm-gray font-medium uppercase mb-3">
+            <span className={step >= 1 ? 'text-gold' : ''}>1. Tipo</span>
+            <span className={step >= 2 ? 'text-gold' : ''}>2. Local</span>
+            <span className={step >= 3 ? 'text-gold' : ''}>3. Detalhes</span>
+            <span className={step >= 4 ? 'text-gold' : ''}>4. Fotos</span>
+            <span className={step >= 5 ? 'text-gold' : ''}>5. Proprietário</span>
+          </div>
+          <div className="h-1.5 w-full bg-cream-border rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gold transition-all duration-500 ease-out"
+              style={{ width: `${((step - 1) / 4) * 100}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Wizard Form Container */}
+      <div className="bg-white border border-cream-border rounded-3xl p-8 shadow-sm relative">
+        {children}
+      </div>
+    </div>
+  )
+
+  return (
+    <div className="min-h-screen bg-cream pt-28 pb-20">
+      <div className="max-w-3xl mx-auto px-6">
+        <div className={blocksLayout === 'grid' ? "grid grid-cols-1 gap-8 items-start" : "space-y-12"}>
+          {blocks.map(blockId => {
+            if (blockId === 'hero') return renderHero()
+            if (blockId === 'text') return renderTextSection()
+            if (blockId === 'form') {
+              return renderFormWrapper(
+                <>
+                  {/* STEP 1: Purpose and Type */}
+                  {step === 1 && (
             <div className="animate-fade-in-up">
               <h2 className="font-display text-2xl font-bold text-charcoal mb-6 border-b border-cream-border pb-3">
                 Qual o objetivo e tipo do seu imóvel?
@@ -744,6 +825,11 @@ function AnunciarPage() {
               </button>
             </div>
           )}
+                </>
+              )
+            }
+            return null
+          })}
         </div>
       </div>
 

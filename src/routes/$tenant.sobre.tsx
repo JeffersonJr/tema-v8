@@ -1,12 +1,12 @@
 import { getTenantBySlug } from '@/data/tenants'
-import { createFileRoute, Link , useParams } from '@tanstack/react-router'
-import { Award, Heart, ArrowRight, Compass, Smile, ThumbsUp, Scale, Instagram, Facebook, Linkedin } from 'lucide-react'
+import { createFileRoute, Link, useParams } from '@tanstack/react-router'
+import { Award, Heart, ArrowRight, Compass, Smile, ThumbsUp, Scale, Instagram, Facebook, Linkedin, Clock } from 'lucide-react'
 
 export const Route = createFileRoute('/$tenant/sobre')({
   component: SobrePage,
 })
 
-const team = [
+const teamStatic = [
   {
     name: 'Claudia Robles',
     role: 'Diretora Geral & Fundadora',
@@ -61,7 +61,7 @@ const values = [
   {
     icon: Heart,
     title: 'Respeito',
-    description: 'Priorizamos o respeito mútuo em todas as interações, valorizando a diversidade e as necessidades individuais de cada cliente.',
+    description: 'Priorizamos o respeito músuo em todas as interações, valorizando a diversidade e as necessidades individuais de cada cliente.',
   },
   {
     icon: Compass,
@@ -90,111 +90,141 @@ const values = [
   },
 ]
 
+import { useTenant } from '@/routes/$tenant'
+
 function SobrePage() {
+  const tenant = useTenant()
+  const { tenant: tenantSlug } = useParams({ from: '/$tenant/sobre' })
 
-  const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
-  const tenant = getTenantBySlug(tenantSlug || '')
-  if (!tenant) return null
+  const settings = tenant.builderSettings || {}
+  const pageStructure = settings.pageStructures?.sobre || 'editorial'
+  const blocks = settings.pageBlocks?.sobre || ['hero', 'text', 'stats', 'team']
+  const blocksLayout = settings.pageBlocksLayout?.sobre || 'stack'
 
-  return (
-    <div className="min-h-screen bg-cream pt-28">
-      {/* Page Header */}
-      <div className="max-w-3xl mx-auto px-6 text-center mb-10">
-        <div className="inline-flex items-center gap-2 bg-gold/10 text-gold px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
-          <Heart size={12} />
-          Nossa História
+  const sobreTitle = settings.sobreTitle || 'Nossa História, Seu Futuro'
+  const sobreText = settings.sobreText || 'A Robles Imobiliária nasceu em 2002 para assessorar famílias exigentes a conquistarem residências extraordinárias com total segurança jurídica e discrição.'
+  const sobreImage = settings.sobreImage || "/claudia.png"
+
+  const renderHero = () => {
+    if (pageStructure === 'magazine') {
+      return (
+        <div key="hero" className="relative h-64 md:h-80 flex items-center justify-center overflow-hidden mb-12 rounded-3xl border border-cream-border">
+          <img src={sobreImage} alt="Cover" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-charcoal/70 backdrop-blur-[2px]" />
+          <div className="relative z-10 text-center px-6 animate-fade-in">
+            <h1 className="font-display text-3xl md:text-5xl font-bold text-cream mb-3">{sobreTitle}</h1>
+            <p className="text-cream/80 text-sm md:text-base max-w-xl mx-auto">Conheça nossa tradição e curadoria extraordinária.</p>
+          </div>
         </div>
-        <h1 className="font-display text-4xl md:text-5xl font-bold text-charcoal mb-4">
-          Sobre a Robles
-        </h1>
-        <p className="text-warm-gray text-base max-w-xl mx-auto">
-          Especialistas em encontrar o imóvel ideal para cada momento da sua vida com discrição e excelência.
-        </p>
+      )
+    }
+
+    if (pageStructure === 'centered') {
+      return (
+        <div key="hero" className="text-center mb-10 animate-fade-in">
+          <div className="inline-flex items-center gap-2 bg-gold/10 text-gold px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
+            <Heart size={12} />
+            Nossa Tradição
+          </div>
+          <h1 className="font-display text-4xl md:text-5xl font-bold text-charcoal mb-4">
+            {sobreTitle}
+          </h1>
+          <p className="text-warm-gray text-base max-w-xl mx-auto">
+            Mais do que imóveis, curamos patrimônios e realizamos sonhos de vida.
+          </p>
+        </div>
+      )
+    }
+
+    // Default: 'editorial'
+    return (
+      <div key="hero" className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-12 animate-fade-in">
+        <div className="text-left space-y-4">
+          <div className="inline-flex items-center gap-2 bg-gold/10 text-gold px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider">
+            <Heart size={12} />
+            Legado de Prestígio
+          </div>
+          <h1 className="font-display text-4xl md:text-5xl font-bold text-charcoal leading-tight">
+            {sobreTitle}
+          </h1>
+          <p className="text-warm-gray text-base leading-relaxed">
+            Uma trajetória esculpida na excelência e atendimento sob medida para o mercado de alto luxo nacional.
+          </p>
+        </div>
+        <div className="h-64 rounded-3xl overflow-hidden shadow-md border border-cream-border">
+          <img src={sobreImage} alt="Cover" className="w-full h-full object-cover" />
+        </div>
       </div>
+    )
+  }
 
-      {/* Story */}
-      <section className="max-w-5xl mx-auto px-6 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-          <div>
-            <div className="section-title">
-              <h2 className="font-display text-4xl font-bold text-charcoal">
-                {tenant.builderSettings?.sobreTitle || `${tenant.name} — Curadoria Imobiliária`}
-              </h2>
-            </div>
-            {tenant.builderSettings?.sobreText ? (
-              <div 
-                className={`mt-5 text-warm-gray leading-relaxed space-y-4 ${
-                  tenant.builderSettings?.sobreTextFontSize || 'text-base'
-                }`}
-                dangerouslySetInnerHTML={{ __html: tenant.builderSettings.sobreText }}
-              />
-            ) : (
-              <div className="space-y-4 mt-5 text-warm-gray text-base leading-relaxed">
-                <p>
-                  A Robles Imobiliária nasceu em 2002 da visão de Claudia Robles: criar uma imobiliária que tratasse cada cliente como único, entendendo não apenas o que ele quer, mas o que ele realmente precisa.
-                </p>
-                <p>
-                  Começamos com um pequeno escritório nos Jardins, São Paulo. Hoje somos referência no mercado imobiliário de alto padrão em cinco das principais cidades do Brasil: São Paulo, Rio de Janeiro, Florianópolis, Curitiba e Belo Horizonte.
-                </p>
-                <p>
-                  Nossa equipe é formada por especialistas com profundo conhecimento de cada mercado onde atuamos. Mais do que corretores, somos consultores que acompanham o cliente do primeiro contato às chaves na mão — e além.
-                </p>
-                <p>
-                  R$ 2,4 bilhões em transações, 4.800 famílias atendidas e uma reputação construída negociação a negociação. Esse é o nosso legado, e é o que nos motiva a fazer ainda melhor todos os dias.
-                </p>
-              </div>
-            )}
-            
-            <div className="mt-8 flex flex-col items-start border-t border-cream-border pt-6">
-              <img
-                src={tenant.aboutSignature?.image || "/assinatura.png"}
-                alt={`Assinatura ${tenant.aboutSignature?.name || tenant.name}`}
-                className="h-14 w-auto object-contain brightness-95 filter"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-              <span className="text-lg font-semibold text-charcoal mt-2">{tenant.aboutSignature?.name || "Claudia Robles"}</span>
-              <span className="text-sm text-warm-gray">{tenant.aboutSignature?.role || "Fundadora & Diretora Geral"}</span>
-            </div>
+  const renderStorySection = () => (
+    <section key="text" className="max-w-5xl mx-auto py-10 animate-fade-in">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+        <div>
+          <div className="section-title">
+            <h2 className="font-display text-4xl font-bold text-charcoal">
+              {sobreTitle}
+            </h2>
           </div>
-          <div className="relative">
+          <div 
+            className="mt-5 text-warm-gray leading-relaxed space-y-4 text-base"
+            dangerouslySetInnerHTML={{ __html: sobreText }}
+          />
+          <div className="mt-8 flex flex-col items-start border-t border-cream-border pt-6">
             <img
-              src={tenant.builderSettings?.sobreImage || "/claudia.png"}
-              alt={tenant.name}
-              className="rounded-2xl w-full h-auto object-contain max-h-[500px] border border-cream-border/60 shadow-md bg-cream-dark"
+              src={tenant.aboutSignature?.image || "/assinatura.png"}
+              alt={`Assinatura ${tenant.aboutSignature?.name || tenant.name}`}
+              className="h-14 w-auto object-contain brightness-95 filter"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
             />
-            {(!tenant.builderSettings?.sobreStats) && (
-              <div className="absolute -bottom-6 -left-6 bg-gold text-white rounded-2xl p-6 w-40">
-                <div className="font-display text-4xl font-bold">23</div>
-                <div className="text-base mt-1 text-white/80">anos de mercado</div>
-              </div>
-            )}
+            <span className="text-lg font-semibold text-charcoal mt-2">{tenant.aboutSignature?.name || "Claudia Robles"}</span>
+            <span className="text-sm text-warm-gray">{tenant.aboutSignature?.role || "Fundadora & Diretora Geral"}</span>
           </div>
         </div>
-      </section>
+        <div className="relative">
+          <img
+            src={sobreImage}
+            alt={tenant.name}
+            className="rounded-2xl w-full h-auto object-contain max-h-[500px] border border-cream-border/60 shadow-md bg-cream-dark"
+          />
+          {(!settings.sobreStats) && (
+            <div className="absolute -bottom-6 -left-6 bg-gold text-white rounded-2xl p-6 w-40 shadow-lg">
+              <div className="font-display text-4xl font-bold">23</div>
+              <div className="text-base mt-1 text-white/80">anos de mercado</div>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  )
 
-      {/* Stats */}
-      <section className="bg-charcoal py-16">
+  const renderStatsSection = () => {
+    const rawStats = settings.sobreStats
+    const parsedStats = rawStats
+      ? rawStats.split(/\s*\.\s*/).map((s: string) => {
+          const commaIndex = s.indexOf(',')
+          if (commaIndex === -1) return { value: s.trim(), label: '' }
+          return {
+            value: s.substring(0, commaIndex).trim(),
+            label: s.substring(commaIndex + 1).trim()
+          }
+        })
+      : [
+          { value: 'R$ 2,4 bi', label: 'Transacionados' },
+          { value: '4.800+', label: 'Famílias atendidas' },
+          { value: '1.240+', label: 'Imóveis disponíveis' },
+          { value: '5', label: 'Cidades de atuação' },
+        ]
+
+    return (
+      <section key="stats" className="bg-charcoal py-16 rounded-3xl border border-cream-border my-6 animate-fade-in">
         <div className="max-w-5xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {(tenant.builderSettings?.sobreStats 
-              ? tenant.builderSettings.sobreStats.split(' · ').map((s: string) => {
-                  const spaceIdx = s.indexOf(' ');
-                  if (spaceIdx === -1) return { value: s, label: '' };
-                  return {
-                    value: s.substring(0, spaceIdx),
-                    label: s.substring(spaceIdx + 1)
-                  };
-                })
-              : [
-                  { value: 'R$ 2,4 bi', label: 'Transacionados' },
-                  { value: '4.800+', label: 'Famílias atendidas' },
-                  { value: '1.240+', label: 'Imóveis disponíveis' },
-                  { value: '5', label: 'Cidades de atuação' },
-                ]
-            ).map((s: any) => (
-              <div key={s.label}>
+            {parsedStats.map((s: any, idx: number) => (
+              <div key={idx}>
                 <div className="font-display text-3xl font-bold text-gold mb-1">{s.value}</div>
                 <div className="text-cream/50 text-sm uppercase tracking-widest">{s.label}</div>
               </div>
@@ -202,9 +232,106 @@ function SobrePage() {
           </div>
         </div>
       </section>
+    )
+  }
 
-      {/* Values */}
-      <section className="max-w-7xl mx-auto px-6 py-20">
+  const renderTeamSection = () => {
+    const teamMembers = settings.team && settings.team.length > 0 ? settings.team : teamStatic
+    const tStyle = settings.teamStyle || 'grid'
+
+    return (
+      <section key="team" className="bg-cream-dark py-16 rounded-3xl border border-cream-border my-6 px-6 animate-fade-in">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="section-title" style={{ textAlign: 'center' }}>
+              <h2 className="font-display text-3xl font-bold text-charcoal">Nossa Equipe</h2>
+            </div>
+            <p className="text-warm-gray mt-3 max-w-xl mx-auto text-base">
+              Especialistas dedicados ao mercado imobiliário corporativo e residencial boutique de alto padrão.
+            </p>
+          </div>
+
+          <div className={
+            tStyle === 'list'
+              ? "space-y-4 max-w-2xl mx-auto"
+              : tStyle === 'minimal'
+              ? "flex flex-wrap justify-center gap-8"
+              : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          }>
+            {teamMembers.map((member: any, idx: number) => {
+              if (tStyle === 'list') {
+                return (
+                  <div key={idx} className="bg-white border border-cream-border rounded-2xl p-4 flex items-center justify-between shadow-sm">
+                    <div className="flex items-center gap-4">
+                      <img src={member.photo} alt={member.name} className="w-14 h-14 rounded-full object-cover shrink-0" />
+                      <div className="text-left">
+                        <h4 className="font-bold text-charcoal text-base">{member.name}</h4>
+                        <p className="text-gold text-xs font-semibold">{member.role}</p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-semibold text-charcoal bg-cream-dark px-4 py-2 rounded-full">{member.phone}</span>
+                  </div>
+                )
+              }
+              if (tStyle === 'minimal') {
+                return (
+                  <div key={idx} className="flex flex-col items-center">
+                    <img src={member.photo} alt={member.name} className="w-20 h-20 rounded-full border-2 border-gold object-cover shadow-md mb-3" />
+                    <h4 className="font-bold text-charcoal text-sm">{member.name}</h4>
+                    <p className="text-warm-gray text-xs">{member.role}</p>
+                  </div>
+                )
+              }
+              // Grid or Cards style
+              return (
+                <div key={idx} className="bg-white rounded-2xl overflow-hidden border border-cream-border group hover:-translate-y-1 transition-transform duration-300">
+                  <div className="aspect-[4/5] overflow-hidden bg-cream-dark">
+                    <img
+                      src={member.photo}
+                      alt={member.name}
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="p-6 text-center">
+                    <h3 className="font-display text-lg font-bold text-charcoal">{member.name}</h3>
+                    <p className="text-gold text-xs font-semibold uppercase tracking-widest mt-1 mb-3">{member.role}</p>
+                    <p className="text-warm-gray text-sm leading-relaxed mb-4">{member.bio || "Especialista perito de alto padrão focado em atendimento personalizado de excelência."}</p>
+                    <span className="text-xs font-semibold text-charcoal bg-slate-50 border px-4 py-2 rounded-full">{member.phone}</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  const renderBlock = (blockId: string) => {
+    switch (blockId) {
+      case 'hero':
+        return renderHero()
+      case 'text':
+        return renderStorySection()
+      case 'stats':
+        return renderStatsSection()
+      case 'team':
+        return renderTeamSection()
+      default:
+        return null
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-cream pt-28">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className={blocksLayout === 'grid' ? "grid grid-cols-1 md:grid-cols-2 gap-8 items-start" : "space-y-12"}>
+          {blocks.map((blockId) => renderBlock(blockId))}
+        </div>
+      </div>
+
+      {/* Values Section */}
+      <section className="max-w-7xl mx-auto px-6 py-20 animate-fade-in">
         <div className="text-center mb-12">
           <div className="section-title" style={{ textAlign: 'center' }}>
             <h2 className="font-display text-4xl font-bold text-charcoal">Nossos Valores</h2>
@@ -225,87 +352,6 @@ function SobrePage() {
         </div>
       </section>
 
-      {/* Team */}
-      <section className="bg-cream-dark py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <div className="section-title" style={{ textAlign: 'center' }}>
-              <h2 className="font-display text-4xl font-bold text-charcoal">Nossa Equipe</h2>
-            </div>
-            <p className="text-warm-gray mt-3 max-w-xl mx-auto text-base">
-              Especialistas apaixonados pelo mercado imobiliário, com presença nos melhores endereços do Brasil.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {team.map((member) => (
-              <div key={member.name} className="bg-white rounded-2xl overflow-hidden border border-cream-border group hover:-translate-y-1 transition-transform duration-300">
-                <div className="aspect-[4/5] overflow-hidden bg-cream-dark">
-                  <img
-                    src={member.photo}
-                    alt={member.name}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="font-display text-lg font-bold text-charcoal">{member.name}</h3>
-                  <div className="text-gold text-sm font-medium uppercase tracking-wider mt-1 mb-3">{member.role}</div>
-                  <p className="text-warm-gray text-base leading-relaxed mb-3">{member.bio}</p>
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-warm-gray/60">{member.creci}</div>
-                    <div className="flex gap-2">
-                      <a href={member.socials.instagram} target="_blank" rel="noopener noreferrer"
-                        className="w-7 h-7 rounded-full border border-cream-border flex items-center justify-center text-warm-gray hover:border-gold hover:text-gold transition-colors">
-                        <Instagram size={12} />
-                      </a>
-                      <a href={member.socials.linkedin} target="_blank" rel="noopener noreferrer"
-                        className="w-7 h-7 rounded-full border border-cream-border flex items-center justify-center text-warm-gray hover:border-gold hover:text-gold transition-colors">
-                        <Linkedin size={12} />
-                      </a>
-                      <a href={member.socials.facebook} target="_blank" rel="noopener noreferrer"
-                        className="w-7 h-7 rounded-full border border-cream-border flex items-center justify-center text-warm-gray hover:border-gold hover:text-gold transition-colors">
-                        <Facebook size={12} />
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Awards */}
-      <section className="max-w-7xl mx-auto px-6 py-16">
-        <div className="bg-cream-dark rounded-3xl p-10 md:p-16">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="max-w-lg">
-              <div className="section-title">
-                <h2 className="font-display text-3xl font-bold text-charcoal">
-                  Reconhecida pelo mercado
-                </h2>
-              </div>
-              <p className="text-warm-gray text-base mt-3 leading-relaxed">
-                Ao longo de 23 anos, a Robles Imobiliária acumulou prêmios e reconhecimentos que refletem nosso compromisso com a excelência no atendimento e nas transações imobiliárias.
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { year: '2024', award: 'Melhor Imobiliária Premium SP', entity: 'SECOVI-SP' },
-                { year: '2023', award: 'Top 5 Imobiliárias de Luxo BR', entity: 'Revista Exame' },
-                { year: '2022', award: 'Excelência em Atendimento', entity: 'CRECI-SP' },
-                { year: '2020', award: '20 anos de Mercado', entity: 'Prêmio IAB' },
-              ].map((award) => (
-                <div key={award.award} className="bg-white rounded-2xl p-4 text-center border border-cream-border">
-                  <div className="text-gold font-bold text-lg">{award.year}</div>
-                  <div className="text-charcoal text-sm font-semibold mt-1 leading-tight">{award.award}</div>
-                  <div className="text-warm-gray text-xs mt-1">{award.entity}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
- 
       {/* CTA */}
       <section className="bg-charcoal py-16">
         <div className="max-w-3xl mx-auto px-6 text-center">

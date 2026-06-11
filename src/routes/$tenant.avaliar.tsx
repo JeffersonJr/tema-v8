@@ -1,4 +1,4 @@
-import { getTenantBySlug } from '@/data/tenants'
+import { useTenant } from '@/routes/$tenant'
 import { createFileRoute , useParams } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { 
@@ -27,8 +27,7 @@ type Step = 1 | 2 | 3 | 4 | 5
 function AvaliarPage() {
 
   const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
-  const tenant = getTenantBySlug(tenantSlug || '')
-  if (!tenant) return null
+  const tenant = useTenant()
 
   const [step, setStep] = useState<Step>(1)
   const [loading, setLoading] = useState(false)

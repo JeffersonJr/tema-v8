@@ -1,4 +1,4 @@
-import { getTenantBySlug } from '@/data/tenants'
+import { useTenant } from '@/routes/$tenant'
 import { createFileRoute, Link, notFound , useParams } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import {
@@ -396,10 +396,8 @@ function LaunchProgress({ status }: { status: Property['launchStatus'] }) {
 }
 
 function ImovelPage() {
-
+  const tenant = useTenant()
   const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
-  const tenant = getTenantBySlug(tenantSlug || '')
-  if (!tenant) return null
 
   const property = Route.useLoaderData()
   const [saved, setSaved] = useState(false)

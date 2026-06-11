@@ -884,19 +884,53 @@ properties.forEach((p) => {
 export default properties
 
 export function getProperties(tenantId?: string): Property[] {
-  return properties.filter((p) => !tenantId || p.tenantId === tenantId)
+  if (!tenantId) return properties;
+  const filtered = properties.filter((p) => p.tenantId === tenantId);
+  if (filtered.length > 0) return filtered;
+  
+  // Fallback for custom tenants: return Robles properties mapped to this tenantId
+  return properties.filter((p) => p.tenantId === 'robles').map((p) => ({
+    ...p,
+    tenantId,
+  }));
 }
 
 export function getPropertyById(id: string, tenantId?: string): Property | undefined {
-  return properties.find((p) => p.id === id && (!tenantId || p.tenantId === tenantId))
+  const found = properties.find((p) => p.id === id && (!tenantId || p.tenantId === tenantId));
+  if (found) return found;
+  
+  // Fallback for custom tenants
+  if (tenantId && tenantId !== 'robles' && tenantId !== 'lumina') {
+    const roblesProp = properties.find((p) => p.id === id && p.tenantId === 'robles');
+    if (roblesProp) {
+      return { ...roblesProp, tenantId };
+    }
+  }
+  return undefined;
 }
 
 export function getFeaturedProperties(tenantId?: string): Property[] {
-  return properties.filter((p) => p.featured && (!tenantId || p.tenantId === tenantId))
+  if (!tenantId) return properties.filter((p) => p.featured);
+  const filtered = properties.filter((p) => p.featured && p.tenantId === tenantId);
+  if (filtered.length > 0) return filtered;
+  
+  // Fallback for custom tenants
+  return properties.filter((p) => p.featured && p.tenantId === 'robles').map((p) => ({
+    ...p,
+    tenantId,
+  }));
 }
 
 export function getLaunchProperties(tenantId?: string): Property[] {
-  return properties.filter((p) => p.isLaunch && (!tenantId || p.tenantId === tenantId))
+  if (!tenantId) return properties.filter((p) => p.isLaunch);
+  const filtered = properties.filter((p) => p.isLaunch && p.tenantId === tenantId);
+  if (filtered.length > 0) return filtered;
+  
+  // Fallback for custom tenants
+  return properties.filter((p) => p.isLaunch && p.tenantId === 'robles').map((p) => ({
+    ...p,
+    tenantId,
+  }));
 }
 
 export function formatPrice(price: number): string {

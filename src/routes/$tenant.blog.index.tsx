@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { getTenantBySlug } from '@/data/tenants'
+import { useTenant } from '@/routes/$tenant'
 import { createFileRoute, Link , useParams } from '@tanstack/react-router'
 import { ArrowRight, Clock, Tag, BookOpen } from 'lucide-react'
 import { blogPosts } from '@/data/blog'
@@ -12,7 +12,7 @@ const CATEGORIES = ['Todos', 'Mercado', 'Guia do Comprador', 'Investimento', 'Fi
 
 function BlogPage() {
   const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant: string }
-  const tenant = getTenantBySlug(tenantSlug || '')
+  const tenant = useTenant()
   
   const [selectedCategory, setSelectedCategory] = useState('Todos')
 

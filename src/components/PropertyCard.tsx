@@ -3,7 +3,7 @@ import { BedDouble, Bath, Car, Maximize2, MapPin, Heart, PawPrint } from 'lucide
 import { useState, useEffect } from 'react'
 import type { Property } from '@/data/properties'
 import { formatPrice } from '@/data/properties'
-import { getTenantBySlug } from '@/data/tenants'
+import { useTenant } from '@/routes/$tenant'
 
 interface PropertyCardProps {
   property: Property
@@ -12,7 +12,7 @@ interface PropertyCardProps {
 
 export function PropertyCard({ property, variant }: PropertyCardProps) {
   const { tenant: tenantSlug } = useParams({ strict: false }) as { tenant?: string }
-  const tenant = getTenantBySlug(tenantSlug || '')
+  const tenant = useTenant()
   
   // Dynamic variants
   const cardVariant = variant || tenant?.builderSettings?.cardVariant || 'default'

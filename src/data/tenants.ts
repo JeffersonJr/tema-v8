@@ -49,8 +49,8 @@ export interface Tenant {
   }
   builderSettings: {
     headerStyle: 'transparent' | 'minimal' | 'classic'
-    footerStyle: 'simple' | 'detailed' | 'minimal'
-    heroStyle: 'search-centered' | 'search-left' | 'minimalist'
+    footerStyle: 'simple' | 'detailed' | 'minimal' | 'modern-newsletter' | 'column-grid' | 'brand-glow'
+    heroStyle: 'search-centered' | 'search-left' | 'search-right' | 'minimalist' | 'split-screen' | 'video-ambient'
     heroTitle: string
     heroSubtitle: string
     heroImage: string
@@ -75,7 +75,7 @@ export interface Tenant {
       blog: boolean
       launches: boolean
     }
-    pages: {
+    pages?: {
       blog: boolean
       launches: boolean
       contact: boolean
@@ -95,6 +95,67 @@ export interface Tenant {
       photo: string
       instagram: string
     }[]
+    pageStructures?: {
+      sobre: 'editorial' | 'centered' | 'magazine'
+      anunciar: 'editorial' | 'centered' | 'magazine'
+      contato: 'editorial' | 'centered' | 'magazine'
+      blog: 'editorial' | 'centered' | 'magazine'
+    }
+    pageBlocks?: {
+      sobre: string[]
+      anunciar: string[]
+      contato: string[]
+    }
+    pageBlocksLayout?: {
+      sobre: 'stack' | 'grid'
+      anunciar: 'stack' | 'grid'
+      contato: 'stack' | 'grid'
+    }
+    citiesList?: {
+      name: string
+      state: string
+      count: number
+      image: string
+    }[]
+    homeBlocks?: string[]
+    enabledPages?: {
+      comprar: boolean
+      alugar: boolean
+      lancamentos: boolean
+      anunciar: boolean
+      blog: boolean
+      sobre: boolean
+      contato: boolean
+    }
+    teamStyle?: 'grid' | 'cards' | 'list' | 'minimal'
+    formFields?: {
+      [key: string]: { label: string; enabled: boolean; required: boolean }
+    }
+    logoLight?: string
+    marcaDagua?: string
+    cardTag?: string
+    contatoTitle?: string
+    contatoSubtitle?: string
+    contatoAddress?: string
+    anunciarTitle?: string
+    anunciarSubtitle?: string
+    seoKeywords?: string
+    googleAnalyticsId?: string
+    googleTagManagerId?: string
+    googleSiteVerificationId?: string
+    googleAdsConversionId?: string
+    googleAdsConversionLabel?: string
+    googleAdsRemarketingId?: string
+    facebookPixelId?: string
+    facebookConversionToken?: string
+    pinterestTagId?: string
+    rdStationToken?: string
+    rdStationScript?: string
+    linkedinInsightId?: string
+    tiktokPixelId?: string
+    customScriptsHead?: string
+    customScriptsBody?: string
+    customCss?: string
   }
 }
 
@@ -295,6 +356,108 @@ export const tenants: Tenant[] = [
           email: 'carolina@lumina.com.br',
           photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80',
           instagram: 'https://instagram.com/carolina',
+        }
+      ]
+    }
+  },
+  {
+    id: 'robles-new',
+    slug: 'robles-new',
+    name: 'Robles Imobiliária',
+    tagline: 'Imóveis que conquistam à primeira vista.',
+    logo: '/logo-robles.svg',
+    favicon: '/favicon.ico',
+    creci: 'CRECI-SP 28.741-J',
+    description: 'Especialistas em imóveis de alto padrão há mais de 23 anos. Encontramos o imóvel ideal para cada momento da sua vida.',
+    colors: {
+      cream: '#FAF8F5',
+      creamDark: '#F2ECE4',
+      creamBorder: '#E5DCD0',
+      charcoal: '#1A1715',
+      charcoalLight: '#2D2825',
+      warmGray: '#8C7C72',
+      gold: '#C69C6D',
+      goldLight: '#D9B890',
+    },
+    contacts: {
+      phone: '(11) 3568-2495',
+      phoneRaw: '+551135682495',
+      whatsapp: '(11) 95033-8488',
+      whatsappRaw: '5511950338488',
+      email: 'claudia@roblesimobiliariasp.com.br',
+      address: {
+        street: 'Avenida das Nações Unidas, nº 14171',
+        neighborhood: 'Vila Gertrudes',
+        city: 'São Paulo',
+        state: 'SP',
+        fullAddress: 'Avenida das Nações Unidas, nº 14171, Vila Gertrudes, São Paulo - SP',
+      },
+    },
+    socials: {
+      instagram: 'https://www.instagram.com/roblesimobiliaria/',
+      facebook: 'https://www.facebook.com/roblesimobiliariasp/',
+      youtube: 'https://www.youtube.com/channel/UCK65kTIZ4SxbnkskBPCfoEw',
+    },
+    aboutSignature: {
+      name: 'Claudia Robles',
+      role: 'Fundadora & Diretora Geral',
+      image: '/assinatura.png',
+    },
+    fonts: {
+      sans: 'DM Sans',
+      display: 'Playfair Display',
+    },
+    builderSettings: {
+      headerStyle: 'transparent',
+      footerStyle: 'simple',
+      heroStyle: 'search-centered',
+      heroTitle: 'Robles Imobiliária',
+      heroSubtitle: 'Encontre os melhores imóveis de luxo de São Paulo com atendimento exclusivo e personalizado.',
+      heroImage: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1600&q=80',
+      cardVariant: 'default',
+      showCardBedrooms: true,
+      showCardBathrooms: true,
+      showCardArea: true,
+      showCardCondo: true,
+      showCardPetFriendly: true,
+      modules: {
+        featured: true,
+        categories: true,
+        cities: true,
+        testimonials: true,
+        blog: true,
+        launches: true,
+      },
+      pages: {
+        blog: true,
+        launches: true,
+        contact: true,
+        sobre: true,
+        anunciar: true,
+        avaliar: true,
+      },
+      homeFilters: ['finalidade', 'tipo', 'neighborhood', 'bedrooms'],
+      searchFiltersLayout: 'sidebar',
+      detailGalleryStyle: 'mosaic',
+      openingHours: 'Segunda a Sexta das 9h às 18h · Sábados das 9h às 13h',
+      homeBlocks: ['stats', 'featured', 'categories', 'launches', 'cities', 'testimonials', 'cta', 'tags'],
+      showHeaderTopBar: true,
+      team: [
+        {
+          name: 'Rafaela Monteiro',
+          role: 'Diretora Comercial',
+          phone: '(11) 99847-3821',
+          email: 'rafaela@robles.com.br',
+          photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&q=80',
+          instagram: 'https://instagram.com/rafaela',
+        },
+        {
+          name: 'Thiago Cavalcante',
+          role: 'Especialista em Coberturas',
+          phone: '(21) 98834-5577',
+          email: 'thiago@robles.com.br',
+          photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80',
+          instagram: 'https://instagram.com/thiago',
         }
       ]
     }

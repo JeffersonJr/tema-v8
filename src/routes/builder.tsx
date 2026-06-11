@@ -16,8 +16,6 @@ import {
   Bath,
   ChevronUp,
   ChevronDown,
-  Phone,
-  Mail,
   Image as ImageIcon,
   Upload,
   ChevronRight,
@@ -28,13 +26,16 @@ import {
   Menu,
   Move,
   Globe,
-  Search,
   ArrowRight,
   Smartphone,
   Tablet,
   Monitor,
+  Search,
+  Code,
+  Download,
 } from 'lucide-react'
 import { getTenantById } from '@/data/tenants'
+import { mapBuilderToThemeS3, mapThemeS3ToBuilder } from '../utils/themeAwsS3V2Mapper'
 import { formatPrice } from '@/data/properties'
 
 export const Route = createFileRoute('/builder')({
@@ -227,22 +228,47 @@ const mockProperty = {
 }
 
 // ─── SECTION ACCORDION ──────────────────────────────────────────────────────
-function SectionAccordion({ icon, title, defaultOpen = true, children }: { icon: React.ReactNode; title: string; defaultOpen?: boolean; children: React.ReactNode }) {
-  const [open, setOpen] = useState(defaultOpen)
+function SectionAccordion({
+  icon,
+  title,
+  isOpen,
+  onToggle,
+  isDisabled = false,
+  children,
+}: {
+  icon: React.ReactNode
+  title: string
+  isOpen: boolean
+  onToggle: () => void
+  isDisabled?: boolean
+  children: React.ReactNode
+}) {
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+    <div
+      id={`accordion-${title.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`}
+      className={`bg-white border rounded-2xl overflow-hidden shadow-sm transition-all duration-300 ${
+        isDisabled ? 'opacity-40 pointer-events-none' : ''
+      } ${
+        isOpen ? 'border-amber-400 ring-2 ring-amber-50 shadow-md scale-[1.01]' : 'border-slate-200'
+      }`}
+    >
       <button
         type="button"
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between p-5 hover:bg-slate-50 transition-colors cursor-pointer"
+        disabled={isDisabled}
+        onClick={onToggle}
+        className="w-full flex items-center justify-between p-5 hover:bg-slate-50 transition-colors cursor-pointer border-0"
       >
         <div className="flex items-center gap-2.5">
-          <span className="text-amber-500">{icon}</span>
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">{title}</h2>
+          <span className={isOpen ? 'text-amber-500 scale-110 transition-transform' : 'text-slate-400'}>{icon}</span>
+          <h2 className={`text-xs font-bold uppercase tracking-wider ${isOpen ? 'text-amber-800' : 'text-slate-800'}`}>{title}</h2>
         </div>
-        <ChevronRight size={14} className={`text-slate-400 transition-transform ${open ? 'rotate-90' : ''}`} />
+        <ChevronRight size={14} className={`text-slate-400 transition-transform duration-350 ${isOpen ? 'rotate-90 text-amber-500' : ''}`} />
       </button>
-      {open && <div className="px-5 pt-5 pb-5 space-y-5 border-t border-slate-100">{children}</div>}
+      {isOpen && !isDisabled && (
+        <div className="px-5 pt-5 pb-5 space-y-5 border-t border-slate-100 bg-white">
+          {children}
+        </div>
+      )}
     </div>
   )
 }
@@ -333,11 +359,98 @@ function BuilderPage() {
     }, 3000)
   }
 
+  // Exclusive Accordion & Wizard state (Requirement 6)
+  const [openSectionId, setOpenSectionId] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const isFirst = window.localStorage.getItem('v8_builder_first_time') === 'true'
+      return isFirst ? '' : 'cadastro'
+    }
+    return 'cadastro'
+  })
+  const [maxUnlockedStepIndex, setMaxUnlockedStepIndex] = useState<number>(0)
+  const [isFirstTime, setIsFirstTime] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.localStorage.getItem('v8_builder_first_time') === 'true'
+    }
+    return false
+  })
+
+  const SECTIONS_ORDER = [
+    'cadastro',
+    'presets',
+    'colors',
+    'uploads',
+    'fonts',
+    'cards',
+    'hero',
+    'subpages',
+    'structures',
+    'homeblocks',
+    'cities',
+    'team',
+    'content',
+    'fields',
+    'domain',
+    'seo',
+    'css',
+    's3config'
+  ]
+
+  const handleWizardNext = (currentSection: string) => {
+    const currentIndex = SECTIONS_ORDER.indexOf(currentSection)
+    if (currentIndex !== -1 && currentIndex < SECTIONS_ORDER.length - 1) {
+      const nextSection = SECTIONS_ORDER[currentIndex + 1]
+      if (isFirstTime) {
+        setMaxUnlockedStepIndex(prev => Math.max(prev, currentIndex + 1))
+      }
+      setOpenSectionId(nextSection)
+      setTimeout(() => {
+        const element = document.getElementById(`accordion-${nextSection}`)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        }
+      }, 150)
+    } else {
+      setIsFirstTime(false)
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem('v8_builder_first_time')
+      }
+      showToast('Parabéns! O seu site imobiliário modular foi construído com sucesso! Agora você pode exportar ou visualizar.', 'success')
+    }
+  }
+
+  const toggleSection = (sectionId: string) => {
+    if (isFirstTime) {
+      const index = SECTIONS_ORDER.indexOf(sectionId)
+      if (index > maxUnlockedStepIndex) {
+        showToast('Por favor, complete a etapa atual e clique em Salvar & Continuar.', 'error')
+        return
+      }
+    }
+    setOpenSectionId(openSectionId === sectionId ? '' : sectionId)
+  }
+
+  const renderWizardNextButton = (sectionId: string) => {
+    const isLast = sectionId === 'domain'
+    return (
+      <div className="flex justify-end pt-3 border-t border-slate-100 mt-4">
+        <button
+          type="button"
+          onClick={() => handleWizardNext(sectionId)}
+          className="btn-gold px-5 py-2.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer border-0 shadow-sm"
+        >
+          {isLast ? '✓ Concluir Construção' : 'Salvar & Continuar →'}
+        </button>
+      </div>
+    )
+  }
+
   // Custom domain fields
   const [customDomain, setCustomDomain] = useState('')
   const [customDomains, setCustomDomains] = useState<string[]>([])
   const [domainStatus, setDomainStatus] = useState<'connected' | 'pending'>('pending')
   const [newDomainInput, setNewDomainInput] = useState('')
+  const [s3JsonInput, setS3JsonInput] = useState('')
 
   // Settings
   const [settings, setSettings] = useState({
@@ -346,7 +459,7 @@ function BuilderPage() {
     status: (defaultTenant?.status || 'online') as 'online' | 'offline',
     headerStyle: 'minimal' as 'transparent' | 'minimal' | 'classic',
     headerFixed: true,
-    footerStyle: 'simple' as 'simple' | 'detailed' | 'minimal' | 'modern-newsletter' | 'column-grid',
+    footerStyle: 'simple' as 'simple' | 'detailed' | 'minimal' | 'modern-newsletter' | 'column-grid' | 'brand-glow',
     heroStyle: 'minimalist' as 'search-centered' | 'search-left' | 'search-right' | 'minimalist' | 'split-screen' | 'video-ambient',
     heroTitle: 'Coleção Lançamentos Curitiba',
     heroSubtitle: 'Curadoria especializada de apartamentos, coberturas e residências suspensas com design assinado.',
@@ -380,6 +493,18 @@ function BuilderPage() {
       anunciar: ['hero', 'text', 'form'],
       contato: ['hero', 'form', 'text'],
     },
+    pageBlocksLayout: {
+      sobre: 'stack' as 'stack' | 'grid',
+      anunciar: 'stack' as 'stack' | 'grid',
+      contato: 'stack' as 'stack' | 'grid',
+    },
+    citiesList: [
+      { name: 'Porto Feliz', state: 'SP', count: 84, image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80' },
+      { name: 'Santana de Parnaíba', state: 'SP', count: 142, image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80' },
+      { name: 'São Paulo', state: 'SP', count: 542, image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80' },
+      { name: 'São Sebastião', state: 'SP', count: 78, image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&q=80' },
+      { name: 'Ubatuba', state: 'SP', count: 63, image: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=400&q=80' },
+    ] as any[],
     teamStyle: 'grid' as 'grid' | 'cards' | 'list' | 'minimal',
     formFields: {
       name: { label: 'Nome Completo', enabled: true, required: true },
@@ -398,12 +523,29 @@ function BuilderPage() {
     sobreTitle: 'Nossa História, Seu Futuro',
     sobreText: 'Na Lumina, acreditamos que encontrar um imóvel de alto padrão em Curitiba é uma arte. Selecionamos cada propriedade com rigor estético e técnico.',
     sobreImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80',
-    sobreStats: '15 Anos de Tradição · 400+ Sonhos Realizados · R$ 1.5B+ Negociados',
+    sobreStats: '15 Anos, De Tradição . 400+, Sonhos Realizados . R$ 1.5B+, Negociados',
     anunciarTitle: 'Anuncie seu Imóvel',
     anunciarSubtitle: 'Alcance milhares de compradores qualificados com nossa plataforma premium.',
     contatoTitle: 'Conecte-se com a Exclusividade',
     contatoSubtitle: 'Agende uma visita exclusiva com nossos curadores de imóveis no Batel.',
     contatoAddress: 'Av. do Batel, 1200 - Batel, Curitiba/PR',
+    seoKeywords: '',
+    googleAnalyticsId: '',
+    googleTagManagerId: '',
+    googleSiteVerificationId: '',
+    googleAdsConversionId: '',
+    googleAdsConversionLabel: '',
+    googleAdsRemarketingId: '',
+    facebookPixelId: '',
+    facebookConversionToken: '',
+    pinterestTagId: '',
+    rdStationToken: '',
+    rdStationScript: '',
+    linkedinInsightId: '',
+    tiktokPixelId: '',
+    customScriptsHead: '',
+    customScriptsBody: '',
+    customCss: '',
   })
 
   const [contacts, setContacts] = useState({
@@ -474,7 +616,7 @@ function BuilderPage() {
           team: defaultTenant.builderSettings.team || [],
           formFields: (defaultTenant.builderSettings as any).formFields || prev.formFields,
           teamStyle: (defaultTenant.builderSettings as any).teamStyle || prev.teamStyle,
-        }))
+        }) as any)
         if (defaultTenant.colors) setColors(defaultTenant.colors)
         if (defaultTenant.fonts) setFonts(defaultTenant.fonts as any)
         if (defaultTenant.contacts) {
@@ -814,7 +956,7 @@ function BuilderPage() {
 
   // ─── PREVIEW FOOTER RENDERER ───────────────────────────────────────────────
   const renderFooter = () => {
-    const fStyle = settings.footerStyle || 'simple'
+    const fStyle = (settings.footerStyle as string) || 'simple'
     
     // Choose logo depending on background
     const isDarkFooter = fStyle !== 'column-grid';
@@ -931,7 +1073,7 @@ function BuilderPage() {
             <div className="text-[6px] uppercase tracking-widest text-amber-500/80 font-bold">{settings.heroTitle}</div>
           </div>
           <div className="w-12 h-[1px] bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto my-2" />
-          <div className="flex justify-center gap-4 text-[7px] font-semibold text-zinc-300">
+              <div className="flex justify-center gap-4 text-[7px] font-semibold text-zinc-300">
             <span>Home</span>
             <span>Comprar</span>
             <span>Lançamentos</span>
@@ -997,17 +1139,71 @@ function BuilderPage() {
     const heroImg = settings.heroImage || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=85&fit=crop'
     const goldAccent = getContrastGold(true)
 
+    // Helper to render the custom home search filters dynamically in the preview (Requirement 5)
+    const renderPreviewHeroSearch = () => {
+      const activeFilters = settings.homeFilters || ['finalidade', 'tipo', 'neighborhood']
+      const showFinalidade = activeFilters.includes('finalidade')
+      const showTipo = activeFilters.includes('tipo')
+      const showCidade = activeFilters.includes('neighborhood')
+      const showBedrooms = activeFilters.includes('bedrooms')
+      const showPreco = activeFilters.includes('preco')
+
+      return (
+        <div className="bg-white/95 backdrop-blur-sm rounded-xl p-2.5 max-w-[280px] w-full mx-auto text-left border border-slate-200/50 mt-2 shadow-md">
+          {showFinalidade && (
+            <div className="flex mb-1.5 bg-slate-100 rounded-lg p-0.5">
+              {['venda', 'aluguel', 'lancamento'].map((f) => (
+                <span
+                  key={f}
+                  className="flex-1 py-1 text-[5.5px] font-bold rounded text-center cursor-default bg-white shadow-sm text-slate-800"
+                >
+                  {f === 'venda' ? 'Comprar' : f === 'aluguel' ? 'Alugar' : 'Lançamento'}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="grid grid-cols-12 gap-1 items-end">
+            {showTipo && (
+              <div className="col-span-4">
+                <label className="block text-[4.5px] font-bold text-slate-700 uppercase tracking-wider pl-0.5">Tipo</label>
+                <div className="w-full bg-slate-50 border border-slate-200 rounded px-1 py-0.5 text-[5px] text-slate-450 truncate">Tipo de imóvel</div>
+              </div>
+            )}
+            {showCidade && (
+              <div className="col-span-4">
+                <label className="block text-[4.5px] font-bold text-slate-700 uppercase tracking-wider pl-0.5">Cidade</label>
+                <div className="w-full bg-slate-50 border border-slate-200 rounded px-1 py-0.5 text-[5px] text-slate-450 truncate">Localização</div>
+              </div>
+            )}
+            {showBedrooms && (
+              <div className="col-span-4">
+                <label className="block text-[4.5px] font-bold text-slate-700 uppercase tracking-wider pl-0.5">Quartos</label>
+                <div className="w-full bg-slate-50 border border-slate-200 rounded px-1 py-0.5 text-[5px] text-slate-450 truncate">Dormitórios</div>
+              </div>
+            )}
+            {showPreco && (
+              <div className="col-span-4">
+                <label className="block text-[4.5px] font-bold text-slate-700 uppercase tracking-wider pl-0.5">Valor</label>
+                <div className="w-full bg-slate-50 border border-slate-200 rounded px-1 py-0.5 text-[5px] text-slate-450 truncate">Preço</div>
+              </div>
+            )}
+            <div className="col-span-4 ml-auto w-full">
+              <button className="w-full text-[5.5px] font-bold py-1 rounded flex items-center justify-center shadow border-0 cursor-default" style={{ backgroundColor: goldAccent, color: '#fff' }}>Buscar</button>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
     if (settings.heroStyle === 'split-screen') {
       return (
         <div className="flex min-h-[260px]">
           <div className="flex-1 flex flex-col justify-center p-6 pr-4 relative z-10" style={{ backgroundColor: colors.charcoal }}>
             <div className="text-[8px] uppercase tracking-widest mb-2 font-medium" style={{ color: goldAccent }}>Alto Padrão · Curitiba</div>
             <h2 className="text-sm font-bold leading-tight mb-2" style={{ color: colors.cream, fontFamily: fonts.display }}>{settings.heroTitle}</h2>
-            <p className="text-[8px] leading-relaxed mb-4 opacity-70" style={{ color: colors.cream }}>{settings.heroSubtitle}</p>
-            <div className="flex gap-1.5 bg-white/10 p-1 rounded-lg border border-white/10">
-              <input disabled placeholder="Buscar imóvel..." className="w-full text-[7px] bg-transparent p-1 px-2 border-0 outline-none" style={{ color: colors.cream }} />
-              <span className="text-[7px] font-bold px-2.5 py-1 rounded flex items-center border-0 cursor-pointer" style={{ backgroundColor: goldAccent, color: '#fff' }}>Buscar</span>
-            </div>
+            <p className="text-[8px] leading-relaxed opacity-75 mb-3" style={{ color: colors.cream }}>{settings.heroSubtitle}</p>
+            {renderPreviewHeroSearch()}
           </div>
           <div className="flex-1 relative overflow-hidden">
             <img src={heroImg} className="absolute inset-0 w-full h-full object-cover" />
@@ -1019,19 +1215,22 @@ function BuilderPage() {
 
     if (settings.heroStyle === 'video-ambient') {
       return (
-        <div className="relative min-h-[260px] flex items-center justify-center overflow-hidden">
+        <div className="relative min-h-[260px] flex items-center justify-center overflow-hidden flex-col gap-2">
           <img src={heroImg} className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${colors.charcoal}e6 0%, ${colors.charcoal}99 50%, ${colors.charcoal}66 100%)` }} />
           {/* Animated glow orbs */}
           <div className="absolute top-4 right-8 w-32 h-32 rounded-full opacity-20 blur-3xl" style={{ backgroundColor: goldAccent }} />
           <div className="absolute bottom-4 left-8 w-24 h-24 rounded-full opacity-15 blur-2xl" style={{ backgroundColor: goldAccent }} />
           
-          <div className="relative z-10 text-center px-6 py-16">
-            <div className="inline-flex items-center gap-1.5 mb-3 px-3 py-1 rounded-full text-[7px] font-bold uppercase tracking-widest" style={{ backgroundColor: `${goldAccent}30`, color: goldAccent, border: `1px solid ${goldAccent}40` }}>
+          <div className="relative z-10 text-center px-6 pt-12 pb-4">
+            <div className="inline-flex items-center gap-1.5 mb-2 px-3 py-1 rounded-full text-[7px] font-bold uppercase tracking-widest" style={{ backgroundColor: `${goldAccent}30`, color: goldAccent, border: `1px solid ${goldAccent}40` }}>
               <Sparkles size={8} /> Curadoria Premium · Exclusivo
             </div>
             <h2 className="font-bold text-xl leading-tight mb-2" style={{ color: '#fff', fontFamily: fonts.display }}>{settings.heroTitle}</h2>
             <p className="text-[9px] leading-relaxed max-w-xs mx-auto mb-1" style={{ color: 'rgba(255,255,255,0.70)' }}>{settings.heroSubtitle}</p>
+          </div>
+          <div className="relative z-10 w-full max-w-[280px] pb-4">
+            {renderPreviewHeroSearch()}
           </div>
         </div>
       )
@@ -1048,12 +1247,8 @@ function BuilderPage() {
               <h2 className="font-bold text-base leading-tight mb-2" style={{ color: '#fff', fontFamily: fonts.display }}>{settings.heroTitle}</h2>
               <p className="text-[8px] leading-relaxed opacity-75" style={{ color: '#fff' }}>{settings.heroSubtitle}</p>
             </div>
-            <div className="bg-white/95 p-2.5 rounded-xl shadow-lg">
-              <div className="text-[7px] font-bold mb-1.5" style={{ color: colors.charcoal }}>Buscar imóvel</div>
-              <div className="flex gap-1 bg-white border rounded-lg p-1 border-slate-200">
-                <input disabled placeholder="Localização ou tipo..." className="w-full text-[7px] bg-transparent p-0.5 px-1 border-0 outline-none" style={{ color: colors.charcoal }} />
-                <span className="text-[7px] font-bold px-2 py-1 rounded flex items-center shadow-md cursor-pointer hover:bg-gold-light border-0" style={{ backgroundColor: goldAccent, color: '#fff' }}>Ir</span>
-              </div>
+            <div className="w-full shrink-0">
+              {renderPreviewHeroSearch()}
             </div>
           </div>
         </div>
@@ -1066,12 +1261,8 @@ function BuilderPage() {
           <img src={heroImg} className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0" style={{ background: `linear-gradient(255deg, ${colors.charcoal}dd 0%, ${colors.charcoal}99 55%, ${colors.charcoal}22 100%)` }} />
           <div className="relative z-10 px-5 pt-16 pb-6 grid grid-cols-2 gap-4 items-center animate-fade-in">
-            <div className="bg-white/95 p-2.5 rounded-xl shadow-lg">
-              <div className="text-[7px] font-bold mb-1.5" style={{ color: colors.charcoal }}>Buscar imóvel</div>
-              <div className="flex gap-1 bg-white border rounded-lg p-1 border-slate-200">
-                <input disabled placeholder="Localização ou tipo..." className="w-full text-[7px] bg-transparent p-0.5 px-1 border-0 outline-none text-slate-800" />
-                <span className="text-[7px] font-bold px-2 py-1 rounded flex items-center shadow-md cursor-pointer hover:bg-amber-600 border-0" style={{ backgroundColor: goldAccent, color: '#fff' }}>Ir</span>
-              </div>
+            <div className="w-full shrink-0">
+              {renderPreviewHeroSearch()}
             </div>
             <div className="text-right">
               <div className="text-[7px] uppercase tracking-widest mb-2 font-medium" style={{ color: goldAccent }}>Curadoria Premium</div>
@@ -1346,16 +1537,34 @@ function BuilderPage() {
                 </div>
               )
 
-              if (blockId === 'cities') return (
-                <div key="cities" className="space-y-2 animate-fade-in">
-                  <h3 className="text-xs font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>Onde Atuamos</h3>
-                  <div className="flex gap-1.5 flex-wrap">
-                    {['Batel', 'Ecoville', 'Cabral', 'Champagnat'].map(c => (
-                      <span key={c} className="text-[7px] px-2 py-0.5 rounded-full border font-medium" style={{ backgroundColor: colors.creamDark, borderColor: colors.creamBorder, color: colors.warmGray }}>📍 {c}</span>
-                    ))}
+              if (blockId === 'cities') {
+                const defaultPreviewCities = [
+                  { name: 'Porto Feliz', state: 'SP', count: 84, image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80' },
+                  { name: 'Santana de Parnaíba', state: 'SP', count: 142, image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80' },
+                  { name: 'São Paulo', state: 'SP', count: 542, image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80' },
+                  { name: 'São Sebastião', state: 'SP', count: 78, image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&q=80' },
+                  { name: 'Ubatuba', state: 'SP', count: 63, image: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=400&q=80' },
+                ]
+                const pCities = settings.citiesList && settings.citiesList.length > 0 ? settings.citiesList : defaultPreviewCities
+
+                return (
+                  <div key="cities" className="space-y-2 animate-fade-in text-left">
+                    <h3 className="text-xs font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>Onde Atuamos</h3>
+                    <div className="grid grid-cols-5 gap-1.5">
+                      {pCities.map((c: any, idx: number) => (
+                        <div key={idx} className="relative rounded-lg overflow-hidden aspect-[3/4] border" style={{ borderColor: colors.creamBorder }}>
+                          <img src={c.image} alt={c.name} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                          <div className="absolute bottom-1 left-1 right-1 text-left">
+                            <div className="text-white font-bold text-[6px] truncate leading-none">{c.name}</div>
+                            <div className="text-white/60 text-[4.5px] mt-0.5 leading-none">{c.count} imóveis</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )
+                )
+              }
 
               if (blockId === 'testimonials') return (
                 <div key="testimonials" className="p-3 rounded-xl border animate-fade-in" style={{ backgroundColor: colors.creamDark, borderColor: colors.creamBorder }}>
@@ -1393,18 +1602,40 @@ function BuilderPage() {
 
     if (activePreviewTab === 'comprar' || activePreviewTab === 'alugar') {
       const label = activePreviewTab === 'comprar' ? 'Comprar' : 'Alugar'
+      const showSidebar = !settings.searchFiltersLayout || settings.searchFiltersLayout === 'sidebar'
+      const showTopbar = settings.searchFiltersLayout === 'topbar'
+
       return (
         <div className="flex flex-col min-h-full">
           {renderNavbar()}
-          <div className="flex-1 px-4 py-3" style={{ backgroundColor: colors.cream }}>
-            <div className="flex items-center gap-1.5 mb-3 p-2 rounded-xl border" style={{ backgroundColor: colors.creamDark, borderColor: colors.creamBorder }}>
-              <Search size={10} style={{ color: colors.warmGray }} />
-              <span className="text-[7px]" style={{ color: colors.warmGray }}>Filtrar por tipo, bairro, preço...</span>
-              <span className="ml-auto text-[7px] font-bold px-2 py-0.5 rounded border-0 cursor-pointer" style={{ backgroundColor: colors.gold, color: '#fff' }}>Buscar</span>
-            </div>
-            <div className="text-[7px] mb-2 font-medium" style={{ color: colors.warmGray }}>23 imóveis para <strong style={{ color: colors.charcoal }}>{label.toLowerCase()}</strong></div>
-            <div className="grid grid-cols-2 gap-2">
-              {[1, 2, 3, 4].map(i => renderVerticalCard({ ...mockProperty, image: `https://images.unsplash.com/photo-${['1600585154340-be6161a56a0c', '1600596542815-ffad4c1539a9', '1545324418-cc1a3fa10c00', '1560448204-e02f11c3d0e2'][i - 1]}?w=400&q=80` }, settings.cardVerticalStyle, cardTag))}
+          <div className="flex-1 px-4 py-3 animate-fade-in" style={{ backgroundColor: colors.cream }}>
+            {showTopbar && (
+              <div className="flex items-center gap-1.5 mb-3 p-1.5 rounded-xl border text-[6px]" style={{ backgroundColor: colors.creamDark, borderColor: colors.creamBorder, color: colors.warmGray }}>
+                <span>🔍 Tipo: Todos · Cidade: Todas · Bairro: Todos</span>
+                <span className="ml-auto text-[6px] font-bold px-2 py-0.5 rounded cursor-default" style={{ backgroundColor: colors.gold, color: '#fff' }}>Filtrado</span>
+              </div>
+            )}
+            <div className="text-[7px] mb-2 font-medium" style={{ color: colors.warmGray }}>12 imóveis para <strong style={{ color: colors.charcoal }}>{label.toLowerCase()}</strong></div>
+            
+            <div className="flex gap-3">
+              {/* Main content column */}
+              <div className="flex-1">
+                <div className="grid grid-cols-2 gap-2">
+                  {[1, 2, 3, 4].map(i => renderVerticalCard({ ...mockProperty, image: `https://images.unsplash.com/photo-${['1600585154340-be6161a56a0c', '1600596542815-ffad4c1539a9', '1545324418-cc1a3fa10c00', '1560448204-e02f11c3d0e2'][i - 1]}?w=400&q=80` }, settings.cardVerticalStyle, cardTag))}
+                </div>
+              </div>
+
+              {/* Sidebar filters on the right */}
+              {showSidebar && (
+                <div className="w-24 shrink-0 bg-white rounded-xl border p-2 text-left self-start" style={{ borderColor: colors.creamBorder }}>
+                  <div className="text-[6px] font-bold uppercase tracking-wider mb-2" style={{ color: colors.charcoal }}>Filtros Ativos</div>
+                  <div className="space-y-1 text-[5px] text-slate-500">
+                    <div className="bg-slate-50 p-1 rounded border">Finalidade: {label}</div>
+                    <div className="bg-slate-50 p-1 rounded border">Tipo: Apartamento</div>
+                    <div className="bg-slate-50 p-1 rounded border">Quartos: 3+</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           {renderFooter()}
@@ -1566,42 +1797,195 @@ function BuilderPage() {
 
     if (activePreviewTab === 'contato') {
       const activeFields = Object.entries(settings.formFields).filter(([_, f]: any) => f.enabled)
+      const pageStructure = settings.pageStructures?.contato || 'editorial'
+      const blocks = settings.pageBlocks?.contato || ['hero', 'form', 'text']
+      const blocksLayout = settings.pageBlocksLayout?.contato || 'stack'
+      const title = settings.contatoTitle || 'Fale Conosco'
+      const subtitle = settings.contatoSubtitle || 'Nossa equipe especializada está pronta para ajudar você.'
+      const address = settings.contatoAddress || 'Av. Batel, 1550 - Batel, Curitiba/PR'
+
+      const renderHeroSection = () => {
+        if (pageStructure === 'magazine') {
+          return (
+            <div className="relative h-20 flex items-center justify-center overflow-hidden rounded-xl border border-slate-200/50 mb-2">
+              <img src={settings.heroImage || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80"} className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
+              <div className="relative z-10 text-center px-4">
+                <h3 className="text-[10px] font-bold text-white font-display">{title}</h3>
+                <p className="text-[6px] text-white/80 max-w-[180px] mx-auto truncate">{subtitle}</p>
+              </div>
+            </div>
+          )
+        }
+
+        return (
+          <div className="text-center py-2">
+            <div className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-600 px-2 py-0.5 rounded-full text-[5.5px] font-bold uppercase tracking-wider mb-1">
+              <span>🕒 Fale Conosco</span>
+            </div>
+            <h3 className="text-sm font-bold text-slate-800" style={{ fontFamily: fonts.display, color: colors.charcoal }}>{title}</h3>
+            <p className="text-[7px] max-w-[200px] mx-auto mt-0.5" style={{ color: colors.warmGray }}>{subtitle}</p>
+          </div>
+        )
+      }
+
+      const renderQuickContacts = () => (
+        <div className="grid grid-cols-3 gap-1.5 text-center">
+          {[
+            { label: 'Telefone', val: contacts.phone },
+            { label: 'WhatsApp', val: contacts.whatsapp },
+            { label: 'E-mail', val: contacts.email },
+          ].map(c => (
+            <div key={c.label} className="bg-white rounded-lg border p-1.5 shadow-sm" style={{ borderColor: colors.creamBorder }}>
+              <div className="text-[5.5px] font-bold uppercase tracking-wider" style={{ color: colors.gold }}>{c.label}</div>
+              <div className="text-[6px] font-semibold text-slate-700 truncate mt-0.5">{c.val}</div>
+            </div>
+          ))}
+        </div>
+      )
+
+      const renderMainContactPart = () => {
+        if (pageStructure === 'centered') {
+          return (
+            <div className="space-y-2.5">
+              <div className="bg-white rounded-xl border p-3 shadow-sm text-left" style={{ borderColor: colors.creamBorder }}>
+                <div className="text-[7.5px] font-bold mb-1.5 text-center">Envie sua Mensagem</div>
+                <div className="space-y-1.5">
+                  {activeFields.map(([id, f]: any) => (
+                    <div key={id} className="space-y-0.5">
+                      <label className="text-[5.5px] font-bold uppercase tracking-wider text-slate-500 block">{f.label}</label>
+                      <input disabled placeholder={f.label} className="w-full bg-slate-50 border rounded px-1.5 py-0.5 text-[6px]" style={{ borderColor: colors.creamBorder }} />
+                    </div>
+                  ))}
+                  <button className="w-full text-[6px] font-bold py-1.5 rounded-lg border-0 cursor-pointer text-center" style={{ backgroundColor: colors.gold, color: '#fff' }}>Enviar Mensagem</button>
+                </div>
+              </div>
+              <div className="bg-white rounded-xl border p-2.5 shadow-sm text-left text-[6.5px]" style={{ borderColor: colors.creamBorder }}>
+                <div className="font-bold text-slate-700 uppercase">Endereço Principal</div>
+                <p className="text-slate-500 leading-relaxed mt-0.5">{address}</p>
+              </div>
+            </div>
+          )
+        }
+
+        // Editorial layout (two columns)
+        return (
+          <div className="grid grid-cols-5 gap-2.5 text-left">
+            <div className="col-span-3 bg-white rounded-xl border p-3 shadow-sm" style={{ borderColor: colors.creamBorder }}>
+              <div className="text-[7px] font-bold mb-1.5">Envie sua Mensagem</div>
+              <div className="space-y-1">
+                {activeFields.map(([id, f]: any) => (
+                  <div key={id} className="space-y-0.5">
+                    <label className="text-[5px] font-bold uppercase tracking-wider text-slate-500 block">{f.label}</label>
+                    <input disabled placeholder={f.label} className="w-full bg-slate-50 border rounded px-1.5 py-0.5 text-[5.5px]" style={{ borderColor: colors.creamBorder }} />
+                  </div>
+                ))}
+                <button className="w-full text-[6px] font-bold py-1.5 rounded-lg border-0 cursor-pointer text-center" style={{ backgroundColor: colors.gold, color: '#fff' }}>Enviar Mensagem</button>
+              </div>
+            </div>
+            <div className="col-span-2 space-y-2">
+              <div className="bg-white rounded-xl border p-2.5 shadow-sm text-[6px]" style={{ borderColor: colors.creamBorder }}>
+                <div className="font-bold text-slate-700 uppercase">Endereço</div>
+                <p className="text-slate-500 leading-normal mt-0.5">{address}</p>
+                <div className="mt-1.5 space-y-0.5 text-slate-450">
+                  <div>📞 {contacts.phone}</div>
+                  <div className="truncate">✉️ {contacts.email}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      const renderStats = () => {
+        const statsList = settings.sobreStats
+          ? settings.sobreStats.split(/\s*\.\s*/).map((s: string) => {
+              const commaIndex = s.indexOf(',')
+              if (commaIndex === -1) return { value: s.trim(), label: '' }
+              return {
+                value: s.substring(0, commaIndex).trim(),
+                label: s.substring(commaIndex + 1).trim()
+              }
+            })
+          : [
+              { value: '50k', label: 'de vendas' },
+              { value: '+500', label: 'clientes atendidos' },
+              { value: '+600', label: 'imóveis visitados' },
+            ]
+
+        return (
+          <div key="stats" className="py-3 px-2 rounded-xl" style={{ backgroundColor: colors.charcoal }}>
+            <div className="grid grid-cols-3 gap-1 text-center">
+              {statsList.map((s: any, idx: number) => (
+                <div key={idx}>
+                  <div className="text-[10px] font-bold" style={{ color: getContrastGold(true), fontFamily: fonts.display }}>{s.value}</div>
+                  <div className="text-[5.5px] uppercase tracking-wider text-white/50">{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      const renderPreviewBlock = (blockId: string) => {
+        switch (blockId) {
+          case 'hero':
+            return <div key="hero">{renderHeroSection()}</div>
+          case 'form':
+            return (
+              <div key="form" className="space-y-2.5">
+                {renderQuickContacts()}
+                {renderMainContactPart()}
+              </div>
+            )
+          case 'stats':
+            return renderStats()
+          case 'team':
+            return renderPageBlocks('contato') // Renders team block dynamically based on active settings
+          case 'text':
+            return (
+              <div key="text" className="grid grid-cols-2 gap-2 text-left text-[6.5px]">
+                <div className="space-y-1.5">
+                  <div className="font-bold text-slate-800 uppercase">Escritórios</div>
+                  <div className="bg-white border rounded-lg p-1.5 leading-tight" style={{ borderColor: colors.creamBorder }}>
+                    <div className="font-bold">{settings.name} — Sede</div>
+                    <div className="text-slate-500">{address}</div>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="font-bold text-slate-800 uppercase">FAQs</div>
+                  <div className="bg-white border rounded-lg p-1.5 leading-tight" style={{ borderColor: colors.creamBorder }}>
+                    <div className="font-semibold text-slate-700">Como funciona a curadoria?</div>
+                    <div className="text-slate-500 mt-0.5">Nossa equipe acompanha cada etapa do processo...</div>
+                  </div>
+                </div>
+              </div>
+            )
+          default:
+            return null
+        }
+      }
+
+      const renderAllContatoBlocks = () => {
+        if (blocksLayout === 'grid') {
+          return (
+            <div className="grid grid-cols-2 gap-3 items-start animate-fade-in">
+              {blocks.map((blockId: string) => renderPreviewBlock(blockId))}
+            </div>
+          )
+        }
+        return (
+          <div className="space-y-3 animate-fade-in">
+            {blocks.map((blockId: string) => renderPreviewBlock(blockId))}
+          </div>
+        )
+      }
+
       return (
         <div className="flex flex-col min-h-full animate-fade-in">
           {renderNavbar()}
-          <div className="flex-1 p-4 space-y-3 text-left animate-fade-in" style={{ backgroundColor: colors.cream }}>
-            <div className="text-center mb-2 animate-fade-in">
-              <h3 className="text-sm font-bold" style={{ fontFamily: fonts.display, color: colors.charcoal }}>{settings.contatoTitle}</h3>
-              <p className="text-[7px] mt-0.5" style={{ color: colors.warmGray }}>{settings.contatoSubtitle}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-3 animate-fade-in">
-              <div className="space-y-2 text-[8px]">
-                <div className="font-bold uppercase tracking-wider text-[6px]" style={{ color: colors.charcoal }}>Endereço</div>
-                <p className="leading-relaxed" style={{ color: colors.warmGray }}>{settings.contatoAddress}</p>
-                <div className="space-y-1">
-                  <p className="flex items-center gap-1" style={{ color: colors.warmGray }}><Phone size={8} /> {contacts.phone}</p>
-                  <p className="flex items-center gap-1" style={{ color: colors.warmGray }}><Mail size={8} /> {contacts.email}</p>
-                </div>
-              </div>
-              <div className="p-2.5 rounded-xl border space-y-1.5" style={{ borderColor: colors.creamBorder, backgroundColor: colors.creamDark }}>
-                {activeFields.map(([id, f]: any) => (
-                  <div key={id} className="space-y-0.5">
-                    <label className="text-[5px] font-bold uppercase tracking-wider text-slate-500 block">
-                      {f.label} {f.required && <span className="text-red-500">*</span>}
-                    </label>
-                    {id === 'message' ? (
-                      <textarea disabled placeholder="Sua mensagem..." className="w-full bg-white border rounded px-1.5 py-1 text-[7px]" rows={2} style={{ borderColor: colors.creamBorder }} />
-                    ) : (
-                      <input disabled placeholder={f.label} className="w-full bg-white border rounded px-1.5 py-1 text-[7px]" style={{ borderColor: colors.creamBorder }} />
-                    )}
-                  </div>
-                ))}
-                <button className="w-full text-[7px] font-bold py-1.5 rounded-lg border-0 cursor-pointer text-center" style={{ backgroundColor: colors.gold, color: '#fff' }}>Enviar Mensagem</button>
-              </div>
-            </div>
-            
-            {/* Dynamic visual blocks extra rendering */}
-            {renderPageBlocks('contato')}
+          <div className="flex-1 p-4 space-y-3" style={{ backgroundColor: colors.cream }}>
+            {renderAllContatoBlocks()}
           </div>
           {renderFooter()}
         </div>
@@ -1657,7 +2041,13 @@ function BuilderPage() {
         <section className="lg:col-span-6 p-5 space-y-4 border-r border-slate-200 bg-slate-50/50 overflow-y-auto">
 
           {/* 📂 CADASTRO & STATUS GERAL */}
-          <SectionAccordion icon={<Layers size={16} />} title="🏢 Cadastro & Status Geral">
+          <SectionAccordion
+            icon={<Layers size={16} />}
+            title="🏢 Cadastro & Status Geral"
+            isOpen={openSectionId === 'cadastro'}
+            onToggle={() => toggleSection('cadastro')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('cadastro') > maxUnlockedStepIndex}
+          >
             <p className="text-[10px] text-slate-500 leading-normal -mt-1">Gerencie as informações fundamentais e o status de publicação do seu site.</p>
             <div className="space-y-4 pt-2">
               <InputField 
@@ -1707,30 +2097,53 @@ function BuilderPage() {
                 </div>
               </div>
             </div>
+            {renderWizardNextButton('cadastro')}
           </SectionAccordion>
 
           {/* 0 · BASE PRESETS */}
-          <SectionAccordion icon={<Grid size={16} />} title="Bases Prontas (Estilos Completos)">
+          <SectionAccordion
+            icon={<Grid size={16} />}
+            title="Bases Prontas (Estilos Completos)"
+            isOpen={openSectionId === 'presets'}
+            onToggle={() => toggleSection('presets')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('presets') > maxUnlockedStepIndex}
+          >
             <p className="text-[10px] text-slate-500 leading-normal -mt-1">Selecione um estilo visual completo. Cores, fontes, cabeçalhos e layouts são reconfigurados automaticamente.</p>
             <div className="grid grid-cols-3 gap-2.5">
-              {STYLE_PRESETS.map(preset => (
-                <button key={preset.id} onClick={() => { setColors(preset.colors); setFonts(preset.fonts); setSettings(prev => ({ ...prev, ...preset.settings })) }}
-                  className="p-3 bg-slate-50 rounded-xl border border-slate-200 hover:border-amber-400 hover:bg-amber-50/40 text-center transition-all flex flex-col items-center gap-1.5 group cursor-pointer">
-                  <div className="flex gap-1">
-                    <span className="w-4 h-4 rounded-full border border-slate-200" style={{ backgroundColor: preset.colors.cream }} />
-                    <span className="w-4 h-4 rounded-full border border-slate-200" style={{ backgroundColor: preset.colors.charcoal }} />
-                    <span className="w-4 h-4 rounded-full border border-slate-200" style={{ backgroundColor: preset.colors.gold }} />
-                  </div>
-                  <span className="text-[9px] font-bold text-slate-700 group-hover:text-amber-600 transition-colors uppercase tracking-wider">{preset.name}</span>
-                  <span className="text-[7px] text-slate-400 leading-tight text-center">{preset.desc.substring(0, 40)}</span>
-                  <span className="text-[8px] bg-amber-500/10 text-amber-600 px-2 py-0.5 rounded font-bold tracking-widest uppercase">Aplicar</span>
-                </button>
-              ))}
+              {STYLE_PRESETS.map(preset => {
+                const isSelected = colors.cream === preset.colors.cream && colors.gold === preset.colors.gold && fonts.sans === preset.fonts.sans && fonts.display === preset.fonts.display;
+                return (
+                  <button key={preset.id} onClick={() => { setColors(preset.colors); setFonts(preset.fonts); setSettings(prev => ({ ...prev, ...preset.settings } as any)) }}
+                    className={`p-3 rounded-xl border text-center transition-all flex flex-col items-center gap-1.5 group cursor-pointer ${
+                      isSelected 
+                        ? 'border-amber-400 bg-amber-50/50 ring-2 ring-amber-400 shadow-md scale-[1.02]' 
+                        : 'bg-slate-50 border-slate-200 hover:border-amber-400 hover:bg-amber-50/40'
+                    }`}>
+                    <div className="flex gap-1">
+                      <span className="w-4 h-4 rounded-full border border-slate-200" style={{ backgroundColor: preset.colors.cream }} />
+                      <span className="w-4 h-4 rounded-full border border-slate-200" style={{ backgroundColor: preset.colors.charcoal }} />
+                      <span className="w-4 h-4 rounded-full border border-slate-200" style={{ backgroundColor: preset.colors.gold }} />
+                    </div>
+                    <span className={`text-[9px] font-bold ${isSelected ? 'text-amber-700' : 'text-slate-700'} group-hover:text-amber-600 transition-colors uppercase tracking-wider`}>{preset.name}</span>
+                    <span className="text-[7px] text-slate-400 leading-tight text-center">{preset.desc.substring(0, 40)}</span>
+                    <span className={`text-[8px] px-2 py-0.5 rounded font-bold tracking-widest uppercase ${isSelected ? 'bg-amber-500 text-slate-950' : 'bg-amber-500/10 text-amber-600 hover:bg-amber-500 hover:text-slate-950'}`}>
+                      {isSelected ? '✓ Ativo' : 'Aplicar'}
+                    </span>
+                  </button>
+                )
+              })}
             </div>
+            {renderWizardNextButton('presets')}
           </SectionAccordion>
 
           {/* 1 · CORES */}
-          <SectionAccordion icon={<Palette size={16} />} title="Identidade Visual & Cores">
+          <SectionAccordion
+            icon={<Palette size={16} />}
+            title="Identidade Visual & Cores"
+            isOpen={openSectionId === 'colors'}
+            onToggle={() => toggleSection('colors')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('colors') > maxUnlockedStepIndex}
+          >
             <div className="space-y-3">
               <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500">Paletas Temáticas</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -1750,26 +2163,41 @@ function BuilderPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-slate-100 pt-4">
-              {[
-                { label: 'Base (Cream)', key: 'cream' as const },
-                { label: 'Dark (Charcoal)', key: 'charcoal' as const },
-                { label: 'Accent (Gold)', key: 'gold' as const },
-                { label: 'Secundário', key: 'creamDark' as const },
-              ].map(({ label, key }) => (
-                <div key={key}>
-                  <label className="block text-[8px] font-bold uppercase tracking-wider text-slate-500 mb-1">{label}</label>
-                  <div className="flex gap-1.5 items-center">
-                    <input type="color" value={colors[key]} onChange={e => setColors({ ...colors, [key]: e.target.value })} className="w-7 h-7 border-0 rounded cursor-pointer bg-transparent" />
-                    <span className="text-[8px] font-mono text-slate-500 uppercase">{colors[key]}</span>
+            <div className="border-t border-slate-100 pt-4">
+              <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-3">Ajuste Fino de Cores (Explicação Detalhada)</label>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { label: 'Fundo Base (Cream)', desc: 'Fundo principal claro do portal', key: 'cream' as const },
+                  { label: 'Fundo Escuro (Charcoal)', desc: 'Seções escuras e textos principais', key: 'charcoal' as const },
+                  { label: 'Destaque Luxo (Gold)', desc: 'Botões principais (CTA) e destaques', key: 'gold' as const },
+                  { label: 'Fundo Auxiliar (Cream Dark)', desc: 'Cards de imóveis e blocos alternativos', key: 'creamDark' as const },
+                  { label: 'Borda Suave (Cream Border)', desc: 'Divisões e contornos de inputs', key: 'creamBorder' as const },
+                  { label: 'Texto Secundário (Warm Gray)', desc: 'Legendas, descrições e subtextos', key: 'warmGray' as const },
+                  { label: 'Texto em Fundo Escuro (Charcoal Light)', desc: 'Textos secundários em áreas escuras', key: 'charcoalLight' as const },
+                  { label: 'Destaque Hover (Gold Light)', desc: 'Efeito de passar o mouse em CTAs', key: 'goldLight' as const },
+                ].map(({ label, desc, key }) => (
+                  <div key={key} className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1">
+                    <div className="text-[8px] font-bold text-slate-700 uppercase tracking-wider">{label}</div>
+                    <p className="text-[6.5px] text-slate-400 leading-tight mb-1.5">{desc}</p>
+                    <div className="flex gap-1.5 items-center">
+                      <input type="color" value={colors[key]} onChange={e => setColors({ ...colors, [key]: e.target.value })} className="w-6 h-6 border-0 rounded cursor-pointer bg-transparent" />
+                      <span className="text-[8px] font-mono text-slate-500 uppercase font-semibold">{colors[key]}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
+            {renderWizardNextButton('colors')}
           </SectionAccordion>
 
           {/* 1.5 · UPLOADS */}
-          <SectionAccordion icon={<Upload size={16} />} title="Uploads de Marca & Hero">
+          <SectionAccordion
+            icon={<Upload size={16} />}
+            title="Uploads de Marca & Hero"
+            isOpen={openSectionId === 'uploads'}
+            onToggle={() => toggleSection('uploads')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('uploads') > maxUnlockedStepIndex}
+          >
             <p className="text-[10px] text-slate-500 -mt-1 leading-normal">Arquivos processados localmente. As imagens aparecem imediatamente no preview ao lado.</p>
             <div className="grid grid-cols-2 gap-3">
               {([
@@ -1796,10 +2224,17 @@ function BuilderPage() {
                 </div>
               ))}
             </div>
+            {renderWizardNextButton('uploads')}
           </SectionAccordion>
 
           {/* 2 · TIPOGRAFIA */}
-          <SectionAccordion icon={<Type size={16} />} title="Tipografia & Fontes">
+          <SectionAccordion
+            icon={<Type size={16} />}
+            title="Tipografia & Fontes"
+            isOpen={openSectionId === 'fonts'}
+            onToggle={() => toggleSection('fonts')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('fonts') > maxUnlockedStepIndex}
+          >
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Fonte Primária (Texto)</label>
@@ -1843,11 +2278,17 @@ function BuilderPage() {
                 })}
               </div>
             </div>
+            {renderWizardNextButton('fonts')}
           </SectionAccordion>
 
           {/* 3 · CARDS */}
-          <SectionAccordion icon={<Grid size={16} />} title="Design dos Cards & Tags">
-
+          <SectionAccordion
+            icon={<Grid size={16} />}
+            title="Design dos Cards & Tags"
+            isOpen={openSectionId === 'cards'}
+            onToggle={() => toggleSection('cards')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('cards') > maxUnlockedStepIndex}
+          >
             {/* Tag selector */}
             <div>
               <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">Tag do Card (uma por vez)</label>
@@ -1955,15 +2396,23 @@ function BuilderPage() {
                 ))}
               </div>
             </div>
+            {renderWizardNextButton('cards')}
           </SectionAccordion>
 
           {/* 4 · HERO STYLES */}
-          <SectionAccordion icon={<Layout size={16} />} title="Tipos de Hero (4 opções)">
-            <p className="text-[10px] text-slate-500 -mt-1">Clique para selecionar. A mudança é imediatamente visível no preview.</p>
+          <SectionAccordion
+            icon={<Layout size={16} />}
+            title="Tipos de Hero (6 opções)"
+            isOpen={openSectionId === 'hero'}
+            onToggle={() => toggleSection('hero')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('hero') > maxUnlockedStepIndex}
+          >
+            <p className="text-[10px] text-slate-500 -mt-1">Clique para selecionar o layout do banner principal. A mudança é imediatamente visível no preview.</p>
             <div className="grid grid-cols-2 gap-2.5">
               {[
                 { id: 'search-centered', label: 'Busca Centralizada', desc: 'Hero fullscreen com busca no centro', emoji: '🎯' },
-                { id: 'search-left', label: 'Busca à Esquerda', desc: 'Split text+search com imagem de fundo', emoji: '◀️' },
+                { id: 'search-right', label: 'Busca à Direita', desc: 'Busca no lado direito e texto no esquerdo', emoji: '▶️' },
+                { id: 'search-left', label: 'Busca à Esquerda', desc: 'Busca no lado esquerdo e texto no direito', emoji: '◀️' },
                 { id: 'minimalist', label: 'Minimalista', desc: 'Sem busca, imagem sutil, foco no título', emoji: '✦' },
                 { id: 'split-screen', label: 'Tela Dividida', desc: 'Metade escura com texto, metade imagem', emoji: '▌▐' },
                 { id: 'video-ambient', label: 'Ambiente Premium', desc: 'Overlay imersivo com efeito de brilho', emoji: '✨' },
@@ -1983,20 +2432,20 @@ function BuilderPage() {
               <TextareaField label="Subtítulo / Chamada" value={settings.heroSubtitle} onChange={v => setSettings(prev => ({ ...prev, heroSubtitle: v }))} placeholder="Descrição do hero..." />
             </div>
 
-            {/* homeFilters config */}
+            {/* homeFilters config with descriptive labels */}
             <div className="border-t border-slate-100 pt-3">
-              <label className="block text-[8px] font-bold uppercase tracking-wider text-slate-500 mb-2">Filtros de Busca Ativos no Hero</label>
+              <label className="block text-[8px] font-bold uppercase tracking-wider text-slate-500 mb-2">Filtros de Busca Ativos no Hero (Legenda dos Campos)</label>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { id: 'finalidade', label: 'Finalidade (Comprar/Alugar)' },
-                  { id: 'tipo', label: 'Tipo de Imóvel' },
-                  { id: 'neighborhood', label: 'Cidade ou Bairro' },
-                  { id: 'bedrooms', label: 'Quartos' },
-                  { id: 'preco', label: 'Faixa de Preço' },
+                  { id: 'finalidade', label: 'Finalidade', desc: 'Abas "Comprar" / "Alugar"' },
+                  { id: 'tipo', label: 'Tipo de Imóvel', desc: 'Dropdown de tipos catalogados' },
+                  { id: 'neighborhood', label: 'Cidade ou Bairro', desc: 'Dropdown de locais de atuação' },
+                  { id: 'bedrooms', label: 'Quartos', desc: 'Seletor de quantidade de quartos' },
+                  { id: 'preco', label: 'Faixa de Preço', desc: 'Dropdown de faixas de valores' },
                 ].map(filter => {
                   const isChecked = settings.homeFilters?.includes(filter.id) ?? true;
                   return (
-                    <label key={filter.id} className="flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-white cursor-pointer hover:bg-slate-50 select-none">
+                    <label key={filter.id} className="flex items-start gap-2 p-2.5 rounded-xl border border-slate-200 bg-white cursor-pointer hover:bg-slate-50 select-none">
                       <input 
                         type="checkbox" 
                         checked={isChecked} 
@@ -2010,9 +2459,12 @@ function BuilderPage() {
                             return { ...prev, homeFilters: next };
                           });
                         }}
-                        className="rounded text-amber-500 focus:ring-amber-400"
+                        className="rounded text-amber-500 focus:ring-amber-400 mt-0.5"
                       />
-                      <span className="text-[10px] text-slate-700 font-semibold">{filter.label}</span>
+                      <div className="flex-1">
+                        <div className="text-[9px] text-slate-700 font-bold">{filter.label}</div>
+                        <p className="text-[7.5px] text-slate-400 leading-tight mt-0.5">{filter.desc}</p>
+                      </div>
                     </label>
                   )
                 })}
@@ -2022,7 +2474,7 @@ function BuilderPage() {
             <div className="grid grid-cols-3 gap-3 border-t border-slate-100 pt-3">
               {[
                 { label: 'Preset Header', key: 'headerStyle', options: [{ v: 'minimal', l: 'Minimal' }, { v: 'transparent', l: 'Transparente' }, { v: 'classic', l: 'Clássico' }] },
-                { label: 'Preset Footer', key: 'footerStyle', options: [{ v: 'simple', l: 'Simples' }, { v: 'detailed', l: 'Detalhado' }, { v: 'minimal', l: 'Mínimo' }, { v: 'modern-newsletter', l: 'Modern Newsletter' }, { v: 'column-grid', l: 'Grade de Colunas' }] },
+                { label: 'Preset Footer', key: 'footerStyle', options: [{ v: 'simple', l: 'Simples' }, { v: 'detailed', l: 'Detalhado' }, { v: 'minimal', l: 'Mínimo' }, { v: 'modern-newsletter', l: 'Modern Newsletter' }, { v: 'column-grid', l: 'Grade de Colunas' }, { v: 'brand-glow', l: 'Brand Glow' }] },
                 { label: 'Galeria de Imóvel', key: 'detailGalleryStyle', options: [{ v: 'slider', l: 'Slider' }, { v: 'mosaic', l: 'Mosaico' }, { v: 'grid', l: 'Grid' }] },
               ].map(field => (
                 <div key={field.key}>
@@ -2033,10 +2485,17 @@ function BuilderPage() {
                 </div>
               ))}
             </div>
+            {renderWizardNextButton('hero')}
           </SectionAccordion>
 
           {/* 5 · SUBPÁGINAS */}
-          <SectionAccordion icon={<Globe size={16} />} title="Sub-Páginas do Site">
+          <SectionAccordion
+            icon={<Globe size={16} />}
+            title="Sub-Páginas do Site"
+            isOpen={openSectionId === 'subpages'}
+            onToggle={() => toggleSection('subpages')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('subpages') > maxUnlockedStepIndex}
+          >
             <p className="text-[10px] text-slate-500 -mt-1 leading-normal">Ative ou desative cada página. As páginas ativas aparecem no menu de navegação e nas abas do preview.</p>
             <div className="space-y-2">
               {SUBPAGES.map(page => (
@@ -2056,18 +2515,25 @@ function BuilderPage() {
                 </div>
               ))}
             </div>
+            {renderWizardNextButton('subpages')}
           </SectionAccordion>
 
           {/* 6 · ESTRUTURAS DE PÁGINAS EXTRAS */}
-          <SectionAccordion icon={<FileText size={16} />} title="Estrutura & Blocos das Páginas">
+          <SectionAccordion
+            icon={<FileText size={16} />}
+            title="Estrutura & Blocos das Páginas"
+            isOpen={openSectionId === 'structures'}
+            onToggle={() => toggleSection('structures')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('structures') > maxUnlockedStepIndex}
+          >
             {(['sobre', 'anunciar', 'contato'] as const).map(pageKey => {
               const pageInfo = SUBPAGES.find(p => p.id === pageKey)!
               const isEnabled = settings.enabledPages[pageKey]
               return (
-                <div key={pageKey} className={`rounded-xl border p-3 space-y-3 ${isEnabled ? 'border-slate-200' : 'border-dashed border-slate-200 opacity-50'}`}>
+                <div key={pageKey} className={`rounded-xl border p-3 space-y-3 ${isEnabled ? 'border-slate-200 bg-white' : 'border-dashed border-slate-200 opacity-50 bg-slate-50'}`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span>{pageInfo.emoji}</span>
+                      <span className="text-sm">{pageInfo.emoji}</span>
                       <span className="text-xs font-bold text-slate-700">Página {pageInfo.label}</span>
                       {!isEnabled && <span className="text-[7px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded font-mono">Inativa</span>}
                     </div>
@@ -2089,30 +2555,123 @@ function BuilderPage() {
                     </div>
                   </div>
 
-                  {/* Blocos */}
+                  {/* Blocos Visíveis Selector */}
                   {['sobre', 'anunciar', 'contato'].includes(pageKey) && (
-                    <div>
-                      <label className="block text-[8px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Blocos Visíveis</label>
-                      <div className="flex flex-wrap gap-1.5">
-                        {PAGE_BLOCKS_OPTIONS.map(block => {
-                          const isOn = (settings.pageBlocks[pageKey] || []).includes(block.id)
-                          return (
-                            <button key={block.id} type="button" onClick={() => togglePageBlock(pageKey, block.id)}
-                              className={`px-2 py-1 rounded-full text-[8px] font-medium border cursor-pointer transition-all ${isOn ? 'border-amber-400 bg-amber-50 text-amber-700' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'}`}>
-                              {isOn ? '✓ ' : ''}{block.label}
-                            </button>
-                          )
-                        })}
+                    <div className="space-y-3 pt-1 border-t border-slate-100">
+                      <div>
+                        <label className="block text-[8px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Blocos Visíveis</label>
+                        <div className="flex flex-wrap gap-1.5">
+                          {PAGE_BLOCKS_OPTIONS.map(block => {
+                            const isOn = (settings.pageBlocks[pageKey] || []).includes(block.id)
+                            return (
+                              <button key={block.id} type="button" onClick={() => togglePageBlock(pageKey, block.id)}
+                                className={`px-2 py-1 rounded-full text-[8px] font-medium border cursor-pointer transition-all ${isOn ? 'border-amber-400 bg-amber-50 text-amber-700 font-semibold' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'}`}>
+                                {isOn ? '✓ ' : ''}{block.label}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Reordenador & Grade/Stack Selector (Requirement 12) */}
+                      <div className="space-y-2 pt-2 border-t border-slate-100">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[8px] font-bold uppercase tracking-wider text-slate-500">Sequenciamento & Visualização</label>
+                          <div className="flex border rounded-lg bg-slate-100 p-0.5 border-slate-200">
+                            {[
+                              { id: 'stack', label: 'Empilhado' },
+                              { id: 'grid', label: 'Grade' }
+                            ].map(l => {
+                              const isSel = (settings.pageBlocksLayout?.[pageKey] || 'stack') === l.id
+                              return (
+                                <button
+                                  key={l.id}
+                                  type="button"
+                                  onClick={() => setSettings(prev => ({
+                                    ...prev,
+                                    pageBlocksLayout: { ...prev.pageBlocksLayout, [pageKey]: l.id as any }
+                                  }))}
+                                  className={`px-2 py-0.5 rounded text-[8px] font-bold cursor-pointer transition-all border-0 ${isSel ? 'bg-white text-amber-800 shadow-sm' : 'text-slate-500 hover:text-slate-800 bg-transparent'}`}
+                                >
+                                  {l.label}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </div>
+
+                        {/* List Reorderer */}
+                        <div className="space-y-1 bg-slate-50 p-2 rounded-xl border border-slate-155">
+                          {(settings.pageBlocks[pageKey] || []).map((blockId, bIdx) => {
+                            const blockOpt = PAGE_BLOCKS_OPTIONS.find(bo => bo.id === blockId)
+                            if (!blockOpt) return null
+                            return (
+                              <div key={blockId} className="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 text-[10px] group hover:border-amber-250 transition-colors">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[8px] font-bold text-slate-400 font-mono">#{bIdx + 1}</span>
+                                  <span className="font-semibold text-slate-700">{blockOpt.label}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    type="button"
+                                    disabled={bIdx === 0}
+                                    onClick={() => {
+                                      setSettings(prev => {
+                                        const nextBlocks = [...(prev.pageBlocks[pageKey] || [])]
+                                        const temp = nextBlocks[bIdx]
+                                        nextBlocks[bIdx] = nextBlocks[bIdx - 1]
+                                        nextBlocks[bIdx - 1] = temp
+                                        return {
+                                          ...prev,
+                                          pageBlocks: { ...prev.pageBlocks, [pageKey]: nextBlocks }
+                                        }
+                                      })
+                                    }}
+                                    className="text-slate-400 hover:text-amber-500 disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed border-0 bg-transparent p-0.5"
+                                  >
+                                    <ChevronUp size={10} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    disabled={bIdx === (settings.pageBlocks[pageKey] || []).length - 1}
+                                    onClick={() => {
+                                      setSettings(prev => {
+                                        const nextBlocks = [...(prev.pageBlocks[pageKey] || [])]
+                                        const temp = nextBlocks[bIdx]
+                                        nextBlocks[bIdx] = nextBlocks[bIdx + 1]
+                                        nextBlocks[bIdx + 1] = temp
+                                        return {
+                                          ...prev,
+                                          pageBlocks: { ...prev.pageBlocks, [pageKey]: nextBlocks }
+                                        }
+                                      })
+                                    }}
+                                    className="text-slate-400 hover:text-amber-500 disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed border-0 bg-transparent p-0.5"
+                                  >
+                                    <ChevronDown size={10} />
+                                  </button>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
                       </div>
                     </div>
                   )}
                 </div>
               )
             })}
+            {renderWizardNextButton('structures')}
           </SectionAccordion>
 
           {/* 7 · BLOCOS DA HOME */}
-          <SectionAccordion icon={<Layers size={16} />} title="Blocos da Home (Adicionar / Remover)">
+          <SectionAccordion
+            icon={<Layers size={16} />}
+            title="Blocos da Home (Adicionar / Remover)"
+            isOpen={openSectionId === 'homeblocks'}
+            onToggle={() => toggleSection('homeblocks')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('homeblocks') > maxUnlockedStepIndex}
+          >
             <p className="text-[10px] text-slate-500 -mt-1">Arraste com as setas para reordenar. Clique × para remover. Use "+ Adicionar" para incluir blocos.</p>
 
             {/* Active blocks list */}
@@ -2138,7 +2697,7 @@ function BuilderPage() {
             </div>
 
             {/* Add blocks */}
-            <div>
+            <div className="pt-2 border-t border-slate-100 mt-2">
               <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">+ Adicionar Blocos Disponíveis</label>
               <div className="grid grid-cols-2 gap-1.5">
                 {ALL_HOME_BLOCKS.filter(b => !settings.homeBlocks.includes(b.id)).map(block => (
@@ -2155,10 +2714,130 @@ function BuilderPage() {
                 )}
               </div>
             </div>
+            {renderWizardNextButton('homeblocks')}
+          </SectionAccordion>
+
+          {/* 7.5 · CIDADES (ONDE ATUAMOS) */}
+          <SectionAccordion
+            icon={<Globe size={16} />}
+            title="🏙️ Onde Atuamos (Cidades & Bairros)"
+            isOpen={openSectionId === 'cities'}
+            onToggle={() => toggleSection('cities')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('cities') > maxUnlockedStepIndex}
+          >
+            <p className="text-[10px] text-slate-500 -mt-1 leading-normal">
+              Gerencie os locais de atuação exibidos no carrossel de cidades/bairros na Home. Adicione imagens de alta qualidade (presets Unsplash sugeridos).
+            </p>
+            
+            <div className="space-y-3 pt-2">
+              {/* Adicionar nova cidade */}
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                <div className="text-[9px] font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1">
+                  <Plus size={11} className="text-amber-500" /> Adicionar Novo Local
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <input
+                    type="text"
+                    id="new-city-name"
+                    placeholder="Cidade/Bairro"
+                    className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-750 focus:outline-none focus:border-amber-400"
+                  />
+                  <input
+                    type="text"
+                    id="new-city-state"
+                    placeholder="UF (Ex: SP)"
+                    maxLength={2}
+                    className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-750 focus:outline-none focus:border-amber-400 uppercase"
+                  />
+                  <input
+                    type="number"
+                    id="new-city-count"
+                    placeholder="Nº Imóveis"
+                    className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-750 focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+                <input
+                  type="text"
+                  id="new-city-image"
+                  placeholder="URL da Imagem (Unsplash)"
+                  className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-750 focus:outline-none focus:border-amber-400"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nameInput = document.getElementById('new-city-name') as HTMLInputElement;
+                    const stateInput = document.getElementById('new-city-state') as HTMLInputElement;
+                    const countInput = document.getElementById('new-city-count') as HTMLInputElement;
+                    const imageInput = document.getElementById('new-city-image') as HTMLInputElement;
+                    
+                    if (!nameInput.value.trim()) {
+                      showToast('Digite o nome da cidade ou bairro.', 'error');
+                      return;
+                    }
+                    const newCity = {
+                      name: nameInput.value.trim(),
+                      state: (stateInput.value || 'PR').trim().toUpperCase(),
+                      count: parseInt(countInput.value) || 0,
+                      image: imageInput.value.trim() || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80',
+                    };
+                    
+                    setSettings(prev => ({
+                      ...prev,
+                      citiesList: [...(prev.citiesList || []), newCity]
+                    }));
+                    
+                    nameInput.value = '';
+                    stateInput.value = '';
+                    countInput.value = '';
+                    imageInput.value = '';
+                    showToast('Local de atuação adicionado!', 'success');
+                  }}
+                  className="w-full py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[9px] font-bold transition-all cursor-pointer border-0 shadow-sm"
+                >
+                  Confirmar Adicionar
+                </button>
+              </div>
+
+              {/* Lista das cidades cadastradas */}
+              <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                {(settings.citiesList || []).map((city, idx) => (
+                  <div key={idx} className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col gap-2 relative hover:border-amber-250 transition-colors">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSettings(prev => ({
+                          ...prev,
+                          citiesList: (prev.citiesList || []).filter((_, i) => i !== idx)
+                        }))
+                        showToast('Local de atuação removido!', 'success')
+                      }}
+                      className="absolute top-2 right-2 text-slate-400 hover:text-rose-500 cursor-pointer border-0 bg-transparent"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                    
+                    <div className="flex gap-2 items-center text-left">
+                      <img src={city.image} alt={city.name} className="w-12 h-12 rounded-lg object-cover" />
+                      <div>
+                        <div className="text-[11px] font-bold text-slate-800">{city.name} - {city.state}</div>
+                        <div className="text-[9px] text-slate-500">{city.count} imóveis</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {renderWizardNextButton('cities')}
           </SectionAccordion>
 
           {/* 8 · EQUIPE */}
-          <SectionAccordion icon={<Users size={16} />} title="Equipe & Corretores" defaultOpen={false}>
+          <SectionAccordion
+            icon={<Users size={16} />}
+            title="Equipe & Corretores"
+            isOpen={openSectionId === 'team'}
+            onToggle={() => toggleSection('team')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('team') > maxUnlockedStepIndex}
+          >
             <div className="border-b border-slate-100 pb-4 mb-4">
               <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Estilo Visual do Bloco de Equipe</label>
               <div className="grid grid-cols-4 gap-1.5">
@@ -2214,14 +2893,14 @@ function BuilderPage() {
             </div>
 
             <div className="flex justify-end mb-3">
-              <button onClick={addTeamMember} className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-md shadow-amber-500/10">
+              <button onClick={addTeamMember} className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-md shadow-amber-500/10 border-0">
                 <Plus size={12} /> Adicionar Membro
               </button>
             </div>
             <div className="space-y-3">
               {settings.team.map((member: any, idx: number) => (
                 <div key={idx} className="bg-slate-50 p-4 rounded-xl border border-slate-200 relative space-y-3 hover:border-amber-200 transition-colors">
-                  <button onClick={() => removeTeamMember(idx)} className="absolute top-3 right-3 text-slate-400 hover:text-red-500 p-1 cursor-pointer transition-colors"><Trash2 size={13} /></button>
+                  <button onClick={() => removeTeamMember(idx)} className="absolute top-3 right-3 text-slate-400 hover:text-red-500 p-1 cursor-pointer transition-colors border-0 bg-transparent"><Trash2 size={13} /></button>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full border border-slate-200 overflow-hidden bg-white flex items-center justify-center shrink-0">
                       {member.photo ? <img src={member.photo} className="w-full h-full object-cover" onError={e => { (e.target as HTMLElement).style.display = 'none' }} /> : <Users size={16} className="text-slate-400" />}
@@ -2235,12 +2914,12 @@ function BuilderPage() {
                     {[{ label: 'Nome', key: 'name', ph: 'Nome completo' }, { label: 'Cargo', key: 'role', ph: 'Especialidade' }, { label: 'WhatsApp', key: 'phone', ph: '(41) 99999-9999' }, { label: 'E-mail', key: 'email', ph: 'nome@lumina.com.br' }].map(f => (
                       <div key={f.key}>
                         <label className="block text-[7px] font-bold uppercase tracking-wider text-slate-500 mb-1">{f.label}</label>
-                        <input type="text" value={member[f.key] || ''} onChange={e => updateTeamMember(idx, f.key, e.target.value)} placeholder={f.ph} className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-700 focus:outline-none focus:border-amber-400" />
+                        <input type="text" value={member[f.key] || ''} onChange={e => updateTeamMember(idx, f.key, e.target.value)} placeholder={f.ph} className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-705 focus:outline-none focus:border-amber-400" />
                       </div>
                     ))}
                     <div className="col-span-2">
                       <label className="block text-[7px] font-bold uppercase tracking-wider text-slate-500 mb-1">Foto (URL)</label>
-                      <input type="text" value={member.photo || ''} onChange={e => updateTeamMember(idx, 'photo', e.target.value)} placeholder="https://..." className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-700 focus:outline-none focus:border-amber-400" />
+                      <input type="text" value={member.photo || ''} onChange={e => updateTeamMember(idx, 'photo', e.target.value)} placeholder="https://..." className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] text-slate-705 focus:outline-none focus:border-amber-400" />
                     </div>
                   </div>
                 </div>
@@ -2251,10 +2930,17 @@ function BuilderPage() {
                 </div>
               )}
             </div>
+            {renderWizardNextButton('team')}
           </SectionAccordion>
 
           {/* 9 · CONTEÚDO DAS PÁGINAS */}
-          <SectionAccordion icon={<FileText size={16} />} title="Conteúdo: Sobre, Anunciar & Contato" defaultOpen={false}>
+          <SectionAccordion
+            icon={<FileText size={16} />}
+            title="Conteúdo: Sobre, Anunciar & Contato"
+            isOpen={openSectionId === 'content'}
+            onToggle={() => toggleSection('content')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('content') > maxUnlockedStepIndex}
+          >
             {/* Sobre */}
             <div className="space-y-3">
               <div className="flex items-center gap-2 pb-1">
@@ -2264,7 +2950,7 @@ function BuilderPage() {
               <InputField label="Título Principal" value={settings.sobreTitle} onChange={v => setSettings(prev => ({ ...prev, sobreTitle: v }))} placeholder="Ex: Nossa História" />
               <TextareaField label="Texto Institucional" value={settings.sobreText} onChange={v => setSettings(prev => ({ ...prev, sobreText: v }))} placeholder="História da empresa..." rows={4} />
               <InputField label="Imagem (URL)" value={settings.sobreImage} onChange={v => setSettings(prev => ({ ...prev, sobreImage: v }))} placeholder="https://..." />
-              <InputField label='Estatísticas (separadas por " · ")' value={settings.sobreStats} onChange={v => setSettings(prev => ({ ...prev, sobreStats: v }))} placeholder="10 Anos · 500+ Clientes" />
+              <InputField label='Estatísticas (separadas por " . " e " , ")' value={settings.sobreStats} onChange={v => setSettings(prev => ({ ...prev, sobreStats: v }))} placeholder="50k, de vendas . +500, clientes atendidos" />
             </div>
 
             {/* Anunciar */}
@@ -2298,10 +2984,17 @@ function BuilderPage() {
                 <InputField label="CRECI" value={contacts.creci} onChange={v => setContacts(prev => ({ ...prev, creci: v }))} placeholder="CRECI-PR 00.000-F" />
               </div>
             </div>
+            {renderWizardNextButton('content')}
           </SectionAccordion>
 
           {/* 10 · CAMPOS DO FORMULÁRIO */}
-          <SectionAccordion icon={<FileText size={16} />} title="📋 Campos do Formulário" defaultOpen={false}>
+          <SectionAccordion
+            icon={<FileText size={16} />}
+            title="📋 Campos do Formulário"
+            isOpen={openSectionId === 'fields'}
+            onToggle={() => toggleSection('fields')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('fields') > maxUnlockedStepIndex}
+          >
             <p className="text-[10px] text-slate-500 -mt-1 leading-normal">Selecione quais campos exibir no formulário de contato/anunciar e se são obrigatórios.</p>
             <div className="space-y-3 pt-2">
               {Object.entries(settings.formFields).map(([key, field]: [string, any]) => (
@@ -2352,10 +3045,17 @@ function BuilderPage() {
                 </div>
               ))}
             </div>
+            {renderWizardNextButton('fields')}
           </SectionAccordion>
 
           {/* 11 · APONTAMENTO DNS E DOMÍNIO */}
-          <SectionAccordion icon={<Globe size={16} />} title="🌐 Domínio & DNS" defaultOpen={false}>
+          <SectionAccordion
+            icon={<Globe size={16} />}
+            title="🌐 Domínio & DNS"
+            isOpen={openSectionId === 'domain'}
+            onToggle={() => toggleSection('domain')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('domain') > maxUnlockedStepIndex}
+          >
             <p className="text-[10px] text-slate-500 -mt-1 leading-normal">Configure seus domínios personalizados e faça o apontamento DNS para colocar seu portal no ar.</p>
             
             <div className="space-y-4 pt-2">
@@ -2520,6 +3220,335 @@ function BuilderPage() {
             </div>
           </SectionAccordion>
 
+          {/* 12 · SEO & RASTREAMENTO */}
+          <SectionAccordion
+            icon={<Search size={16} />}
+            title="⚙️ SEO & Rastreamento"
+            isOpen={openSectionId === 'seo'}
+            onToggle={() => toggleSection('seo')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('seo') > maxUnlockedStepIndex}
+          >
+            <p className="text-[10px] text-slate-500 -mt-1 leading-normal font-sans">Configure tags de SEO, códigos de rastreamento do Google, Facebook, RD Station e outras plataformas.</p>
+            
+            <div className="space-y-4 pt-2">
+              <div className="border-b border-slate-100 pb-3 space-y-3">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">SEO Básico</div>
+                <InputField 
+                  label="Palavras-chave (Keywords - Separadas por vírgula)" 
+                  value={settings.seoKeywords || ''} 
+                  onChange={v => setSettings(prev => ({ ...prev, seoKeywords: v }))} 
+                  placeholder="Ex: imoveis luxo, cobertura batel, curitiba imobiliaria" 
+                />
+                <InputField 
+                  label="Google Site Verification (Código)" 
+                  value={settings.googleSiteVerificationId || ''} 
+                  onChange={v => setSettings(prev => ({ ...prev, googleSiteVerificationId: v }))} 
+                  placeholder="Ex: google-site-verification-code" 
+                />
+              </div>
+
+              <div className="border-b border-slate-100 pb-3 space-y-3">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Google Analytics & Tag Manager</div>
+                <InputField 
+                  label="ID do Google Analytics (GA4)" 
+                  value={settings.googleAnalyticsId || ''} 
+                  onChange={v => setSettings(prev => ({ ...prev, googleAnalyticsId: v }))} 
+                  placeholder="Ex: G-XXXXXXXXXX" 
+                />
+                <InputField 
+                  label="ID do Google Tag Manager (GTM)" 
+                  value={settings.googleTagManagerId || ''} 
+                  onChange={v => setSettings(prev => ({ ...prev, googleTagManagerId: v }))} 
+                  placeholder="Ex: GTM-XXXXXXX" 
+                />
+              </div>
+
+              <div className="border-b border-slate-100 pb-3 space-y-3">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Google Ads (AdWords)</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <InputField 
+                    label="ID de Conversão Ads" 
+                    value={settings.googleAdsConversionId || ''} 
+                    onChange={v => setSettings(prev => ({ ...prev, googleAdsConversionId: v }))} 
+                    placeholder="Ex: AW-123456789" 
+                  />
+                  <InputField 
+                    label="Rótulo de Conversão Ads" 
+                    value={settings.googleAdsConversionLabel || ''} 
+                    onChange={v => setSettings(prev => ({ ...prev, googleAdsConversionLabel: v }))} 
+                    placeholder="Ex: abcdEFGH-12345" 
+                  />
+                </div>
+                <InputField 
+                  label="ID de Remarketing Ads" 
+                  value={settings.googleAdsRemarketingId || ''} 
+                  onChange={v => setSettings(prev => ({ ...prev, googleAdsRemarketingId: v }))} 
+                  placeholder="Ex: AW-123456789" 
+                />
+              </div>
+
+              <div className="border-b border-slate-100 pb-3 space-y-3">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Facebook Meta Pixel & API</div>
+                <InputField 
+                  label="ID do Facebook Pixel" 
+                  value={settings.facebookPixelId || ''} 
+                  onChange={v => setSettings(prev => ({ ...prev, facebookPixelId: v }))} 
+                  placeholder="Ex: 123456789012345" 
+                />
+                <InputField 
+                  label="Token de API de Conversões" 
+                  value={settings.facebookConversionToken || ''} 
+                  onChange={v => setSettings(prev => ({ ...prev, facebookConversionToken: v }))} 
+                  placeholder="Ex: EAAG..." 
+                />
+              </div>
+
+              <div className="border-b border-slate-100 pb-3 space-y-3">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">RD Station & Pinterest</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <InputField 
+                    label="Token RD Station" 
+                    value={settings.rdStationToken || ''} 
+                    onChange={v => setSettings(prev => ({ ...prev, rdStationToken: v }))} 
+                    placeholder="Ex: token_rd_station" 
+                  />
+                  <InputField 
+                    label="Tag ID do Pinterest" 
+                    value={settings.pinterestTagId || ''} 
+                    onChange={v => setSettings(prev => ({ ...prev, pinterestTagId: v }))} 
+                    placeholder="Ex: 987654321" 
+                  />
+                </div>
+                <TextareaField 
+                  label="Script de Monitoramento RD Station" 
+                  value={settings.rdStationScript || ''} 
+                  onChange={v => setSettings(prev => ({ ...prev, rdStationScript: v }))} 
+                  placeholder="Cole aqui o script fornecido pelo RD Station..." 
+                  rows={3}
+                />
+              </div>
+
+              <div className="border-b border-slate-100 pb-3 space-y-3">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">LinkedIn & TikTok Ads</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <InputField 
+                    label="Partner ID LinkedIn" 
+                    value={settings.linkedinInsightId || ''} 
+                    onChange={v => setSettings(prev => ({ ...prev, linkedinInsightId: v }))} 
+                    placeholder="Ex: 123456" 
+                  />
+                  <InputField 
+                    label="TikTok Pixel ID" 
+                    value={settings.tiktokPixelId || ''} 
+                    onChange={v => setSettings(prev => ({ ...prev, tiktokPixelId: v }))} 
+                    placeholder="Ex: CXXXXXXXXXXXXXXXX" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Scripts Customizados (Avançado)</div>
+                <TextareaField 
+                  label="Scripts Customizados no Head (<head>)" 
+                  value={settings.customScriptsHead || ''} 
+                  onChange={v => setSettings(prev => ({ ...prev, customScriptsHead: v }))} 
+                  placeholder="Cole aqui tags <script>, <meta> ou <link> adicionais para o cabeçalho..." 
+                  rows={4}
+                />
+                <TextareaField 
+                  label="Scripts Customizados no Rodapé (Final do <body>)" 
+                  value={settings.customScriptsBody || ''} 
+                  onChange={v => setSettings(prev => ({ ...prev, customScriptsBody: v }))} 
+                  placeholder="Cole aqui scripts adicionais a serem injetados no final do body..." 
+                  rows={4}
+                />
+              </div>
+            </div>
+            {renderWizardNextButton('seo')}
+          </SectionAccordion>
+
+          {/* 13 · CSS PERSONALIZADO */}
+          <SectionAccordion
+            icon={<Code size={16} />}
+            title="🎨 CSS Personalizado"
+            isOpen={openSectionId === 'css'}
+            onToggle={() => toggleSection('css')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('css') > maxUnlockedStepIndex}
+          >
+            <p className="text-[10px] text-slate-500 -mt-1 leading-normal font-sans">Adicione estilos CSS customizados para personalizar fontes, cores, botões ou outros componentes visuais de forma avançada.</p>
+            
+            <div className="space-y-4 pt-2">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[10px] text-amber-800 leading-normal font-sans">
+                💡 <strong>Dica de Customização:</strong> Os estilos adicionados aqui serão aplicados em tempo real na janela de preview ao lado e estarão no ar quando salvar.
+                <br />
+                <code className="block mt-1.5 bg-amber-100 p-1.5 rounded font-mono text-[9px] text-slate-800 leading-normal">
+                  .btn-gold &#123; background-color: #f59e0b !important; &#125;<br />
+                  .bg-cream &#123; background-color: #fafaf9 !important; &#125;
+                </code>
+              </div>
+
+              <div>
+                <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5 font-mono">Regras CSS</label>
+                <textarea
+                  value={settings.customCss || ''}
+                  onChange={e => setSettings(prev => ({ ...prev, customCss: e.target.value }))}
+                  placeholder="/* Digite seu CSS personalizado aqui... */"
+                  rows={12}
+                  className="w-full bg-slate-900 border border-slate-800 rounded-lg p-3 text-xs font-mono text-emerald-400 focus:outline-none focus:border-amber-400 transition-colors resize-y shadow-inner leading-relaxed"
+                />
+              </div>
+            </div>
+            {renderWizardNextButton('css')}
+          </SectionAccordion>
+
+          {/* 14 · IMPORTAR / EXPORTAR CONFIGURAÇÃO V8 (AWS S3 JSON) */}
+          <SectionAccordion
+            icon={<Download size={16} />}
+            title="📥 Importar / Exportar V8 (S3 JSON)"
+            isOpen={openSectionId === 's3config'}
+            onToggle={() => toggleSection('s3config')}
+            isDisabled={isFirstTime && SECTIONS_ORDER.indexOf('s3config') > maxUnlockedStepIndex}
+          >
+            <p className="text-[10px] text-slate-500 -mt-1 leading-normal font-sans">
+              Importe ou exporte toda a estrutura do portal no formato JSON compatível com o esquema AWS S3 V2 da Microsistec.
+            </p>
+
+            <div className="space-y-4 pt-2 font-sans">
+              {/* Seção Exportar */}
+              <div className="border-b border-slate-100 pb-4 space-y-3">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Exportar Configuração</div>
+                <p className="text-[9px] text-slate-500 leading-normal">
+                  Copie o código JSON abaixo ou faça o download para salvar em seu computador e fazer o upload no S3.
+                </p>
+                <div className="relative group">
+                  <textarea
+                    readOnly
+                    value={JSON.stringify(mapBuilderToThemeS3(settings, colors, fonts, contacts), null, 2)}
+                    rows={8}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-[9px] font-mono text-slate-600 focus:outline-none select-all"
+                  />
+                  <div className="absolute right-2.5 bottom-2.5 flex gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const json = JSON.stringify(mapBuilderToThemeS3(settings, colors, fonts, contacts), null, 2);
+                        navigator.clipboard.writeText(json);
+                        showToast('JSON copiado com sucesso!', 'success');
+                      }}
+                      className="px-2 py-1 bg-slate-800 text-white rounded text-[8px] font-bold cursor-pointer hover:bg-slate-700 border-0"
+                    >
+                      Copiar JSON
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const json = JSON.stringify(mapBuilderToThemeS3(settings, colors, fonts, contacts), null, 2);
+                        const blob = new Blob([json], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `theme-${settings.slug || 'lumina'}-v2.json`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        showToast('Download iniciado!', 'success');
+                      }}
+                      className="px-2 py-1 bg-amber-500 text-slate-950 rounded text-[8px] font-bold cursor-pointer hover:bg-amber-400 border-0"
+                    >
+                      Baixar Arquivo
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Seção Importar */}
+              <div className="space-y-3">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Importar Configuração</div>
+                <p className="text-[9px] text-slate-500 leading-normal">
+                  Selecione um arquivo `.json` ou cole o código de configuração no formato AWS S3 V2 para carregar instantaneamente.
+                </p>
+
+                {/* Upload de arquivo */}
+                <div className="flex items-center justify-center w-full">
+                  <label className="flex flex-col items-center justify-center w-full h-20 border-2 border-slate-200 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 hover:border-amber-400 transition-colors">
+                    <div className="flex flex-col items-center justify-center pt-3 pb-3">
+                      <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Carregar arquivo .json</p>
+                      <p className="text-[8px] text-slate-400 mt-0.5">Arraste ou clique para selecionar</p>
+                    </div>
+                    <input 
+                      type="file" 
+                      accept=".json" 
+                      className="hidden" 
+                      onChange={e => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = (evt) => {
+                          const text = evt.target?.result as string;
+                          try {
+                            const parsed = JSON.parse(text);
+                            if (parsed.schemaVersion !== 2) {
+                              showToast('Esquema de arquivo inválido. Deve ser AWS S3 V2.', 'error');
+                              return;
+                            }
+                            const mapped = mapThemeS3ToBuilder(parsed, defaultTenant);
+                            setSettings(prev => ({ ...prev, ...mapped.settings }));
+                            setColors(mapped.colors);
+                            setFonts(mapped.fonts);
+                            setContacts(mapped.contacts);
+                            setS3JsonInput(text);
+                            showToast('Configuração importada com sucesso!', 'success');
+                          } catch (err) {
+                            showToast('Erro ao ler arquivo JSON.', 'error');
+                          }
+                        };
+                        reader.readAsText(file);
+                      }}
+                    />
+                  </label>
+                </div>
+
+                {/* Paste Textarea */}
+                <div>
+                  <label className="block text-[8px] font-bold uppercase tracking-wider text-slate-400 mb-1">Ou cole o JSON aqui</label>
+                  <textarea
+                    value={s3JsonInput}
+                    onChange={e => setS3JsonInput(e.target.value)}
+                    placeholder='{ "schemaVersion": 2, "design": { ... } }'
+                    rows={6}
+                    className="w-full bg-white border border-slate-200 rounded-lg p-2 text-[9px] font-mono text-slate-700 focus:outline-none focus:border-amber-400"
+                  />
+                  <button
+                    type="button"
+                    disabled={!s3JsonInput.trim()}
+                    onClick={() => {
+                      try {
+                        const parsed = JSON.parse(s3JsonInput);
+                        if (parsed.schemaVersion !== 2) {
+                          showToast('Esquema inválido. Verifique se possui "schemaVersion": 2', 'error');
+                          return;
+                        }
+                        const mapped = mapThemeS3ToBuilder(parsed, defaultTenant);
+                        setSettings(prev => ({ ...prev, ...mapped.settings }));
+                        setColors(mapped.colors);
+                        setFonts(mapped.fonts);
+                        setContacts(mapped.contacts);
+                        showToast('Configuração importada com sucesso!', 'success');
+                      } catch (err) {
+                        showToast('JSON inválido ou corrompido.', 'error');
+                      }
+                    }}
+                    className="w-full mt-2 py-2 bg-slate-800 text-white rounded-lg text-[9px] font-bold cursor-pointer hover:bg-slate-700 border-0 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  >
+                    Importar Texto Copiado
+                  </button>
+                </div>
+              </div>
+            </div>
+            {renderWizardNextButton('s3config')}
+          </SectionAccordion>
+
         </section>
 
         {/* ── RIGHT COLUMN: Preview ─────────────────────────────────────────── */}
@@ -2600,7 +3629,7 @@ function BuilderPage() {
                 </div>
 
                 {/* Phone screen content */}
-                <div className="flex-1 overflow-y-auto bg-white relative animate-fade-in" style={previewStyles}>
+                <div className="flex-1 overflow-y-auto bg-white relative animate-fade-in preview-container" style={previewStyles}>
                   <div style={{ fontFamily: fonts.sans }} className="pb-10 min-h-full">
                     {renderPreviewPage()}
                   </div>
@@ -2626,7 +3655,7 @@ function BuilderPage() {
                 </div>
 
                 {/* Tablet screen content */}
-                <div className="flex-1 overflow-y-auto bg-white relative animate-fade-in" style={previewStyles}>
+                <div className="flex-1 overflow-y-auto bg-white relative animate-fade-in preview-container" style={previewStyles}>
                   <div style={{ fontFamily: fonts.sans }} className="pb-10 min-h-full">
                     {renderPreviewPage()}
                   </div>
@@ -2639,12 +3668,16 @@ function BuilderPage() {
               /* Desktop (Default full layout) */
               <div
                 style={previewStyles}
-                className="w-full bg-white rounded-xl overflow-hidden shadow-xl border border-slate-200 transition-all duration-300"
+                className="w-full bg-white rounded-xl overflow-hidden shadow-xl border border-slate-200 transition-all duration-300 preview-container"
               >
                 <div style={{ fontFamily: fonts.sans }}>
                   {renderPreviewPage()}
                 </div>
               </div>
+            )}
+            {/* Scoped CSS Injector for Editor Preview */}
+            {settings.customCss && (
+              <style dangerouslySetInnerHTML={{ __html: `@scope (.preview-container) { ${settings.customCss} }` }} />
             )}
           </div>
         </section>
